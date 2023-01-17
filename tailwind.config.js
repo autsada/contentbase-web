@@ -2,7 +2,11 @@
 module.exports = {
   content: ["./app/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["Overpass", "Arial", "sans-serif"],
+      },
+    },
   },
   plugins: [],
 }
