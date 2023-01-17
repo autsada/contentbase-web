@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useCatch,
 } from "@remix-run/react"
 import styles from "./styles/app.css"
 
@@ -57,6 +58,33 @@ export default function App() {
   return (
     <Document>
       <Outlet />
+    </Document>
+  )
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return (
+    <Document title={`${caught.status} ${caught.statusText}`}>
+      <div>
+        <h1>
+          {caught.status} {caught.statusText}
+        </h1>
+      </div>
+    </Document>
+  )
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return (
+    <Document title="Oops! ...something not right">
+      <div>
+        <h1>App Error</h1>
+        <pre>{error.message}</pre>
+      </div>
     </Document>
   )
 }
