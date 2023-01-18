@@ -44,7 +44,7 @@ function Document({
   openConnectModal?: (open: boolean) => void
 }) {
   return (
-    <html lang="en" className="text-neutral-600 bg-white font-sans">
+    <html lang="en" className="text-textRegular bg-white font-sans">
       <head>
         <Meta />
         <title>{title}</title>
@@ -62,7 +62,7 @@ function Document({
 }
 
 export default function App() {
-  const [isOpen, setIsOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(true)
 
   const openConnectModal = React.useCallback((open: boolean) => {
     setIsOpen(open)

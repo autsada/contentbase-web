@@ -17,16 +17,16 @@ export function Nav({ openConnectModal }: Props) {
       <div className="h-full flex items-center justify-center flex-grow bg-neutral-100 rounded-3xl px-1">
         Search
       </div>
-      <div className="h-full flex items-center justify-center px-2 w-max">
+      <div className="h-full flex items-center justify-center px-4 w-max">
         <button
-          className="btn-orange text-xs rounded-3xl py-1 px-2"
+          className="btn-orange text-xs rounded-3xl w-max h-6 px-3"
           onClick={
             openConnectModal
               ? openConnectModal.bind(undefined, true)
               : undefined
           }
         >
-          Connect Wallet
+          Connect
         </button>
       </div>
     </div>
