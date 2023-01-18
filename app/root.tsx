@@ -10,8 +10,6 @@ import {
   useCatch,
 } from "@remix-run/react"
 
-import { Nav } from "./components/nav"
-import { Connect } from "./components/connect"
 import styles from "./styles/app.css"
 
 export const meta: MetaFunction = () => {
@@ -37,11 +35,9 @@ export function links() {
 function Document({
   children,
   title = `ContentBase Video Sharing Platform`,
-  openConnectModal,
 }: {
   children: React.ReactNode
   title?: string
-  openConnectModal?: (open: boolean) => void
 }) {
   return (
     <html lang="en" className="text-textRegular bg-white font-sans">
@@ -51,7 +47,6 @@ function Document({
         <Links />
       </head>
       <body>
-        <Nav openConnectModal={openConnectModal} />
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -62,16 +57,9 @@ function Document({
 }
 
 export default function App() {
-  const [isOpen, setIsOpen] = React.useState(true)
-
-  const openConnectModal = React.useCallback((open: boolean) => {
-    setIsOpen(open)
-  }, [])
-
   return (
-    <Document openConnectModal={openConnectModal}>
+    <Document>
       <Outlet />
-      {isOpen && <Connect setOpen={openConnectModal} />}
     </Document>
   )
 }
