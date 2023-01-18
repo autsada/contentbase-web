@@ -1,17 +1,21 @@
+import { Link } from "@remix-run/react"
+
 interface Props {
   openConnectModal?: (open: boolean) => void
 }
 
 export function Nav({ openConnectModal }: Props) {
   return (
-    <div className="w-screen flex h-14 items-center py-[10px] border-b border-neutral-200 shadow-neutral-300">
+    <div className="w-screen flex h-16 items-center py-[10px] border-b border-neutral-200 shadow-neutral-300">
       <div className="h-full flex items-center justify-center w-[80px]">
         <div className="w-[45px] h-[45px] rounded-full overflow-hidden">
-          <img
-            src="/logo.png"
-            alt="CTB"
-            className="w-full h-full object-cover"
-          />
+          <Link to="/">
+            <img
+              src="/logo.png"
+              alt="CTB"
+              className="w-full h-full object-cover"
+            />
+          </Link>
         </div>
       </div>
       <div className="h-full flex items-center justify-center flex-grow bg-neutral-100 rounded-3xl px-1">

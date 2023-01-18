@@ -750,6 +750,10 @@ button {
   height: 1.5rem;
 }
 
+.h-16 {
+  height: 4rem;
+}
+
 .w-\[120px\] {
   width: 120px;
 }
@@ -940,6 +944,10 @@ button {
 
 .opacity-95 {
   opacity: 0.95;
+}
+
+.opacity-\[98\%\] {
+  opacity: 98%;
 }
 
 .shadow-md {
