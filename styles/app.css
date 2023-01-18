@@ -159,18 +159,18 @@
 
 @layer components {
   .btn-light {
-    @apply py-2 px-4 bg-neutral-200 font-semibold rounded-md shadow-md hover:bg-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-100 focus:ring-opacity-75;
+    @apply py-2 px-4 bg-neutral-200 font-semibold rounded-md shadow-md hover:bg-neutral-300 focus:outline-none focus:ring-[1px] focus:ring-neutral-100 focus:ring-opacity-75;
   }
 
   .btn-dark {
-    @apply py-2 px-4 bg-neutral-700 text-white font-semibold rounded-md shadow-md hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-opacity-75;
+    @apply py-2 px-4 bg-neutral-700 text-white font-semibold rounded-md shadow-md hover:bg-neutral-800 focus:outline-none focus:ring-[1px] focus:ring-neutral-600 focus:ring-opacity-75;
   }
 
   .btn-blue {
-    @apply py-2 px-4 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+    @apply py-2 px-4 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-[1px] focus:ring-blue-400 focus:ring-opacity-75;
   }
 
   .btn-orange {
-    @apply py-2 px-4 bg-orange-500 text-white font-semibold rounded-md shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-75;
+    @apply py-2 px-4 bg-orange-500 text-white font-semibold rounded-md shadow-md hover:bg-orange-600 focus:outline-none focus:ring-[1px] focus:ring-orange-400 focus:ring-opacity-75;
   }
 }
