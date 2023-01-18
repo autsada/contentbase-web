@@ -1,4 +1,4 @@
-export default function Index() {
+export default function Home() {
   return (
     <div className="text-center">
       <h1>H1 Header</h1>
