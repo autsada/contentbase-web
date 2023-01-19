@@ -1,5 +1,6 @@
 import React from "react"
-import type { MetaFunction } from "@remix-run/node"
+import type { MetaFunction, LoaderArgs } from "@remix-run/node"
+import { json } from "@remix-run/node"
 import {
   Links,
   LiveReload,
@@ -8,8 +9,12 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
+  useLoaderData,
 } from "@remix-run/react"
+import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 
+import { getSession, commitSession } from "./server/session.server"
+import type { LoaderData } from "./types"
 import styles from "./styles/app.css"
 
 export const meta: MetaFunction = () => {
@@ -32,6 +37,17 @@ export function links() {
   return [{ rel: "stylesheet", href: styles }]
 }
 
+export async function loader({ request }: LoaderArgs) {
+  const session = await getSession(request.headers.get("cookie"))
+  const token = createAuthenticityToken(session)
+  return json<LoaderData>(
+    {
+      csrf: token,
+    },
+    { headers: { "Set-Cookie": await commitSession(session) } }
+  )
+}
+
 function Document({
   children,
   title = `ContentBase Video Sharing Platform`,
@@ -39,20 +55,25 @@ function Document({
   children: React.ReactNode
   title?: string
 }) {
+  const loaderData = useLoaderData<LoaderData>()
+  const csrf = loaderData?.csrf
+
   return (
-    <html lang="en" className="text-textRegular bg-white font-sans">
-      <head>
-        <Meta />
-        <title>{title}</title>
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-      </body>
-    </html>
+    <AuthenticityTokenProvider token={csrf || ""}>
+      <html lang="en" className="text-textRegular bg-white font-sans">
+        <head>
+          <Meta />
+          <title>{title}</title>
+          <Links />
+        </head>
+        <body>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </html>
+    </AuthenticityTokenProvider>
   )
 }
 

@@ -738,8 +738,8 @@ button {
   height: 1px;
 }
 
-.h-14 {
-  height: 3.5rem;
+.h-16 {
+  height: 4rem;
 }
 
 .h-\[45px\] {
@@ -748,10 +748,6 @@ button {
 
 .h-6 {
   height: 1.5rem;
-}
-
-.h-16 {
-  height: 4rem;
 }
 
 .w-\[120px\] {
@@ -852,6 +848,10 @@ button {
      object-fit: cover;
 }
 
+.p-5 {
+  padding: 1.25rem;
+}
+
 .py-16 {
   padding-top: 4rem;
   padding-bottom: 4rem;
@@ -915,6 +915,11 @@ button {
   line-height: 1rem;
 }
 
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
 .font-extralight {
   font-weight: 200;
 }
@@ -942,10 +947,6 @@ button {
   color: rgb(115 115 115 / var(--tw-text-opacity));
 }
 
-.opacity-95 {
-  opacity: 0.95;
-}
-
 .opacity-\[98\%\] {
   opacity: 98%;
 }
@@ -959,6 +960,10 @@ button {
 .shadow-neutral-300 {
   --tw-shadow-color: #d4d4d4;
   --tw-shadow: var(--tw-shadow-colored);
+}
+
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
 @font-face {
