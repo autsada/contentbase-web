@@ -5,8 +5,10 @@ import {
   ClientOnly,
   useAuthenticityToken,
   verifyAuthenticityToken,
+  useHydrated,
 } from "remix-utils"
 import { useFetcher } from "@remix-run/react"
+import type { Country } from "react-phone-number-input"
 
 import { PhoneAuth } from "~/components/auth/phone-auth"
 import {
@@ -56,7 +58,7 @@ export async function action({ request }: ActionArgs) {
         ({ types }: { types: string }) => types.includes("country")
       )
       const [country] = locationData?.address_components
-      const countryShort = country?.short_name as string
+      const countryShort = country?.short_name as Country
 
       return json({ country: countryShort })
     } else {
@@ -77,9 +79,30 @@ export default function Phone() {
   const fetcher = useFetcher<typeof action>()
   const country = fetcher?.data?.country
   const csrf = useAuthenticityToken()
+  const hydrated = useHydrated()
 
-  const requestCountryName = React.useCallback((lat: number, lng: number) => {
-    fetcher.submit({ lat: `${lat}`, lng: `${lng}`, csrf }, { method: "post" })
+  React.useEffect(() => {
+    let render = true
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords
+        if (typeof latitude === "number" && typeof longitude === "number") {
+          if (render)
+            fetcher.submit(
+              { lat: `${latitude}`, lng: `${longitude}`, csrf },
+              { method: "post" }
+            )
+        }
+      },
+      (error) => {
+        console.warn(error.message)
+      }
+    )
+
+    return () => {
+      render = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -87,8 +110,8 @@ export default function Phone() {
     <ClientOnly>
       {() => (
         <div className="p-5 text-center">
-          <h6 className="text-lg mb-5">Connect with Phone Number</h6>
-          <PhoneAuth submit={requestCountryName} country={country} />
+          <h6 className="text-xl mb-5">Connect with Phone Number</h6>
+          <PhoneAuth country={country} hydrated={hydrated} />
         </div>
       )}
     </ClientOnly>

@@ -16,6 +16,7 @@ import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 import { getSession, commitSession } from "./server/session.server"
 import type { LoaderData } from "./types"
 import styles from "./styles/app.css"
+import "react-phone-number-input/style.css"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
