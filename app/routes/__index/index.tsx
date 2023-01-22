@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="text-center">
+    <div className="page">
       <h1>H1 Header</h1>
       <h2>H2 Header</h2>
       <h3>H3 Header</h3>

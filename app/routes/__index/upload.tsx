@@ -1,5 +1,5 @@
 import React from "react"
 
 export default function Upload() {
-  return <div>Upload</div>
+  return <div className="page">Upload</div>
 }

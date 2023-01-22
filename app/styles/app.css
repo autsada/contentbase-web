@@ -792,6 +792,34 @@ button {
   height: 100vh;
 }
 
+.h-\[50px\] {
+  height: 50px;
+}
+
+.h-\[80px\] {
+  height: 80px;
+}
+
+.h-\[70px\] {
+  height: 70px;
+}
+
+.h-\[65px\] {
+  height: 65px;
+}
+
+.h-\[60px\] {
+  height: 60px;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
+.h-4\/5 {
+  height: 80%;
+}
+
 .w-\[120px\] {
   width: 120px;
 }
@@ -823,6 +851,22 @@ button {
 
 .w-20 {
   width: 5rem;
+}
+
+.w-\[50px\] {
+  width: 50px;
+}
+
+.w-\[70px\] {
+  width: 70px;
+}
+
+.w-\[65px\] {
+  width: 65px;
+}
+
+.w-\[60px\] {
+  width: 60px;
 }
 
 .max-w-\[360px\] {
@@ -952,6 +996,11 @@ button {
 .bg-blue-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+}
+
+.bg-neutral-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(250 250 250 / var(--tw-bg-opacity));
 }
 
 .object-cover {

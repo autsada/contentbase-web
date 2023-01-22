@@ -1,5 +1,5 @@
 import React from "react"
 
 export default function Email() {
-  return <div>Email</div>
+  return <div className="page">Email</div>
 }
