@@ -1,31 +1,24 @@
 import React from "react"
 import { Form } from "@remix-run/react"
 import PhoneInput, {
-  getCountries,
   getCountryCallingCode,
   isValidPhoneNumber,
 } from "react-phone-number-input/input"
 import _ from "lodash"
-import en from "react-phone-number-input/locale/en.json"
 import { IoCaretDownOutline } from "react-icons/io5"
 import type { Country } from "react-phone-number-input"
 import OtpInput from "./opt-input"
+import { getCountryNames } from "~/utils"
 
 interface Props {
   country?: Country | null
   hydrated: boolean
 }
 
-function Option({ value }: { value: Country | "" }) {
-  if (!value)
-    return (
-      <option value={value} className="font-normal text-textRegular text-base">
-        {en.ZZ}
-      </option>
-    )
+function Option({ value, name }: { value: Country | ""; name: string }) {
   return (
     <option value={value} className="font-normal text-textRegular text-base">
-      {en[value]}
+      {name}
     </option>
   )
 }
@@ -77,12 +70,15 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
               onChange={handleChange}
               className="w-full bg-transparent text-lg appearance-none focus:outline-none"
             >
-              <Option value="" />
-              {getCountries().map((c) => (
-                <Option key={c} value={c} />
+              <Option value="" name="International" />
+              {getCountryNames().map((c) => (
+                <Option key={c.code} value={c.code as Country} name={c.name} />
               ))}
             </select>
-            <IoCaretDownOutline color="#525252" className="absolute right-4" />
+            <IoCaretDownOutline
+              color="#525252"
+              className="absolute -z-10 right-4"
+            />
           </div>
           <div className="h-12 px-2 flex items-center">
             <div className="h-full w-20 border-r border-borderLight flex justify-center items-center">

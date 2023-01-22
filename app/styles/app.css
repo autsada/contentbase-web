@@ -700,6 +700,14 @@ button {
   right: 1rem;
 }
 
+.z-10 {
+  z-index: 10;
+}
+
+.-z-10 {
+  z-index: -10;
+}
+
 .my-0 {
   margin-top: 0px;
   margin-bottom: 0px;
