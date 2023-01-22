@@ -30,13 +30,14 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
   const [otp, setOtp] = React.useState("")
   const [otpSent, setOptSent] = React.useState(false)
 
+  // If default country is available, set it to the state
   React.useEffect(() => {
     if (defaultCountry) {
       setCountry(defaultCountry)
     }
   }, [defaultCountry])
 
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
+  function handleSelectCountry(e: React.ChangeEvent<HTMLSelectElement>) {
     setCountry(e.target.value as Country)
   }
 
@@ -45,16 +46,17 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
     []
   )
 
+  function validatePhoneNumber(phoneNumber: string, country: Country) {
+    const valid = isValidPhoneNumber(phoneNumber, country)
+    setIsValid(valid)
+  }
+
+  // Validate phone number
   React.useEffect(() => {
     if (phoneNumber && country) {
       validatePhoneNumberDebounce(phoneNumber, country)
     }
   }, [phoneNumber, country, validatePhoneNumberDebounce])
-
-  function validatePhoneNumber(phoneNumber: string, country: Country) {
-    const valid = isValidPhoneNumber(phoneNumber, country)
-    setIsValid(valid)
-  }
 
   function handleOtpChange(value: string) {
     setOtp(value)
@@ -64,13 +66,17 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
     <div className="px-5">
       <Form>
         <div className="border border-borderLightGray rounded-lg">
-          <div className="relative px-4 h-10 border-b border-borderLightGray flex items-center">
+          <div
+            className={`relative px-4 h-10 flex items-center ${
+              country ? "border-b border-borderLightGray" : ""
+            }`}
+          >
             <select
               value={country}
-              onChange={handleChange}
+              onChange={handleSelectCountry}
               className="w-full bg-transparent text-lg appearance-none focus:outline-none"
             >
-              <Option value="" name="International" />
+              <Option value="" name="Select country" />
               {getCountryNames().map((c) => (
                 <Option key={c.code} value={c.code as Country} name={c.name} />
               ))}
@@ -80,44 +86,55 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
               className="absolute -z-10 right-4"
             />
           </div>
-          <div className="h-12 px-2 flex items-center">
-            <div className="h-full w-20 border-r border-borderLight flex justify-center items-center">
-              <p className="text-lg text-textRegular">
-                {country && `+${getCountryCallingCode(country)}`}
-              </p>
+          {country && (
+            <div className="h-12 px-2 flex items-center">
+              <div className="h-full w-20 border-r border-borderLight flex justify-center items-center">
+                <p className="text-lg text-textRegular">
+                  {country && `+${getCountryCallingCode(country)}`}
+                </p>
+              </div>
+              <div className="h-full flex-grow">
+                <PhoneInput
+                  country={country}
+                  value={phoneNumber}
+                  onChange={setPhoneNumber}
+                  defaultCountry={!defaultCountry ? undefined : defaultCountry}
+                  placeholder="Enter your phone number"
+                  className="w-full h-full leading-12 p-0 pl-4 appearance-none font-normal text-textRegular text-lg placeholder:font-extralight placeholder:text-textExtraLight focus:outline-none"
+                />
+              </div>
             </div>
-            <div className="h-full flex-grow">
-              <PhoneInput
-                country={country}
-                value={phoneNumber}
-                onChange={setPhoneNumber}
-                defaultCountry={!defaultCountry ? undefined : defaultCountry}
-                placeholder="Enter your phone number"
-                className="w-full h-full leading-12 p-0 pl-4 appearance-none font-normal text-textRegular text-lg placeholder:font-extralight placeholder:text-textExtraLight focus:outline-none"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-10">
-          {!otpSent ? (
-            <p className="self-center font-extralight text-textExtraLight mb-2">
-              We will send you 6-digits verification code
+          )}
+          {country && phoneNumber && (
+            <p className="absolute font-thin text-sm text-red-600">
+              {!isValid ? "Invalid number" : <>&nbsp;</>}
             </p>
-          ) : (
-            <OtpInput value={otp} valueLen={6} onChange={handleOtpChange} />
           )}
         </div>
 
-        <button
-          type="submit"
-          className={`btn-dark w-full mt-10 h-12 rounded-full text-lg ${
-            !isValid ? "opacity-10" : "opacity-100"
-          }`}
-          disabled={!hydrated || !isValid}
-        >
-          Get Code
-        </button>
+        {phoneNumber && (
+          <>
+            <div className="mt-10">
+              {!otpSent ? (
+                <p className="self-center font-extralight text-textExtraLight mb-2">
+                  We will send you 6-digits verification code
+                </p>
+              ) : (
+                <OtpInput value={otp} valueLen={6} onChange={handleOtpChange} />
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className={`btn-dark w-full mt-10 h-12 rounded-full text-lg ${
+                !isValid ? "opacity-10" : "opacity-100"
+              }`}
+              disabled={!hydrated || !isValid}
+            >
+              Get Code
+            </button>
+          </>
+        )}
       </Form>
     </div>
   )
