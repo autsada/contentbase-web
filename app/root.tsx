@@ -17,6 +17,7 @@ import { getSession, commitSession } from "./server/session.server"
 import type { LoaderData } from "./types"
 import styles from "./styles/app.css"
 import "react-phone-number-input/style.css"
+import { Nav } from "./components/nav"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -81,6 +82,7 @@ function Document({
 export default function App() {
   return (
     <Document>
+      <Nav />
       <Outlet />
     </Document>
   )
