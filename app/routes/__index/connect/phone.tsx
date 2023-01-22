@@ -84,11 +84,13 @@ export default function Phone() {
   React.useEffect(() => {
     let render = true
 
+    // Get user current location
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords
         if (typeof latitude === "number" && typeof longitude === "number") {
           if (render)
+            // Send current lat,lng to the server to get country.
             fetcher.submit(
               { lat: `${latitude}`, lng: `${longitude}`, csrf },
               { method: "post" }
@@ -107,13 +109,11 @@ export default function Phone() {
   }, [])
 
   return (
-    <ClientOnly>
-      {() => (
-        <div className="p-5 text-center">
-          <h6 className="text-xl mb-5">Connect with Phone Number</h6>
-          <PhoneAuth country={country} hydrated={hydrated} />
-        </div>
-      )}
-    </ClientOnly>
+    <div className="page py-10">
+      <h6 className="text-2xl mb-10">Connect with Phone Number</h6>
+      <ClientOnly fallback={<p>Loading...</p>}>
+        {() => <PhoneAuth country={country} hydrated={hydrated} />}
+      </ClientOnly>
+    </div>
   )
 }

@@ -158,6 +158,10 @@
 }
 
 @layer components {
+  .page {
+    @apply w-screen h-screen text-center;
+  }
+
   .btn-light {
     @apply bg-neutral-100 font-semibold rounded-md shadow-md hover:bg-neutral-200 focus:outline-none;
   }
