@@ -1,6 +1,6 @@
 import { Outlet } from "@remix-run/react"
 
-export default function Connect() {
+export default function Profile() {
   return (
     <>
       <Outlet />

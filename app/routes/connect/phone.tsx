@@ -7,7 +7,7 @@ import {
   verifyAuthenticityToken,
   useHydrated,
 } from "remix-utils"
-import { useFetcher } from "@remix-run/react"
+import { useCatch, useFetcher } from "@remix-run/react"
 import type { Country } from "react-phone-number-input"
 
 import { PhoneAuth } from "~/components/auth/phone-auth"
@@ -114,6 +114,29 @@ export default function Phone() {
       <ClientOnly fallback={<p>Loading...</p>}>
         {() => <PhoneAuth country={country} hydrated={hydrated} />}
       </ClientOnly>
+    </div>
+  )
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return (
+    <div>
+      <h1>
+        {caught.status} {caught.statusText}
+      </h1>
+    </div>
+  )
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return (
+    <div>
+      <h1>App Error</h1>
+      <pre>{error.message}</pre>
     </div>
   )
 }

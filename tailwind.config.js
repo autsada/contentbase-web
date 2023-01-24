@@ -12,6 +12,7 @@ module.exports = {
         textExtraLight: "#a3a3a3",
         textDark: "#404040",
         textExtraDark: "#262626",
+        textError: "#dc2626",
         borderExtraLightGray: "#f3f4f6",
         borderLightGray: "#e5e7eb",
         borderGray: "#d1d5db",
