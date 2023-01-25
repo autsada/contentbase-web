@@ -130,7 +130,6 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
       if (window.grecaptcha) {
         window.grecaptcha.reset(window.widgetId)
       }
-      alert(`Error: ${JSON.stringify(error)}`)
     }
   }
 
@@ -167,7 +166,6 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
     } catch (error) {
       setVerifyOtpProcessing(false)
       setVerifyError("Verify code failed")
-      alert(`error: ${JSON.stringify(error)}`)
     }
   }
 
@@ -244,7 +242,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
           ) : (
             <>
               <button
-                className="absolute right-0 -top-11 btn-light ml-3 self-start h-7 py-2 px-4 font-light text-textLight text-sm rounded-3xl"
+                className="absolute right-0 -top-11 btn-light ml-3 self-start h-8 px-4 font-light text-textLight text-sm rounded-3xl"
                 onClick={resendVerificationCode}
               >
                 Resend code
@@ -261,7 +259,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
                   id="sign-in-button"
                   type="submit"
                   className={`btn-orange w-full mt-14 h-12 rounded-full text-lg ${
-                    requestCodeProcessing || fetcher.state === "submitting"
+                    requestCodeProcessing || verifyOtpProcessing
                       ? "opacity-30"
                       : "opacity-100"
                   }`}
@@ -270,7 +268,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
                     !confirmationResult ||
                     !userOtp ||
                     userOtp.length !== 6 ||
-                    fetcher.state === "submitting"
+                    verifyOtpProcessing
                   }
                 >
                   Verify Code

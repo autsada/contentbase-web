@@ -1,4 +1,5 @@
 import React from "react"
+import { redirect } from "@remix-run/node"
 import type { LoaderArgs, ActionArgs, Session } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import {
@@ -16,23 +17,22 @@ import {
   getSession,
   destroySession,
 } from "~/server/session.server"
+import { checkSessionCookie } from "~/server/auth.server"
 
 // We need Javascript client side to run the component
 export const handle = { hydrate: true }
 
 export const loader = async ({ request }: LoaderArgs) => {
   const session = await getSession(request.headers.get("cookie"))
-  // const { uid } = await checkSessionCookie(session)
+  const decodedIdToken = await checkSessionCookie(session)
   const headers = {
     "Set-Cookie": await commitSession(session),
   }
 
-  return json({ status: "Ok" }, { headers })
-
-  // if (uid) {
-  //   return redirect("/", { headers })
-  // }
-  // return json(null, { headers })
+  if (decodedIdToken && decodedIdToken.uid) {
+    return redirect("/", { headers })
+  }
+  return json(null, { headers })
 }
 
 export async function action({ request }: ActionArgs) {
