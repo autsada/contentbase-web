@@ -50,7 +50,7 @@ export async function loader({ request }: LoaderArgs) {
   )
 }
 
-function Document({
+export function Document({
   children,
   title = `ContentBase Video Sharing Platform`,
 }: {

@@ -18,6 +18,7 @@ import {
   destroySession,
 } from "~/server/session.server"
 import { checkSessionCookie } from "~/server/auth.server"
+import ErrorComponent from "~/components/error"
 
 // We need Javascript client side to run the component
 export const handle = { hydrate: true }
@@ -121,22 +122,11 @@ export default function Phone() {
 export function CatchBoundary() {
   const caught = useCatch()
 
-  return (
-    <div>
-      <h1>
-        {caught.status} {caught.statusText}
-      </h1>
-    </div>
-  )
+  return <ErrorComponent error={caught.statusText} />
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error)
 
-  return (
-    <div>
-      <h1>App Error</h1>
-      <pre>{error.message}</pre>
-    </div>
-  )
+  return <ErrorComponent error={error.message} />
 }
