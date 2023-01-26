@@ -85,7 +85,13 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
   }, [isValid])
 
   /**
-   * A function to request a verification code.
+   * @dev There are 2 steps to login with phone number.
+   * @dev 1. User request a verification code
+   * @dev 2. User confirm the verification code they received
+   */
+
+  /**
+   * The 1 step: Request a verification code.
    */
   async function requestVerificationCode() {
     try {
@@ -153,6 +159,9 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
     setUserOtp(value)
   }
 
+  /**
+   * The 2 step: Verify the verification code
+   */
   async function verifyOtp(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!confirmationResult || !userOtp || userOtp.length !== 6) return
@@ -213,7 +222,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
           </div>
         )}
         {country && phoneNumber && (
-          <p className="absolute font-thin text-sm pl-4 text-textError">
+          <p className="absolute font-thin text-sm pl-4 text-error">
             {!isValid ? "Invalid number" : <>&nbsp;</>}
           </p>
         )}

@@ -1,6 +1,5 @@
 import React from "react"
-import { redirect } from "@remix-run/node"
-import type { LoaderArgs, ActionArgs, Session } from "@remix-run/node"
+import type { ActionArgs, Session } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import {
   ClientOnly,
@@ -12,29 +11,11 @@ import { useCatch, useFetcher } from "@remix-run/react"
 import type { Country } from "react-phone-number-input"
 
 import { PhoneAuth } from "~/components/auth/phone-auth"
-import {
-  commitSession,
-  getSession,
-  destroySession,
-} from "~/server/session.server"
-import { checkSessionCookie } from "~/server/auth.server"
+import { getSession, destroySession } from "~/server/session.server"
 import ErrorComponent from "~/components/error"
 
 // We need Javascript client side to run the component
 export const handle = { hydrate: true }
-
-export const loader = async ({ request }: LoaderArgs) => {
-  const session = await getSession(request.headers.get("cookie"))
-  const decodedIdToken = await checkSessionCookie(session)
-  const headers = {
-    "Set-Cookie": await commitSession(session),
-  }
-
-  if (decodedIdToken && decodedIdToken.uid) {
-    return redirect("/", { headers })
-  }
-  return json(null, { headers })
-}
 
 export async function action({ request }: ActionArgs) {
   let session: Session | undefined = undefined
