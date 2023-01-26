@@ -39,3 +39,5 @@ export async function action({ request }: ActionArgs) {
     return json({ error: String(error) }, { status: 401 })
   }
 }
+
+export type LoginActionType = typeof action

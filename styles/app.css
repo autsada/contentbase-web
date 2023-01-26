@@ -164,7 +164,7 @@
 
 @layer components {
   .page {
-    @apply w-screen h-screen text-center;
+    @apply w-screen h-full text-center;
   }
 
   .btn-light {
@@ -184,6 +184,10 @@
   }
 
   .error {
-    @apply font-extralight text-textError text-sm;
+    @apply font-extralight text-error text-sm;
+  }
+
+  .success {
+    @apply font-semibold text-blueDark text-base;
   }
 }

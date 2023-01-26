@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@remix-run/react"
+import type { UserRecord } from "firebase-admin/auth"
 
-export function Nav() {
+export function Nav({ user }: { user: UserRecord | null }) {
   const { pathname } = useLocation()
 
   return (
@@ -29,11 +30,24 @@ export function Nav() {
             &#10005;
           </Link>
         ) : (
-          <Link to="connect">
-            <button className="btn-orange text-sm rounded-3xl w-max h-8 px-4">
-              Connect
-            </button>
-          </Link>
+          <>
+            {!user ? (
+              <Link to="connect">
+                <button className="btn-orange text-sm rounded-3xl w-max h-8 px-4">
+                  Connect
+                </button>
+              </Link>
+            ) : (
+              <form method="post" action="/logout">
+                <button
+                  type="submit"
+                  className="btn-orange text-sm rounded-3xl w-max h-8 px-4"
+                >
+                  Logout
+                </button>
+              </form>
+            )}
+          </>
         )}
       </div>
     </div>

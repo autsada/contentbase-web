@@ -1,8 +1,9 @@
+import { json, redirect } from "@remix-run/node"
 import type { Session } from "@remix-run/node"
 import type { UserRecord } from "firebase-admin/auth"
 
 import { auth } from "./firebase.server"
-import { getSession } from "./session.server"
+import { commitSession, getSession } from "./session.server"
 
 export async function checkSessionCookie(session: Session) {
   try {
@@ -15,14 +16,31 @@ export async function checkSessionCookie(session: Session) {
   }
 }
 
-export async function requireAuth(request: Request) {
-  const session = await getSession(request.headers.get("cookie"))
+export function getUserSession(request: Request) {
+  return getSession(request.headers.get("cookie"))
+}
+
+export async function getUser(request: Request) {
+  const session = await getUserSession(request)
   const decodedIdToken = await checkSessionCookie(session)
   if (!decodedIdToken || !decodedIdToken.uid) {
     return null
   }
-
   return auth.getUser(decodedIdToken.uid)
+}
+
+export async function requireAuth(request: Request) {
+  const session = await getUserSession(request)
+  const user = await getUser(request)
+  const headers = {
+    "Set-Cookie": await commitSession(session),
+  }
+
+  if (!user) {
+    return redirect("/connect", { headers })
+  }
+
+  return json({ user }, { headers })
 }
 
 export async function createSessionCookie(idToken: string) {
@@ -30,7 +48,7 @@ export async function createSessionCookie(idToken: string) {
 
   // Only process if the user just signed in in the last 5 minutes.
   if (new Date().getTime() / 1000 - decodedIdToken.auth_time < 5 * 60) {
-    const expiresIn = 1000 * 60 * 60 * 24 * 30 // 1 month
+    const expiresIn = 1000 * 60 * 60 * 24 * 14 // 2 weeks
     return {
       uid: decodedIdToken.uid,
       sessionCookie: await auth.createSessionCookie(idToken, {

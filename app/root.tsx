@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import type { MetaFunction, LoaderArgs } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import {
@@ -12,12 +12,15 @@ import {
   useLoaderData,
 } from "@remix-run/react"
 import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
+import type { UserRecord } from "firebase-admin/auth"
 
 import { getSession, commitSession } from "./server/session.server"
 import type { LoaderData } from "./types"
 import styles from "./styles/app.css"
 import "react-phone-number-input/style.css"
 import { Nav } from "./components/nav"
+import { getUser } from "./server/auth.server"
+import { LOGGED_IN_KEY } from "./constants"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -40,10 +43,12 @@ export function links() {
 }
 
 export async function loader({ request }: LoaderArgs) {
+  const user = await getUser(request)
   const session = await getSession(request.headers.get("cookie"))
   const token = createAuthenticityToken(session)
   return json<LoaderData>(
     {
+      user,
       csrf: token,
     },
     { headers: { "Set-Cookie": await commitSession(session) } }
@@ -59,6 +64,7 @@ export function Document({
 }) {
   const loaderData = useLoaderData<LoaderData>()
   const csrf = loaderData?.csrf
+  const user = loaderData?.user as UserRecord | null
 
   return (
     <AuthenticityTokenProvider token={csrf || ""}>
@@ -69,6 +75,7 @@ export function Document({
           <Links />
         </head>
         <body>
+          <Nav user={user} />
           {children}
           <ScrollRestoration />
           <Scripts />
@@ -80,9 +87,25 @@ export function Document({
 }
 
 export default function App() {
+  // Listen to storage event to update authenticaiton state in all tabs
+  useEffect(() => {
+    if (typeof document === "undefined") return
+    const storageEventHanlder = (e: StorageEvent) => {
+      if (e.key === LOGGED_IN_KEY) {
+        window.location.reload()
+      }
+    }
+    window.addEventListener("storage", storageEventHanlder)
+
+    return () => {
+      if (typeof document !== "undefined") {
+        window.removeEventListener("storage", storageEventHanlder)
+      }
+    }
+  }, [])
+
   return (
     <Document>
-      <Nav />
       <Outlet />
     </Document>
   )
