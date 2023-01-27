@@ -13,6 +13,10 @@
     "@remix-run/node": "^1.10.1",
     "@remix-run/react": "^1.10.1",
     "@remix-run/serve": "^1.10.1",
+    "@wagmi/chains": "^0.2.0",
+    "@web3modal/ethereum": "^2.0.0",
+    "@web3modal/react": "^2.0.0",
+    "ethers": "^5.7.2",
     "firebase": "^9.16.0",
     "firebase-admin": "^11.5.0",
     "isbot": "^3.6.5",
@@ -21,7 +25,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.7.1",
     "react-phone-number-input": "^3.2.16",
-    "remix-utils": "^6.0.0"
+    "remix-utils": "^6.0.0",
+    "wagmi": "^0.11.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.10.1",

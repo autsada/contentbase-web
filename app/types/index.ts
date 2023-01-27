@@ -11,7 +11,11 @@ declare global {
 
 window.recaptchaVerifier = window.recaptchaVerifier || {}
 
+export type ENV = "development" | "production" | "test"
 export interface LoaderData {
   csrf: string
   user: UserRecord | null
+  ENV: {
+    NODE_ENV: ENV
+  }
 }

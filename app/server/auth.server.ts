@@ -61,7 +61,8 @@ export async function createSessionCookie(idToken: string) {
 }
 
 /**
- * Create Firebase Auth using a wallet address as uid
+ * Create Firebase Auth for users using their own wallets to connect
+ * @dev Using a wallet address as a uid
  * @param address {string} - a wallet address
  */
 export async function createUserIfNotExist(address: string) {

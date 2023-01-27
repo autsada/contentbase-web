@@ -2,6 +2,7 @@ import {
   signInWithEmailLink,
   sendSignInLinkToEmail,
   isSignInWithEmailLink,
+  signInWithCustomToken,
 } from "firebase/auth"
 import type { ActionCodeSettings } from "firebase-admin/auth"
 
@@ -43,4 +44,8 @@ export async function verifyEmailAddress(email: string, emailLink: string) {
   } catch (error) {
     throw error
   }
+}
+
+export function signInWithToken(token: string) {
+  return signInWithCustomToken(clientAuth, token)
 }

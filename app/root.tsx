@@ -13,14 +13,16 @@ import {
 } from "@remix-run/react"
 import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 import type { UserRecord } from "firebase-admin/auth"
+import { WagmiConfig } from "wagmi"
 
+import ErrorComponent from "./components/error"
+import { Nav } from "./components/nav"
 import { getSession, commitSession } from "./server/session.server"
+import { getUser } from "./server/auth.server"
+import { wagmiClient } from "./ethereum/client"
+import { LOGGED_IN_KEY } from "./constants"
 import type { LoaderData } from "./types"
 import styles from "./styles/app.css"
-import "react-phone-number-input/style.css"
-import { Nav } from "./components/nav"
-import { getUser } from "./server/auth.server"
-import { LOGGED_IN_KEY } from "./constants"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -50,6 +52,10 @@ export async function loader({ request }: LoaderArgs) {
     {
       user,
       csrf: token,
+      ENV: {
+        // NODE_ENV: process.env.NODE_ENV,
+        NODE_ENV: "test",
+      },
     },
     { headers: { "Set-Cookie": await commitSession(session) } }
   )
@@ -65,23 +71,32 @@ export function Document({
   const loaderData = useLoaderData<LoaderData>()
   const csrf = loaderData?.csrf
   const user = loaderData?.user as UserRecord | null
+  const ENV = loaderData?.ENV
 
   return (
     <AuthenticityTokenProvider token={csrf || ""}>
-      <html lang="en" className="text-textRegular bg-white font-sans">
-        <head>
-          <Meta />
-          <title>{title}</title>
-          <Links />
-        </head>
-        <body>
-          <Nav user={user} />
-          {children}
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
-        </body>
-      </html>
+      <WagmiConfig client={wagmiClient}>
+        <html lang="en" className="text-textRegular bg-white font-sans">
+          <head>
+            <Meta />
+            <title>{title}</title>
+            <Links />
+          </head>
+          <body>
+            <Nav user={user} />
+            {children}
+            <ScrollRestoration />
+            <script
+              // Add `ENV` to the window object
+              dangerouslySetInnerHTML={{
+                __html: `window.ENV = ${JSON.stringify(ENV)}`,
+              }}
+            />
+            <Scripts />
+            <LiveReload />
+          </body>
+        </html>
+      </WagmiConfig>
     </AuthenticityTokenProvider>
   )
 }
@@ -114,26 +129,11 @@ export default function App() {
 export function CatchBoundary() {
   const caught = useCatch()
 
-  return (
-    <Document title={`${caught.status} ${caught.statusText}`}>
-      <div>
-        <h1>
-          {caught.status} {caught.statusText}
-        </h1>
-      </div>
-    </Document>
-  )
+  return <ErrorComponent error={caught.statusText} />
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error)
 
-  return (
-    <Document title="Oops! ...something not right">
-      <div>
-        <h1>App Error</h1>
-        <pre>{error.message}</pre>
-      </div>
-    </Document>
-  )
+  return <ErrorComponent error={error.message} />
 }
