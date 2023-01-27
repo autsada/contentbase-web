@@ -26,7 +26,7 @@ export function Nav({ user }: { user: UserRecord | null }) {
       </div>
       <div className="h-full flex items-center justify-center">
         {pathname.startsWith("/connect") ? (
-          <Link to="/" className="px-4">
+          <Link to="/connect" className="px-4">
             &#10005;
           </Link>
         ) : (

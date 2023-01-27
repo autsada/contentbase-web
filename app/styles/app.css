@@ -1193,6 +1193,11 @@ button {
   padding-right: 2rem;
 }
 
+.px-20 {
+  padding-left: 5rem;
+  padding-right: 5rem;
+}
+
 .pl-4 {
   padding-left: 1rem;
 }

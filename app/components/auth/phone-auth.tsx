@@ -232,7 +232,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
         <div className="relative mt-14">
           {!isOtpSent ? (
             <>
-              <p className="self-center font-extralight text-textExtraLight mb-2">
+              <p className="self-center font-extralight text-textExtraLight mb-2 px-2">
                 We will send you a 6-digits verification code
               </p>
               <button
