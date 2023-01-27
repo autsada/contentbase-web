@@ -33,7 +33,6 @@ export default function EmailVerify() {
     try {
       setProcessing(true)
       const idToken = await verifyEmailAddress(email, link)
-      console.log("id token -->", idToken)
       setProcessing(false)
       if (!idToken) {
         setError("Verify failed")
@@ -43,7 +42,6 @@ export default function EmailVerify() {
         fetcher.submit({ idToken, csrf }, { method: "post", action: "/login" })
       }
     } catch (error: any) {
-      console.log("error -->", error.message)
       setProcessing(false)
       setError("Verify failed, please try again")
     }
