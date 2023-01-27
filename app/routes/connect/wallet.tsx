@@ -3,17 +3,14 @@ import type { FormEvent } from "react"
 import type { ActionArgs } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { ClientOnly, useAuthenticityToken, useHydrated } from "remix-utils"
-import { Form, useCatch, useFetcher } from "@remix-run/react"
-import { Web3Modal } from "@web3modal/react"
+import { useCatch, useFetcher } from "@remix-run/react"
 import { useWeb3Modal } from "@web3modal/react"
 import { useAccount, useDisconnect } from "wagmi"
 
 import { Backdrop } from "~/components/backdrop"
 import ErrorComponent from "~/components/error"
-import { ethereumClient } from "~/ethereum/client"
 import { createUserIfNotExist, createCustomToken } from "~/server/auth.server"
 import { signInWithToken } from "~/client/auth.client"
-import { WALLET_CONNECT_PROJECT_ID } from "~/constants"
 
 // We need Javascript client side to run the component
 export const handle = { hydrate: true }
@@ -88,27 +85,16 @@ export default function Wallet() {
     <div className="page p-10">
       <ClientOnly fallback={<p className="text-textLight">Loading...</p>}>
         {() => (
-          <>
-            <Form
-              className="btn-orange flex justify-between items-center w-56 h-12 rounded-full mx-auto px-5 hover:bg-orange-600"
-              onSubmit={openModal}
+          <fetcher.Form onSubmit={openModal}>
+            <button
+              type="submit"
+              className="btn-orange w-56 h-12 rounded-full text-xl focus:outline-none"
+              disabled={!hydrated}
             >
-              <button
-                type="submit"
-                className="w-full text-white text-xl focus:outline-none"
-                disabled={!hydrated}
-              >
-                {processing ? "Processing Login" : "Connect Wallet"}
-              </button>
-            </Form>
+              {processing ? "Processing Login" : "Connect Wallet"}
+            </button>
             {error && <p className="error mt-2">{error}</p>}
-
-            {/* The Modal to connect to wallet */}
-            <Web3Modal
-              projectId={WALLET_CONNECT_PROJECT_ID}
-              ethereumClient={ethereumClient}
-            />
-          </>
+          </fetcher.Form>
         )}
       </ClientOnly>
 

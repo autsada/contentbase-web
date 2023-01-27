@@ -14,13 +14,14 @@ import {
 import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 import type { UserRecord } from "firebase-admin/auth"
 import { WagmiConfig } from "wagmi"
+import { Web3Modal } from "@web3modal/react"
 
 import ErrorComponent from "./components/error"
 import { Nav } from "./components/nav"
 import { getSession, commitSession } from "./server/session.server"
 import { getUser } from "./server/auth.server"
-import { wagmiClient } from "./ethereum/client"
-import { LOGGED_IN_KEY } from "./constants"
+import { ethereumClient, wagmiClient } from "./ethereum/client"
+import { LOGGED_IN_KEY, WALLET_CONNECT_PROJECT_ID } from "./constants"
 import type { LoaderData } from "./types"
 import styles from "./styles/app.css"
 
@@ -122,6 +123,12 @@ export default function App() {
   return (
     <Document>
       <Outlet />
+
+      {/* The Modal to connect to wallet */}
+      <Web3Modal
+        projectId={WALLET_CONNECT_PROJECT_ID}
+        ethereumClient={ethereumClient}
+      />
     </Document>
   )
 }
