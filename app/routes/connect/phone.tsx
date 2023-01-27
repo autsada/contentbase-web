@@ -92,8 +92,8 @@ export default function Phone() {
 
   return (
     <div className="page py-10">
-      <h6 className="text-2xl mb-10">Connect with Phone Number</h6>
-      <ClientOnly fallback={<p>Loading...</p>}>
+      <h6 className="text-2xl mb-10">Login with Phone</h6>
+      <ClientOnly fallback={<p className="text-textLight">Loading...</p>}>
         {() => <PhoneAuth country={country} hydrated={hydrated} />}
       </ClientOnly>
     </div>
