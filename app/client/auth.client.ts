@@ -6,11 +6,11 @@ import {
 import type { ActionCodeSettings } from "firebase-admin/auth"
 
 import { clientAuth } from "./firebase.client"
-import { EMAIL_KEY_NAME, VERIFY_CODE, VERIFY_ID } from "~/constants"
+import { EMAIL_KEY_NAME, VERIFY_CODE, VERIFY_ID, WEB_URL } from "~/constants"
 
 export async function sendSignInWithEmailLink(email: string) {
   const actionCodeSettings: ActionCodeSettings = {
-    url: `http://localhost:3000/connect/email/verify?${VERIFY_ID}=${VERIFY_CODE}`,
+    url: `${WEB_URL}/connect/email/verify?${VERIFY_ID}=${VERIFY_CODE}`,
     // This must be true.
     handleCodeInApp: true,
     // iOS: {
