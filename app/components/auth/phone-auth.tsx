@@ -251,7 +251,12 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
           ) : (
             <>
               <button
-                className="absolute right-0 -top-11 btn-light ml-3 self-start h-8 px-4 font-light text-textLight text-sm rounded-3xl"
+                className={`btn-light absolute right-0 -top-11 ml-3 self-start h-8 px-4 font-light text-textLight text-sm rounded-3xl ${
+                  requestCodeProcessing || verifyOtpProcessing
+                    ? "opacity-30"
+                    : "opacity-100"
+                }`}
+                disabled={requestCodeProcessing || verifyOtpProcessing}
                 onClick={resendVerificationCode}
               >
                 Resend code
