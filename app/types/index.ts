@@ -19,3 +19,5 @@ export interface LoaderData {
     NODE_ENV: ENV
   }
 }
+
+export type AccountType = "TRADITIONAL" | "WALLET"

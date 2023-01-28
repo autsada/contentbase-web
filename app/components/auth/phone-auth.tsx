@@ -15,6 +15,7 @@ import OtpInput from "./opt-input"
 import { clientAuth } from "~/client/firebase.client"
 import { getCountryNames } from "~/utils"
 import { useAuthenticityToken } from "remix-utils"
+import type { AccountType } from "~/types"
 
 interface Props {
   country?: Country | null
@@ -170,8 +171,12 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
       setVerifyOtpProcessing(true)
       const result = await confirmationResult.confirm(userOtp)
       const idToken = await result.user.getIdToken()
-      // Send the `idToken` and `csrf` token to the `action` function on the server.
-      fetcher.submit({ idToken, csrf }, { method: "post", action: "/login" })
+      const accountType: AccountType = "TRADITIONAL"
+      // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
+      fetcher.submit(
+        { idToken, accountType, csrf },
+        { method: "post", action: "/login" }
+      )
     } catch (error) {
       setVerifyOtpProcessing(false)
       setVerifyError("Verify code failed")

@@ -11,6 +11,7 @@ import { Backdrop } from "~/components/backdrop"
 import ErrorComponent from "~/components/error"
 import { createUserIfNotExist, createCustomToken } from "~/server/auth.server"
 import { signInWithToken } from "~/client/auth.client"
+import type { AccountType } from "~/types"
 
 // We need Javascript client side to run the component
 export const handle = { hydrate: true }
@@ -62,9 +63,10 @@ export default function Wallet() {
           setProcessing(true)
           const credential = await signInWithToken(token)
           const idToken = await credential.user.getIdToken()
-          // Send the `idToken` and `csrf` token to the `action` function on the server.
+          const accountType: AccountType = "TRADITIONAL"
+          // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
           fetcher.submit(
-            { idToken, csrf },
+            { idToken, accountType, csrf },
             { method: "post", action: "/login" }
           )
         } catch (error) {

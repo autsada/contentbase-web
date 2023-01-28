@@ -8,6 +8,7 @@ import {
   destroySession,
   commitSession,
 } from "~/server/session.server"
+import type { AccountType } from "~/types"
 
 export function loader() {
   return redirect("/")
@@ -21,9 +22,14 @@ export async function action({ request }: ActionArgs) {
     await verifyAuthenticityToken(request, session)
     // Get the `idToken` from the request
     const form = await request.formData()
-    const { idToken } = Object.fromEntries(form) as { idToken: string }
+    const { idToken } = Object.fromEntries(form) as {
+      idToken: string
+      accountType: AccountType
+    }
     const { sessionCookie } = await createSessionCookie(idToken)
     session.set("session", sessionCookie)
+
+    // Query account by uid to check if the user has an acccount in the database already or not.
 
     return redirect("/profile", {
       headers: {

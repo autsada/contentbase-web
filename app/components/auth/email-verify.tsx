@@ -9,6 +9,7 @@ import { Backdrop } from "../backdrop"
 import { verifyEmailAddress } from "~/client/auth.client"
 import { useAuthenticityToken } from "remix-utils"
 import type { LoginActionType } from "~/routes/login"
+import type { AccountType } from "~/types"
 
 export default function EmailVerify() {
   const [savedEmail, setSavedEmail] = useState<string | undefined>()
@@ -39,7 +40,12 @@ export default function EmailVerify() {
       } else {
         setSuccess(true)
         window.localStorage.removeItem(EMAIL_KEY_NAME)
-        fetcher.submit({ idToken, csrf }, { method: "post", action: "/login" })
+        const accountType: AccountType = "TRADITIONAL"
+        // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
+        fetcher.submit(
+          { idToken, accountType, csrf },
+          { method: "post", action: "/login" }
+        )
       }
     } catch (error: any) {
       setProcessing(false)
