@@ -1,16 +1,20 @@
-import { Link, useLocation } from "@remix-run/react"
+import { Link, useNavigate } from "@remix-run/react"
 import { MdSmartphone, MdOutlineEmail } from "react-icons/md"
 
 export default function Connect() {
-  const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   return (
-    <div className="absolute inset-0 bg-white text-center py-10 opacity-[98%]">
-      <button className="absolute top-4 right-8 p-4 text-textExtraLight">
-        <Link to="/" replace={pathname.startsWith("/connect") ? true : false}>
-          &#10005;
-        </Link>
+    <div className="absolute inset-0 bg-gray-100 text-center py-10 opacity-[98%]">
+      {/* <Form method="post" className="absolute top-4 right-8 px-4"> */}
+      <button
+        type="submit"
+        className="absolute top-4 right-8 p-4 text-textExtraLight outline-none"
+        onClick={() => navigate(-1)}
+      >
+        &#10005;
       </button>
+      {/* </Form> */}
       <div className="py-[20px]">
         <div className="w-[120px] h-[120px] rounded-full overflow-hidden my-0 mx-auto">
           <img
@@ -28,8 +32,7 @@ export default function Connect() {
       <div className="px-10 mb-8">
         <Link
           to="phone"
-          replace={pathname.startsWith("/connect") ? true : false}
-          className="btn-light flex justify-between items-center w-64 h-11 rounded-full mx-auto px-5"
+          className="btn-light bg-white flex justify-between items-center w-64 h-11 rounded-full mx-auto px-5"
         >
           <div className=" w-12 flex justify-center items-center">
             <MdSmartphone size={20} />
@@ -43,7 +46,6 @@ export default function Connect() {
       <div className="px-10 mb-8">
         <Link
           to="email"
-          replace={pathname.startsWith("/connect") ? true : false}
           className="btn-dark flex justify-between items-center w-64 h-11 rounded-full mx-auto px-5"
         >
           <div className="w-12 flex justify-center items-center">
@@ -62,7 +64,6 @@ export default function Connect() {
       <div className="px-10 mb-6">
         <Link
           to="wallet"
-          replace={pathname.startsWith("/connect") ? true : false}
           className="btn-orange flex justify-between items-center w-64 h-11 rounded-full mx-auto px-5 hover:bg-orange-600"
         >
           <button className="w-full text-white focus:outline-none">

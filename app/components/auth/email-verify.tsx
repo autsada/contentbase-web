@@ -106,7 +106,7 @@ export default function EmailVerify() {
           {(error || (loginData && loginData.error)) && (
             <div className="py-6">
               <p className="error mb-3">Sorry, failed to verify</p>
-              <Link to="/connect/email" replace={true}>
+              <Link to="/auth/email" replace={true}>
                 close
               </Link>
             </div>

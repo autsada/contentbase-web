@@ -69,40 +69,24 @@ export function Document({
   children: React.ReactNode
   title?: string
 }) {
+  return (
+    <html lang="en" className="text-textRegular bg-white font-sans">
+      <head>
+        <Meta />
+        <title>{title}</title>
+        <Links />
+      </head>
+      <body>{children}</body>
+    </html>
+  )
+}
+
+export default function App() {
   const loaderData = useLoaderData<LoaderData>()
   const csrf = loaderData?.csrf
   const user = loaderData?.user as UserRecord | null
   const ENV = loaderData?.ENV
 
-  return (
-    <AuthenticityTokenProvider token={csrf || ""}>
-      <WagmiConfig client={wagmiClient}>
-        <html lang="en" className="text-textRegular bg-white font-sans">
-          <head>
-            <Meta />
-            <title>{title}</title>
-            <Links />
-          </head>
-          <body>
-            <Nav user={user} />
-            {children}
-            <ScrollRestoration />
-            <script
-              // Add `ENV` to the window object
-              dangerouslySetInnerHTML={{
-                __html: `window.ENV = ${JSON.stringify(ENV)}`,
-              }}
-            />
-            <Scripts />
-            <LiveReload />
-          </body>
-        </html>
-      </WagmiConfig>
-    </AuthenticityTokenProvider>
-  )
-}
-
-export default function App() {
   // Listen to storage event to update authenticaiton state in all tabs
   useEffect(() => {
     if (typeof document === "undefined") return
@@ -121,15 +105,29 @@ export default function App() {
   }, [])
 
   return (
-    <Document>
-      <Outlet />
+    <AuthenticityTokenProvider token={csrf || ""}>
+      <WagmiConfig client={wagmiClient}>
+        <Document>
+          <Nav user={user} />
+          <Outlet />
+          <ScrollRestoration />
+          <script
+            // Add `ENV` to the window object
+            dangerouslySetInnerHTML={{
+              __html: `window.ENV = ${JSON.stringify(ENV)}`,
+            }}
+          />
+          <Scripts />
+          <LiveReload />
 
-      {/* The Modal to connect to wallet */}
-      <Web3Modal
-        projectId={WALLET_CONNECT_PROJECT_ID}
-        ethereumClient={ethereumClient}
-      />
-    </Document>
+          {/* The Modal to connect to wallet */}
+          <Web3Modal
+            projectId={WALLET_CONNECT_PROJECT_ID}
+            ethereumClient={ethereumClient}
+          />
+        </Document>
+      </WagmiConfig>
+    </AuthenticityTokenProvider>
   )
 }
 

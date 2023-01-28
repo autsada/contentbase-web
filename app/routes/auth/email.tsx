@@ -12,7 +12,7 @@ import ErrorComponent from "~/components/error"
 // We need Javascript client side to run the component
 export const handle = { hydrate: true }
 
-export default function Connect() {
+export default function Email() {
   return (
     <>
       <Outlet />

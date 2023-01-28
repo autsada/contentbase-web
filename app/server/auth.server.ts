@@ -37,7 +37,7 @@ export async function requireAuth(request: Request) {
   }
 
   if (!user) {
-    return redirect("/connect", { headers })
+    return redirect("/auth", { headers })
   }
 
   return json({ user }, { headers })

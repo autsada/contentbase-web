@@ -19,7 +19,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json(null, { headers })
 }
 
-export default function Connect() {
+export default function Auth() {
   return (
     <>
       <Outlet />

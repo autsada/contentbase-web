@@ -18,23 +18,23 @@ export function Nav({ user }: { user: UserRecord | null }) {
         </div>
       </div>
       <div className="flex-grow mx-3">
-        {!pathname.startsWith("/connect") && (
+        {!pathname.startsWith("/auth") && (
           <div className="h-[45px] flex items-center justify-center bg-neutral-50 rounded-full">
             Search
           </div>
         )}
       </div>
       <div className="h-full flex items-center justify-center">
-        {pathname.startsWith("/connect") ? (
-          <Link to="/connect" className="px-4">
+        {pathname.startsWith("/auth") ? (
+          <Link to="auth" replace={true} className="px-4">
             &#10005;
           </Link>
         ) : (
           <>
             {!user ? (
-              <Link to="connect">
+              <Link to="auth">
                 <button className="btn-orange text-sm rounded-3xl w-max h-8 px-4">
-                  Connect
+                  Login
                 </button>
               </Link>
             ) : (
