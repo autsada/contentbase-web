@@ -1,6 +1,7 @@
 import { GraphQLClient } from "graphql-request"
 
-import { CREATE_WALLET_MUTATION } from "./mutation"
+import { CREATE_WALLET_MUTATION } from "./mutations"
+import { GET_BALANCE_QUERY } from "./queries"
 import type {
   QueryReturnType,
   QueryArgsType,
@@ -27,4 +28,13 @@ export async function createWallet(headers: HeadersInit) {
     .request<MutationReturnType<"createWallet">>(CREATE_WALLET_MUTATION)
 
   return data.createWallet
+}
+
+export async function getBalance(address: string) {
+  const data = await client.request<
+    QueryReturnType<"getMyBalance">,
+    QueryArgsType<"getMyBalance">
+  >(GET_BALANCE_QUERY, { address })
+
+  return data.getMyBalance
 }
