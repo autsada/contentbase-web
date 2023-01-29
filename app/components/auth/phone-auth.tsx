@@ -16,6 +16,8 @@ import { clientAuth } from "~/client/firebase.client"
 import { getCountryNames } from "~/utils"
 import { useAuthenticityToken } from "remix-utils"
 import type { AccountType } from "~/types"
+import { Backdrop } from "../backdrop"
+import { Spinner } from "../spinner"
 
 interface Props {
   country?: Country | null
@@ -184,122 +186,136 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
   }
 
   return (
-    <div className="relative px-5">
-      {otpError && <p className="error absolute -top-5 pl-4">{otpError}</p>}
-      <div className="border border-borderLightGray rounded-lg">
-        <div
-          className={`relative px-4 h-10 flex items-center ${
-            country ? "border-b border-borderLightGray" : ""
-          }`}
-        >
-          <select
-            value={country}
-            onChange={handleSelectCountry}
-            className="w-full bg-transparent text-lg appearance-none focus:outline-none"
+    <>
+      <div className="relative px-5">
+        {otpError && <p className="error absolute -top-5 pl-4">{otpError}</p>}
+        <div className="border border-borderLightGray rounded-lg">
+          <div
+            className={`relative px-4 h-10 flex items-center ${
+              country ? "border-b border-borderLightGray" : ""
+            }`}
           >
-            <Option value="" name="Select country" />
-            {getCountryNames().map((c) => (
-              <Option key={c.code} value={c.code as Country} name={c.name} />
-            ))}
-          </select>
-          <IoCaretDownOutline
-            color="#525252"
-            className="absolute -z-10 right-4"
-          />
-        </div>
-        {country && (
-          <div className="h-12 px-2 flex items-center">
-            <div className="h-full w-20 border-r border-borderLight flex justify-center items-center">
-              <p className="text-lg text-textRegular">
-                {country && `+${getCountryCallingCode(country)}`}
-              </p>
-            </div>
-            <div id="phone-input" className="h-full flex-grow">
-              <PhoneInput
-                country={country}
-                value={phoneNumber}
-                onChange={setPhoneNumber}
-                defaultCountry={!defaultCountry ? undefined : defaultCountry}
-                placeholder="Enter your phone number"
-                className="w-full h-full leading-12 p-0 pl-4 appearance-none font-normal text-textRegular text-lg placeholder:font-extralight placeholder:text-textExtraLight focus:outline-none"
-              />
-            </div>
+            <select
+              value={country}
+              onChange={handleSelectCountry}
+              className="w-full bg-transparent text-lg appearance-none focus:outline-none"
+            >
+              <Option value="" name="Select country" />
+              {getCountryNames().map((c) => (
+                <Option key={c.code} value={c.code as Country} name={c.name} />
+              ))}
+            </select>
+            <IoCaretDownOutline
+              color="#525252"
+              className="absolute -z-10 right-4"
+            />
           </div>
-        )}
-        {country && phoneNumber && (
-          <p className="absolute font-thin text-sm pl-4 text-error">
-            {!isValid ? "Invalid number" : <>&nbsp;</>}
-          </p>
-        )}
-      </div>
+          {country && (
+            <div className="h-12 px-2 flex items-center">
+              <div className="h-full w-20 border-r border-borderLight flex justify-center items-center">
+                <p className="text-lg text-textRegular">
+                  {country && `+${getCountryCallingCode(country)}`}
+                </p>
+              </div>
+              <div id="phone-input" className="h-full flex-grow">
+                <PhoneInput
+                  country={country}
+                  value={phoneNumber}
+                  onChange={setPhoneNumber}
+                  defaultCountry={!defaultCountry ? undefined : defaultCountry}
+                  placeholder="Enter your phone number"
+                  className="w-full h-full leading-12 p-0 pl-4 appearance-none font-normal text-textRegular text-lg placeholder:font-extralight placeholder:text-textExtraLight focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
+          {country && phoneNumber && (
+            <p className="absolute font-thin text-sm pl-4 text-error">
+              {!isValid ? "Invalid number" : <>&nbsp;</>}
+            </p>
+          )}
+        </div>
 
-      {phoneNumber && (
-        <div className="relative mt-14">
-          {!isOtpSent ? (
-            <>
-              <p className="self-center font-extralight text-textExtraLight mb-2 px-2">
-                We will send you a 6-digits verification code
-              </p>
-              <button
-                id="sign-in-button"
-                className={`btn-dark w-full mt-14 h-12 rounded-full text-lg ${
-                  !isValid || requestCodeProcessing
-                    ? "opacity-10"
-                    : "opacity-100"
-                }`}
-                disabled={!hydrated || !isValid || requestCodeProcessing}
-                onClick={requestVerificationCode}
-              >
-                Get Code
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                className={`btn-light absolute right-0 -top-11 ml-3 self-start h-8 px-4 font-light text-textLight text-sm rounded-3xl ${
-                  requestCodeProcessing || verifyOtpProcessing
-                    ? "opacity-30"
-                    : "opacity-100"
-                }`}
-                disabled={requestCodeProcessing || verifyOtpProcessing}
-                onClick={resendVerificationCode}
-              >
-                Resend code
-              </button>
-
-              <OtpInput
-                value={userOtp}
-                valueLen={6}
-                onChange={handleOtpChange}
-              />
-
-              <Form onSubmit={verifyOtp}>
+        {phoneNumber && (
+          <div className="relative mt-14">
+            {!isOtpSent ? (
+              <>
+                <p className="self-center font-extralight text-textExtraLight mb-2 px-2">
+                  We will send you a 6-digits verification code
+                </p>
                 <button
                   id="sign-in-button"
-                  type="submit"
-                  className={`btn-orange w-full mt-14 h-12 rounded-full text-lg ${
+                  className={`btn-dark w-full mt-14 h-12 rounded-full text-lg ${
+                    !isValid || requestCodeProcessing
+                      ? "opacity-10"
+                      : "opacity-100"
+                  }`}
+                  disabled={!hydrated || !isValid || requestCodeProcessing}
+                  onClick={requestVerificationCode}
+                >
+                  Get Code
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className={`btn-light absolute right-0 -top-11 ml-3 self-start h-8 px-4 font-light text-textLight text-sm rounded-3xl ${
                     requestCodeProcessing || verifyOtpProcessing
                       ? "opacity-30"
                       : "opacity-100"
                   }`}
-                  disabled={
-                    requestCodeProcessing ||
-                    !confirmationResult ||
-                    !userOtp ||
-                    userOtp.length !== 6 ||
-                    verifyOtpProcessing
-                  }
+                  disabled={requestCodeProcessing || verifyOtpProcessing}
+                  onClick={resendVerificationCode}
                 >
-                  Verify Code
+                  Resend code
                 </button>
-              </Form>
-              <p className="error font-light text-base">
-                {verifyError ? verifyError : <>&nbsp;</>}
-              </p>
-            </>
-          )}
-        </div>
+
+                <OtpInput
+                  value={userOtp}
+                  valueLen={6}
+                  onChange={handleOtpChange}
+                />
+
+                <Form onSubmit={verifyOtp}>
+                  <button
+                    id="sign-in-button"
+                    type="submit"
+                    className={`btn-orange w-full mt-14 h-12 rounded-full text-lg ${
+                      requestCodeProcessing || verifyOtpProcessing
+                        ? "opacity-30"
+                        : "opacity-100"
+                    }`}
+                    disabled={
+                      requestCodeProcessing ||
+                      !confirmationResult ||
+                      !userOtp ||
+                      userOtp.length !== 6 ||
+                      verifyOtpProcessing
+                    }
+                  >
+                    Verify Code
+                  </button>
+                </Form>
+                <p className="error font-light text-base">
+                  {verifyError ? verifyError : <>&nbsp;</>}
+                </p>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+      {verifyOtpProcessing && (
+        <Backdrop opacity={90}>
+          <div className="bg-white w-full p-4 rounded-2xl">
+            <p className="font-light text-textLight px-2 mt-2">
+              Processing login, please wait
+            </p>
+            <div className="mt-4">
+              <Spinner size="sm" />
+            </div>
+          </div>
+        </Backdrop>
       )}
-    </div>
+    </>
   )
 }

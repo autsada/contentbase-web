@@ -6,6 +6,7 @@ import { useFetcher, Link } from "@remix-run/react"
 import { EmailInput } from "./email-request"
 import { EMAIL_KEY_NAME } from "~/constants"
 import { Backdrop } from "../backdrop"
+import { Spinner } from "../spinner"
 import { verifyEmailAddress } from "~/client/auth.client"
 import { useAuthenticityToken } from "remix-utils"
 import type { LoginActionType } from "~/routes/login"
@@ -15,7 +16,6 @@ export default function EmailVerify() {
   const [savedEmail, setSavedEmail] = useState<string | undefined>()
   const [email, setEmail] = useState("")
   const [processing, setProcessing] = useState(false)
-  const [sucess, setSuccess] = useState(false)
   const [error, setError] = useState("")
 
   const emailLink = window.location.href
@@ -38,7 +38,6 @@ export default function EmailVerify() {
       if (!idToken) {
         setError("Verify failed")
       } else {
-        setSuccess(true)
         window.localStorage.removeItem(EMAIL_KEY_NAME)
         const accountType: AccountType = "TRADITIONAL"
         // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
@@ -74,7 +73,7 @@ export default function EmailVerify() {
 
   return (
     <>
-      <Backdrop withSpinner={true} bgWhite={false} opacity={30} />
+      <Backdrop withSpinner={true} opacity={30}></Backdrop>
       {/* If user opens the link in a different device (doesn't have email saved in localstorage) */}
       <div className="absolute inset-0 z-50 flex flex-col justify-center items-center">
         <div className="relative w-[90%] max-w-[360px] mx-auto bg-white rounded-2xl">
@@ -84,6 +83,7 @@ export default function EmailVerify() {
                 handleChange={handleChange}
                 value={email}
                 placeholder="Please confirm your email address"
+                disabled={processing}
               />
               <button
                 type="submit"
@@ -97,18 +97,23 @@ export default function EmailVerify() {
             </fetcher.Form>
           )}
 
-          {sucess && (
-            <div className="py-5">
-              <p className="success mt-1">Verify success</p>
-            </div>
-          )}
-
           {(error || (loginData && loginData.error)) && (
-            <div className="py-6">
+            <div className="my-5">
               <p className="error mb-3">Sorry, failed to verify</p>
               <Link to="/auth/email" replace={true}>
                 close
               </Link>
+            </div>
+          )}
+
+          {!error && processing && (
+            <div className="my-5">
+              <p className="font-light text-textLight px-2 mt-2">
+                Processing login, please wait
+              </p>
+              <div className="mt-4">
+                <Spinner size="sm" />
+              </div>
             </div>
           )}
         </div>

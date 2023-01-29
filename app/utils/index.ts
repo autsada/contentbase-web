@@ -11,3 +11,12 @@ export function getCountryNames() {
       return c1Name > c2Name ? 1 : c1Name < c2Name ? -1 : 0
     })
 }
+
+export async function graphqlFetch({
+  url,
+}: {
+  url: string
+  headers?: HeadersInit
+  query: string
+  variables: Record<string, any>
+}) {}

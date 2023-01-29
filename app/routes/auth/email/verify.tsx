@@ -11,7 +11,7 @@ import { VERIFY_CODE, VERIFY_ID } from "~/constants"
 
 export function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
-  const code = url.searchParams.get(VERIFY_ID)
+  const code = url.searchParams.get(VERIFY_ID) || ""
 
   // Verify if the request is comming from the Firebase auth
   if (code !== VERIFY_CODE) {

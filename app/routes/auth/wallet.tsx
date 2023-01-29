@@ -63,7 +63,7 @@ export default function Wallet() {
           setProcessing(true)
           const credential = await signInWithToken(token)
           const idToken = await credential.user.getIdToken()
-          const accountType: AccountType = "TRADITIONAL"
+          const accountType: AccountType = "WALLET"
           // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
           fetcher.submit(
             { idToken, accountType, csrf },

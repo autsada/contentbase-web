@@ -10,12 +10,14 @@ interface EmailInputProps {
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void
   value: string
   placeholder?: string
+  disabled?: boolean
 }
 
 export function EmailInput({
   handleChange,
   value,
   placeholder = "Your email address",
+  disabled = false,
 }: EmailInputProps) {
   return (
     <input
@@ -25,6 +27,7 @@ export function EmailInput({
       placeholder={placeholder}
       onChange={handleChange}
       value={value}
+      disabled={disabled}
     />
   )
 }
@@ -47,7 +50,6 @@ export function EmailRequest() {
       setLoading(false)
       setSuccess(true)
     } catch (error) {
-      console.log("error -->", error)
       setLoading(false)
       setError(true)
       if (success) setSuccess(false)
@@ -61,7 +63,11 @@ export function EmailRequest() {
   return (
     <>
       <Form className="px-5" onSubmit={handleSubmit}>
-        <EmailInput handleChange={handleChange} value={email} />
+        <EmailInput
+          handleChange={handleChange}
+          value={email}
+          disabled={loading}
+        />
         <button
           type="submit"
           className={`btn-orange w-full mt-14 h-12 rounded-full text-lg ${

@@ -36,11 +36,7 @@ export async function requireAuth(request: Request) {
     "Set-Cookie": await commitSession(session),
   }
 
-  if (!user) {
-    return redirect("/auth", { headers })
-  }
-
-  return json({ user }, { headers })
+  return { user, headers }
 }
 
 export async function createSessionCookie(idToken: string) {
