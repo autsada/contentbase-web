@@ -1,12 +1,26 @@
 import { useEffect } from "react"
 import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Outlet, useLoaderData } from "@remix-run/react"
-import type { User } from "firebase/auth"
+import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react"
+import type { UserRecord } from "firebase-admin/auth"
 
 import { requireAuth } from "~/server/auth.server"
 import { LOGGED_IN_KEY } from "~/constants"
 import { queryAccountByUid } from "~/graphql/public-apis"
+import { getBalance } from "~/graphql/server"
+
+type ProfileContext = {
+  user: UserRecord
+  account: {
+    address: string
+    createdAt: any
+    id: number
+    type?: "TRADITIONAL" | "WALLET" | null | undefined
+    uid?: string | null | undefined
+    updatedAt?: any
+  }
+  balance: string | undefined
+}
 
 export async function loader({ request }: LoaderArgs) {
   const { user, headers } = await requireAuth(request)
@@ -17,17 +31,20 @@ export async function loader({ request }: LoaderArgs) {
 
   // Query user's account data
   const account = await queryAccountByUid(user.uid)
-  console.log("account: -->", account)
+  const address = account?.address
+  const balance = address ? await getBalance(address) : undefined
 
-  return json({ user }, { headers })
+  return json({ user, account, balance }, { headers })
 }
 
 export default function Profile() {
   const data = useLoaderData<typeof loader>()
-  const user = data?.user as User | null
+  const user = data?.user as UserRecord
   const uid = user?.uid
+  const account = data?.account
+  const balance = data?.balance
 
-  // If user logged in for the first time, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
+  // When user logged in, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
   useEffect(() => {
     if (typeof document === "undefined") return
 
@@ -42,7 +59,11 @@ export default function Profile() {
 
   return (
     <>
-      <Outlet />
+      <Outlet context={{ user, account, balance }} />
     </>
   )
+}
+
+export function useProfileContext() {
+  return useOutletContext<ProfileContext>()
 }

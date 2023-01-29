@@ -792,16 +792,6 @@ button {
   margin-right: 0.5rem;
 }
 
-.my-3 {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.my-2 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
 .mt-14 {
   margin-top: 3.5rem;
 }
@@ -856,14 +846,6 @@ button {
 
 .mb-10 {
   margin-bottom: 2.5rem;
-}
-
-.mb-5 {
-  margin-bottom: 1.25rem;
-}
-
-.mt-6 {
-  margin-top: 1.5rem;
 }
 
 .flex {
@@ -991,16 +973,8 @@ button {
   width: 14rem;
 }
 
-.min-w-\[90\%\] {
-  min-width: 90%;
-}
-
 .max-w-\[360px\] {
   max-width: 360px;
-}
-
-.max-w-\[90\%\] {
-  max-width: 90%;
 }
 
 .flex-grow {
@@ -1194,14 +1168,14 @@ button {
   padding: 2.5rem;
 }
 
-.py-10 {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
-
 .px-5 {
   padding-left: 1.25rem;
   padding-right: 1.25rem;
+}
+
+.py-10 {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
 }
 
 .px-3 {
@@ -1212,11 +1186,6 @@ button {
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
-}
-
-.py-6 {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
 }
 
 .px-2 {
