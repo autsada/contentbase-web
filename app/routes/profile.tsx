@@ -1,13 +1,20 @@
 import { useEffect } from "react"
 import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react"
+import {
+  Outlet,
+  useLoaderData,
+  useOutletContext,
+  useRevalidator,
+} from "@remix-run/react"
+import { doc, onSnapshot } from "firebase/firestore"
 import type { UserRecord } from "firebase-admin/auth"
 
+import { firestore } from "~/client/firebase.client"
 import { requireAuth } from "~/server/auth.server"
-import { LOGGED_IN_KEY } from "~/constants"
 import { queryAccountByUid } from "~/graphql/public-apis"
 import { getBalance } from "~/graphql/server"
+import { LOGGED_IN_KEY } from "~/constants"
 
 type ProfileContext = {
   user: UserRecord
@@ -42,7 +49,9 @@ export default function Profile() {
   const user = data?.user as UserRecord
   const uid = user?.uid
   const account = data?.account
+  const address = account?.address
   const balance = data?.balance
+  const revalidator = useRevalidator()
 
   // When user logged in, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
   useEffect(() => {
@@ -56,6 +65,24 @@ export default function Profile() {
       }
     }
   }, [uid])
+
+  // Listen to activities occurred to the address and revalidate the loader data
+  useEffect(() => {
+    if (typeof document === "undefined" || !address) return
+    const formattedAddress = address.toLowerCase()
+
+    const unsubscribe = onSnapshot(
+      doc(firestore, "activities", formattedAddress),
+      () => {
+        revalidator.revalidate()
+      }
+    )
+
+    return () => {
+      unsubscribe()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address])
 
   return (
     <>
