@@ -11,7 +11,6 @@ import { queryAccountByUid } from "~/graphql/public-apis"
 export async function loader({ request }: LoaderArgs) {
   const { user, headers } = await requireAuth(request)
 
-  console.log("user: -->", user)
   if (!user) {
     return redirect("/auth", { headers })
   }

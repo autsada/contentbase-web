@@ -37,6 +37,7 @@ export async function createAccount(data: {
   const result = await fetch(`${url}/api/account`, {
     method: "POST",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${PUBLIC_API_ACCESS_TOKEN}`,
     },
     body: JSON.stringify(data),

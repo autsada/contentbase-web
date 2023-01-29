@@ -12,6 +12,7 @@ import ErrorComponent from "~/components/error"
 import { createUserIfNotExist, createCustomToken } from "~/server/auth.server"
 import { signInWithToken } from "~/client/auth.client"
 import type { AccountType } from "~/types"
+import { Spinner } from "~/components/spinner"
 
 // We need Javascript client side to run the component
 export const handle = { hydrate: true }
@@ -101,7 +102,16 @@ export default function Wallet() {
       </ClientOnly>
 
       {processing && (
-        <Backdrop withSpinner={true} bgWhite={true} opacity={80} />
+        <Backdrop opacity={90}>
+          <div className="bg-white w-full p-4 rounded-2xl">
+            <p className="font-light text-textLight px-2 mt-2">
+              Processing login, please wait
+            </p>
+            <div className="mt-4">
+              <Spinner size="sm" />
+            </div>
+          </div>
+        </Backdrop>
       )}
     </div>
   )
