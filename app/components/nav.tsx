@@ -23,7 +23,7 @@ export function Nav({ user }: { user: UserRecord | null }) {
           <>
             <input
               type="text"
-              className="block h-full w-full pl-30 outline-none focus:outline-none"
+              className="block h-full w-4/5 outline-none focus:outline-none"
             />
 
             <IoSearchOutline size={25} className="absolute right-0" />
