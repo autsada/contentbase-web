@@ -61,7 +61,6 @@ export async function action({ request }: ActionArgs) {
       },
     })
   } catch (error) {
-    console.log("error: ", error)
     if (session) {
       // Delete cookie
       await destroySession(session)

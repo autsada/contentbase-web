@@ -6,7 +6,7 @@ import { useFetcher, Link } from "@remix-run/react"
 import { EmailInput } from "./email-request"
 import { EMAIL_KEY_NAME } from "~/constants"
 import { Backdrop } from "../backdrop"
-import { Spinner } from "../spinner"
+import InfoSpinner from "./info-spinner"
 import { verifyEmailAddress } from "~/client/auth.client"
 import { useAuthenticityToken } from "remix-utils"
 import type { LoginActionType } from "~/routes/login"
@@ -106,16 +106,7 @@ export default function EmailVerify() {
             </div>
           )}
 
-          {!error && processing && (
-            <div className="my-5">
-              <p className="font-light text-textLight px-2 mt-2">
-                Processing login, please wait
-              </p>
-              <div className="mt-4">
-                <Spinner size="sm" />
-              </div>
-            </div>
-          )}
+          {!error && processing && <InfoSpinner />}
         </div>
       </div>
     </>

@@ -12,12 +12,12 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth"
 import type { ConfirmationResult } from "firebase/auth"
 
 import OtpInput from "./opt-input"
+import { Backdrop } from "../backdrop"
+import InfoSpinner from "./info-spinner"
 import { clientAuth } from "~/client/firebase.client"
 import { getCountryNames } from "~/utils"
 import { useAuthenticityToken } from "remix-utils"
 import type { AccountType } from "~/types"
-import { Backdrop } from "../backdrop"
-import { Spinner } from "../spinner"
 
 interface Props {
   country?: Country | null
@@ -306,14 +306,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
       </div>
       {verifyOtpProcessing && (
         <Backdrop opacity={90}>
-          <div className="bg-white w-full p-4 rounded-2xl">
-            <p className="font-light text-textLight px-2 mt-2">
-              Processing login, please wait
-            </p>
-            <div className="mt-4">
-              <Spinner size="sm" />
-            </div>
-          </div>
+          <InfoSpinner />
         </Backdrop>
       )}
     </>
