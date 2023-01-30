@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
 import type { MetaFunction, LoaderArgs } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import {
@@ -10,11 +10,14 @@ import {
   ScrollRestoration,
   useCatch,
   useLoaderData,
+  useTransition,
+  useFetchers,
 } from "@remix-run/react"
 import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 import type { UserRecord } from "firebase-admin/auth"
 import { WagmiConfig } from "wagmi"
 import { Web3Modal } from "@web3modal/react"
+import NProgress from "nprogress"
 
 import ErrorComponent from "./components/error"
 import { Nav } from "./components/nav"
@@ -87,6 +90,9 @@ export default function App() {
   const user = loaderData?.user as UserRecord | null
   const ENV = loaderData?.ENV
 
+  const transition = useTransition()
+  const fetchers = useFetchers()
+
   // Listen to storage event to update authenticaiton state in all tabs
   useEffect(() => {
     if (typeof document === "undefined") return
@@ -103,6 +109,32 @@ export default function App() {
       }
     }
   }, [])
+
+  /**
+   * This gets the state of every fetcher active on the app and combine it with
+   * the state of the global transition (Link and Form), then use them to
+   * determine if the app is idle or if it's loading.
+   * Here we consider both loading and submitting as loading.
+   */
+  const state = useMemo<"idle" | "loading">(
+    function getGlobalState() {
+      let states = [
+        transition.state,
+        ...fetchers.map((fetcher) => fetcher.state),
+      ]
+      if (states.every((state) => state === "idle")) return "idle"
+      return "loading"
+    },
+    [transition.state, fetchers]
+  )
+
+  useEffect(() => {
+    // and when it's something else it means it's either submitting a form or
+    // waiting for the loaders of the next location so we start it
+    if (state === "loading") NProgress.start()
+    // when the state is idle then we can to complete the progress bar
+    if (state === "idle") NProgress.done()
+  }, [state])
 
   return (
     <AuthenticityTokenProvider token={csrf || ""}>

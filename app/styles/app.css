@@ -717,6 +717,24 @@ button {
   color: rgb(37 99 235 / var(--tw-text-opacity));
 }
 
+/* NProgress styles */
+
+/* Make clicks pass-through */
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: 2px;
+  width: 100%;
+  --tw-bg-opacity: 1;
+  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+}
+
 .invisible {
   visibility: hidden;
 }
@@ -736,16 +754,16 @@ button {
   left: 0px;
 }
 
+.right-0 {
+  right: 0px;
+}
+
 .-top-5 {
   top: -1.25rem;
 }
 
 .right-4 {
   right: 1rem;
-}
-
-.right-0 {
-  right: 0px;
 }
 
 .-top-11 {
@@ -771,11 +789,6 @@ button {
 .my-5 {
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
-}
-
-.mx-5 {
-  margin-left: 1.25rem;
-  margin-right: 1.25rem;
 }
 
 .mx-auto {
@@ -870,12 +883,12 @@ button {
   height: 100%;
 }
 
-.h-\[60px\] {
-  height: 60px;
+.h-\[55px\] {
+  height: 55px;
 }
 
-.h-\[45px\] {
-  height: 45px;
+.h-\[50px\] {
+  height: 50px;
 }
 
 .h-8 {
@@ -926,20 +939,16 @@ button {
   height: 1px;
 }
 
-.h-\[50px\] {
-  height: 50px;
-}
-
-.h-\[55px\] {
-  height: 55px;
-}
-
 .w-full {
   width: 100%;
 }
 
-.w-20 {
-  width: 5rem;
+.w-\[70px\] {
+  width: 70px;
+}
+
+.w-\[55px\] {
+  width: 55px;
 }
 
 .w-\[60px\] {
@@ -961,6 +970,10 @@ button {
 
 .w-14 {
   width: 3.5rem;
+}
+
+.w-20 {
+  width: 5rem;
 }
 
 .w-24 {
@@ -993,26 +1006,6 @@ button {
 
 .w-56 {
   width: 14rem;
-}
-
-.w-\[80px\] {
-  width: 80px;
-}
-
-.w-\[70px\] {
-  width: 70px;
-}
-
-.w-4\/5 {
-  width: 80%;
-}
-
-.w-\[50px\] {
-  width: 50px;
-}
-
-.w-\[55px\] {
-  width: 55px;
 }
 
 .max-w-\[360px\] {
@@ -1063,14 +1056,14 @@ button {
   justify-content: space-between;
 }
 
-.gap-x-3 {
-  -moz-column-gap: 0.75rem;
-       column-gap: 0.75rem;
-}
-
 .gap-x-5 {
   -moz-column-gap: 1.25rem;
        column-gap: 1.25rem;
+}
+
+.gap-x-3 {
+  -moz-column-gap: 0.75rem;
+       column-gap: 0.75rem;
 }
 
 .self-start {
@@ -1184,43 +1177,18 @@ button {
   background-color: rgb(156 163 175 / var(--tw-bg-opacity));
 }
 
-.bg-red-200 {
+.bg-neutral-100 {
   --tw-bg-opacity: 1;
-  background-color: rgb(254 202 202 / var(--tw-bg-opacity));
-}
-
-.bg-red-300 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(252 165 165 / var(--tw-bg-opacity));
-}
-
-.bg-gray-100 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
-}
-
-.bg-green-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(187 247 208 / var(--tw-bg-opacity));
-}
-
-.bg-neutral-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(229 229 229 / var(--tw-bg-opacity));
+  background-color: rgb(245 245 245 / var(--tw-bg-opacity));
 }
 
 .bg-transparent {
   background-color: transparent;
 }
 
-.bg-orange-100 {
+.bg-gray-100 {
   --tw-bg-opacity: 1;
-  background-color: rgb(255 237 213 / var(--tw-bg-opacity));
-}
-
-.bg-neutral-100 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(245 245 245 / var(--tw-bg-opacity));
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
 }
 
 .object-cover {
@@ -1259,11 +1227,6 @@ button {
   padding-right: 1rem;
 }
 
-.px-1 {
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
-}
-
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -1287,20 +1250,6 @@ button {
 .py-5 {
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
-}
-
-.py-1 {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-
-.py-2 {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.pl-3 {
-  padding-left: 0.75rem;
 }
 
 .pl-4 {
@@ -1435,6 +1384,14 @@ button {
 
 .filter {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.transition {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
 @font-face {
