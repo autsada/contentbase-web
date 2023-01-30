@@ -20,4 +20,13 @@ export interface LoaderData {
   }
 }
 
+export type Account = {
+  address: string
+  createdAt: any
+  id: number
+  type: AccountType
+  uid?: string | null | undefined
+  updatedAt?: any
+}
+
 export type AccountType = "TRADITIONAL" | "WALLET"

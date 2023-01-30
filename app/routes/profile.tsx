@@ -15,17 +15,10 @@ import { requireAuth } from "~/server/auth.server"
 import { queryAccountByUid } from "~/graphql/public-apis"
 import { getBalance } from "~/graphql/server"
 import { LOGGED_IN_KEY } from "~/constants"
+import type { Account } from "~/types"
 
-type ProfileContext = {
-  user: UserRecord
-  account: {
-    address: string
-    createdAt: any
-    id: number
-    type?: "TRADITIONAL" | "WALLET" | null | undefined
-    uid?: string | null | undefined
-    updatedAt?: any
-  }
+type AccountContext = {
+  account: Account
   balance: string | undefined
 }
 
@@ -92,5 +85,5 @@ export default function Profile() {
 }
 
 export function useProfileContext() {
-  return useOutletContext<ProfileContext>()
+  return useOutletContext<AccountContext>()
 }

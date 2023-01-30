@@ -11,7 +11,7 @@ import {
   useCatch,
   useLoaderData,
   useTransition,
-  useFetchers,
+  // useFetchers,
 } from "@remix-run/react"
 import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 import type { UserRecord } from "firebase-admin/auth"
@@ -21,14 +21,14 @@ import NProgress from "nprogress"
 
 import ErrorComponent from "./components/error"
 import { Nav } from "./components/nav"
+import RightDrawer from "./components/drawers/right-drawer"
+import { Backdrop } from "./components/backdrop"
 import { getSession, commitSession } from "./server/session.server"
 import { getUser } from "./server/auth.server"
 import { ethereumClient, wagmiClient } from "./ethereum/client"
 import { LOGGED_IN_KEY, WALLET_CONNECT_PROJECT_ID } from "./constants"
 import type { LoaderData } from "./types"
 import styles from "./styles/app.css"
-import RightDrawer from "./components/drawers/right-drawer"
-import { Backdrop } from "./components/backdrop"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -94,7 +94,7 @@ export default function App() {
   const ENV = loaderData?.ENV
 
   const transition = useTransition()
-  const fetchers = useFetchers()
+  // const fetchers = useFetchers()
 
   // Listen to storage event to update authenticaiton state in all tabs
   useEffect(() => {
@@ -123,21 +123,24 @@ export default function App() {
     function getGlobalState() {
       let states = [
         transition.state,
-        ...fetchers.map((fetcher) => fetcher.state),
+        // ...fetchers.map((fetcher) => fetcher.state),
       ]
       if (states.every((state) => state === "idle")) return "idle"
       return "loading"
     },
-    [transition.state, fetchers]
+    [transition.state]
   )
 
   useEffect(() => {
     // and when it's something else it means it's either submitting a form or
     // waiting for the loaders of the next location so we start it
-    if (state === "loading") NProgress.start()
+    if (state === "loading") {
+      NProgress.start()
+      if (isRightDrawerOpen) setIsRightDrawerOpen(false)
+    }
     // when the state is idle then we can to complete the progress bar
     if (state === "idle") NProgress.done()
-  }, [state])
+  }, [state, isRightDrawerOpen])
 
   const openRightDrawer = useCallback((open: boolean) => {
     setIsRightDrawerOpen(open)
