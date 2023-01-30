@@ -5,19 +5,21 @@ interface Props {
   withSpinner?: boolean
   opacity?: 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 96 | 100
   bgWhite?: boolean
+  className?: string
 }
 
 export function Backdrop({
   children,
   withSpinner = false,
-  opacity = 50,
+  opacity = 30,
   bgWhite = false,
+  className,
 }: Props) {
   return (
     <div
-      className={`absolute z-50 inset-0 flex flex-col justify-center items-center px-5 ${
-        bgWhite ? "bg-white" : "bg-gray-400"
-      }`}
+      className={`fixed z-50 inset-0 h-screen flex flex-col justify-center items-center px-5 overflow-hidden ${
+        bgWhite ? "bg-white" : "bg-black"
+      } ${className ? className : ""}`}
       style={{ opacity: `${opacity}%` }}
     >
       {children && children}

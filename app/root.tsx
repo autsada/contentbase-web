@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useCallback } from "react"
 import type { MetaFunction, LoaderArgs } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import {
@@ -27,6 +27,8 @@ import { ethereumClient, wagmiClient } from "./ethereum/client"
 import { LOGGED_IN_KEY, WALLET_CONNECT_PROJECT_ID } from "./constants"
 import type { LoaderData } from "./types"
 import styles from "./styles/app.css"
+import RightDrawer from "./components/drawers/right-drawer"
+import { Backdrop } from "./components/backdrop"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -79,12 +81,13 @@ export function Document({
         <title>{title}</title>
         <Links />
       </head>
-      <body>{children}</body>
+      <>{children}</>
     </html>
   )
 }
 
 export default function App() {
+  const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
   const loaderData = useLoaderData<LoaderData>()
   const csrf = loaderData?.csrf
   const user = loaderData?.user as UserRecord | null
@@ -136,27 +139,51 @@ export default function App() {
     if (state === "idle") NProgress.done()
   }, [state])
 
+  const openRightDrawer = useCallback((open: boolean) => {
+    setIsRightDrawerOpen(open)
+  }, [])
+
   return (
     <AuthenticityTokenProvider token={csrf || ""}>
       <WagmiConfig client={wagmiClient}>
         <Document>
-          <Nav user={user} />
-          <Outlet />
-          <ScrollRestoration />
-          <script
-            // Add `ENV` to the window object
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
-            }}
-          />
-          <Scripts />
-          <LiveReload />
+          <body
+            className={isRightDrawerOpen ? "overflow-hidden" : "overflow-auto"}
+          >
+            <Nav user={user} openDrawer={openRightDrawer} />
+            <Outlet />
+            <ScrollRestoration />
+            <script
+              // Add `ENV` to the window object
+              dangerouslySetInnerHTML={{
+                __html: `window.ENV = ${JSON.stringify(ENV)}`,
+              }}
+            />
+            <Scripts />
+            <LiveReload />
 
-          {/* The Modal to connect to wallet */}
-          <Web3Modal
-            projectId={WALLET_CONNECT_PROJECT_ID}
-            ethereumClient={ethereumClient}
-          />
+            {/* The Modal to connect to wallet */}
+            <Web3Modal
+              projectId={WALLET_CONNECT_PROJECT_ID}
+              ethereumClient={ethereumClient}
+            />
+
+            {/* Right Drawer */}
+            <>
+              <Backdrop
+                className={`${
+                  !isRightDrawerOpen
+                    ? "transition-all duration-300 hidden"
+                    : "transition-all duration-300 block"
+                }`}
+                opacity={!isRightDrawerOpen ? 0 : 30}
+              />
+              <RightDrawer
+                openDrawer={openRightDrawer}
+                className={!isRightDrawerOpen ? "-right-[500px]" : "right-0"}
+              />
+            </>
+          </body>
         </Document>
       </WagmiConfig>
     </AuthenticityTokenProvider>

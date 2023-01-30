@@ -305,7 +305,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
         )}
       </div>
       {verifyOtpProcessing && (
-        <Backdrop opacity={90}>
+        <Backdrop opacity={50}>
           <InfoSpinner />
         </Backdrop>
       )}

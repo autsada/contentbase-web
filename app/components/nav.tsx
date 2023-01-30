@@ -3,7 +3,12 @@ import { MdPerson } from "react-icons/md"
 import { IoSearchOutline } from "react-icons/io5"
 import type { UserRecord } from "firebase-admin/auth"
 
-export function Nav({ user }: { user: UserRecord | null }) {
+interface Props {
+  user: UserRecord | null
+  openDrawer: (open: boolean) => void
+}
+
+export function Nav({ user, openDrawer }: Props) {
   const { pathname } = useLocation()
 
   return (
@@ -46,9 +51,9 @@ export function Nav({ user }: { user: UserRecord | null }) {
               </Link>
             ) : (
               <div className="w-[40px] h-[40px] p-4 bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
-                <Link to="/profile">
+                <div onClick={openDrawer.bind(undefined, true)}>
                   <MdPerson size={30} color="#3f3f46" />
-                </Link>
+                </div>
               </div>
             )}
           </>

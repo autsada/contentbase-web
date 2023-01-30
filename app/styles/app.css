@@ -739,6 +739,10 @@ button {
   visibility: hidden;
 }
 
+.fixed {
+  position: fixed;
+}
+
 .absolute {
   position: absolute;
 }
@@ -778,12 +782,36 @@ button {
   right: 2rem;
 }
 
+.top-0 {
+  top: 0px;
+}
+
+.bottom-0 {
+  bottom: 0px;
+}
+
+.-left-\[80px\] {
+  left: -80px;
+}
+
+.-right-\[80px\] {
+  right: -80px;
+}
+
+.-right-\[500px\] {
+  right: -500px;
+}
+
 .z-50 {
   z-index: 50;
 }
 
 .-z-10 {
   z-index: -10;
+}
+
+.z-\[10000\] {
+  z-index: 10000;
 }
 
 .my-5 {
@@ -877,6 +905,10 @@ button {
 
 .flex {
   display: flex;
+}
+
+.hidden {
+  display: none;
 }
 
 .h-\[70px\] {
@@ -1016,6 +1048,14 @@ button {
   width: 80%;
 }
 
+.w-1\/2 {
+  width: 50%;
+}
+
+.w-3\/5 {
+  width: 60%;
+}
+
 .max-w-\[360px\] {
   max-width: 360px;
 }
@@ -1080,6 +1120,10 @@ button {
 
 .self-center {
   align-self: center;
+}
+
+.overflow-auto {
+  overflow: auto;
 }
 
 .overflow-hidden {
@@ -1197,6 +1241,26 @@ button {
 .bg-gray-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+}
+
+.bg-red-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 202 202 / var(--tw-bg-opacity));
+}
+
+.bg-neutral-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(163 163 163 / var(--tw-bg-opacity));
+}
+
+.bg-gray-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
+
+.bg-black {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
 }
 
 .object-cover {
@@ -1375,6 +1439,10 @@ button {
   opacity: 98%;
 }
 
+.opacity-0 {
+  opacity: 0;
+}
+
 .shadow-neutral-300 {
   --tw-shadow-color: #d4d4d4;
   --tw-shadow: var(--tw-shadow-colored);
@@ -1400,6 +1468,50 @@ button {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.delay-1000 {
+  transition-delay: 1000ms;
+}
+
+.delay-\[5000ms\] {
+  transition-delay: 5000ms;
+}
+
+.delay-\[3s\] {
+  transition-delay: 3s;
+}
+
+.delay-\[10000ms\] {
+  transition-delay: 10000ms;
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+.duration-1000 {
+  transition-duration: 1000ms;
+}
+
+.duration-500 {
+  transition-duration: 500ms;
+}
+
+.duration-300 {
+  transition-duration: 300ms;
 }
 
 @font-face {

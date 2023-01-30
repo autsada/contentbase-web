@@ -102,7 +102,7 @@ export default function Wallet() {
       </ClientOnly>
 
       {processing && (
-        <Backdrop opacity={90}>
+        <Backdrop opacity={50}>
           <InfoSpinner />
         </Backdrop>
       )}
