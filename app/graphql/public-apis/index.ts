@@ -1,3 +1,8 @@
+/**
+ * `Public APIs` service rest/graphql queries/mutations helper functions
+ * @dev this service indexes ContentBase blockchain data in Cloud SQL for more efficient in getting blockchain data.
+ */
+
 import { GraphQLClient } from "graphql-request"
 
 import { GET_ACCOUNT_BY_ID } from "./queries"
@@ -31,7 +36,7 @@ export async function queryAccountByUid(uid: string) {
   return data.getAccountByUid
 }
 
-// This is a rest endpoint for creating an account (mostly used to create accounts for users connected with their own wallets)
+// This is a rest endpoint for creating an account (mostly used to create accounts for users connected to ContentBase App with their own wallets)
 // Need to add the wallet address to Alcheck notify as well
 export async function createAccount(data: {
   address: string

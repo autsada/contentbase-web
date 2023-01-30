@@ -1,3 +1,8 @@
+/**
+ * `Server` service graphql queries/mutations helper functions.
+ * @dev The `Server` service is a graphql API server for `traditional` accounts (login with phone/email) to interact with the blockchain (we generate and manage wallets for users).
+ */
+
 import { GraphQLClient } from "graphql-request"
 
 import { CREATE_WALLET_MUTATION } from "./mutations"
