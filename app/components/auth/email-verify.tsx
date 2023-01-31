@@ -16,6 +16,7 @@ export default function EmailVerify() {
   const [savedEmail, setSavedEmail] = useState<string | undefined>()
   const [email, setEmail] = useState("")
   const [processing, setProcessing] = useState(false)
+  const [finished, setFinished] = useState(false)
   const [error, setError] = useState("")
 
   const emailLink = window.location.href
@@ -45,9 +46,11 @@ export default function EmailVerify() {
           { idToken, accountType, csrf },
           { method: "post", action: "/login" }
         )
+        setFinished(true)
       }
     } catch (error: any) {
       setProcessing(false)
+      setFinished(false)
       setError("Verify failed, please try again")
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,7 +80,7 @@ export default function EmailVerify() {
       {/* If user opens the link in a different device (doesn't have email saved in localstorage) */}
       <div className="absolute inset-0 z-50 flex flex-col justify-center items-center">
         <div className="relative w-[90%] max-w-[360px] mx-auto bg-white rounded-2xl">
-          {savedEmail === "" && (
+          {savedEmail === "" && !finished && (
             <fetcher.Form className="p-6" onSubmit={handleSubmit}>
               <EmailInput
                 handleChange={handleChange}
