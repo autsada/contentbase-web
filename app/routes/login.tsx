@@ -13,7 +13,7 @@ import { createAccount, queryAccountByUid } from "~/graphql/public-apis"
 import { createWallet } from "~/graphql/server"
 
 export function loader() {
-  return redirect("/")
+  return redirect("/auth")
 }
 
 export async function action({ request }: ActionArgs) {
@@ -55,7 +55,7 @@ export async function action({ request }: ActionArgs) {
       }
     }
 
-    return redirect("/profile", {
+    return redirect("/", {
       headers: {
         "Set-Cookie": await commitSession(session),
       },

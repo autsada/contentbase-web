@@ -84,6 +84,6 @@ export default function Profile() {
   )
 }
 
-export function useProfileContext() {
+export function useAccountContext() {
   return useOutletContext<AccountContext>()
 }

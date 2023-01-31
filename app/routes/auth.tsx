@@ -13,7 +13,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   }
 
   if (user) {
-    return redirect("/profile", { headers })
+    return redirect("/", { headers })
   }
 
   return json(null, { headers })

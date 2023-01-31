@@ -26,8 +26,9 @@ import { Backdrop } from "./components/backdrop"
 import { getSession, commitSession } from "./server/session.server"
 import { getUser } from "./server/auth.server"
 import { ethereumClient, wagmiClient } from "./ethereum/client"
+import { queryAccountByUid } from "./graphql/public-apis"
 import { LOGGED_IN_KEY, WALLET_CONNECT_PROJECT_ID } from "./constants"
-import type { LoaderData } from "./types"
+import type { LoaderData, Profile } from "./types"
 import styles from "./styles/app.css"
 
 export const meta: MetaFunction = () => {
@@ -54,10 +55,19 @@ export async function loader({ request }: LoaderArgs) {
   const user = await getUser(request)
   const session = await getSession(request.headers.get("cookie"))
   const token = createAuthenticityToken(session)
+  const account = user ? await queryAccountByUid(user.uid) : null
+  const profile =
+    account && account.profiles.length > 0
+      ? ((account.profiles.find((ac) => ac?.default) ||
+          account.profiles[0]) as Profile)
+      : null
+
   return json<LoaderData>(
     {
       user,
       csrf: token,
+      account,
+      profile,
       ENV: {
         // NODE_ENV: process.env.NODE_ENV,
         NODE_ENV: "test",
@@ -87,11 +97,14 @@ export function Document({
 }
 
 export default function App() {
-  const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
   const loaderData = useLoaderData<LoaderData>()
   const csrf = loaderData?.csrf
   const user = loaderData?.user as UserRecord | null
   const ENV = loaderData?.ENV
+  const profile = loaderData?.profile as Profile | null
+
+  const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
+  const [usedProfile, setUsedProfile] = useState(() => profile)
 
   const transition = useTransition()
   // const fetchers = useFetchers()
@@ -153,7 +166,11 @@ export default function App() {
           <body
             className={isRightDrawerOpen ? "overflow-hidden" : "overflow-auto"}
           >
-            <Nav user={user} openDrawer={openRightDrawer} />
+            <Nav
+              user={user}
+              openDrawer={openRightDrawer}
+              profile={usedProfile}
+            />
             <Outlet />
             <ScrollRestoration />
             <script
@@ -184,6 +201,7 @@ export default function App() {
               <RightDrawer
                 openDrawer={openRightDrawer}
                 className={!isRightDrawerOpen ? "-right-[500px]" : "right-0"}
+                profile={usedProfile}
               />
             </>
           </body>

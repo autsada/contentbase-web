@@ -3,28 +3,6 @@
  * Do not make changes to this file directly
  */
 
-// import type { Context } from "./context"
-// import type { core } from "nexus"
-// declare global {
-//   interface NexusGenCustomInputMethods<TypeName extends string> {
-//     /**
-//      * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
-//      */
-//     date<FieldName extends string>(fieldName: FieldName, opts?: core.CommonInputFieldConfig<TypeName, FieldName>): void // "DateTime";
-//   }
-// }
-// declare global {
-//   interface NexusGenCustomOutputMethods<TypeName extends string> {
-//     /**
-//      * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
-//      */
-//     date<FieldName extends string>(
-//       fieldName: FieldName,
-//       ...opts: core.ScalarOutSpread<TypeName, FieldName>
-//     ): void // "DateTime";
-//   }
-// }
-
 declare global {
   interface NexusGen extends NexusGenTypes {}
 }
@@ -610,7 +588,7 @@ export type NexusGenFeaturesConfig = {
 }
 
 export interface NexusGenTypes {
-  // context: Context
+  // context: Context;
   inputTypes: NexusGenInputs
   rootTypes: NexusGenRootTypes
   inputTypeShapes: NexusGenInputs & NexusGenEnums & NexusGenScalars

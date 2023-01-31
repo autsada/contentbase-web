@@ -1,8 +1,10 @@
 import { Link } from "@remix-run/react"
+import type { Profile } from "~/types"
 
 interface Props {
   openDrawer: (open: boolean) => void
   className?: string
+  profile: Profile | null
 }
 
 export default function RightDrawer({ openDrawer, className }: Props) {
@@ -26,9 +28,11 @@ export default function RightDrawer({ openDrawer, className }: Props) {
           <div className="py-5 text-center font-semibold text-lg">Wallet</div>
         </Link>
         <div className="py-5 text-center font-semibold text-lg">
-          <button className="btn-orange text-sm rounded-3xl w-max h-8 px-5">
-            Logout
-          </button>
+          <form action="/logout" method="post">
+            <button className="btn-orange text-sm rounded-3xl w-max h-8 px-5">
+              Logout
+            </button>
+          </form>
         </div>
       </div>
     </div>

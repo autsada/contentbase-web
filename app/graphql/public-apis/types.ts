@@ -1,7 +1,12 @@
-import type { NexusGenFieldTypes, NexusGenArgTypes } from "./typegen"
+import type {
+  NexusGenFieldTypes,
+  NexusGenArgTypes,
+  NexusGenFieldTypeNames,
+} from "./typegen"
 
-export type QueryReturnType<T extends keyof NexusGenFieldTypes["Query"]> = {
-  [k in T]: NexusGenFieldTypes["Query"][T]
+export type QueryReturnType<T extends keyof NexusGenFieldTypeNames["Query"]> = {
+  [k in T]: NexusGenFieldTypes[NexusGenFieldTypeNames["Query"][T]]
 }
+
 export type QueryArgsType<T extends keyof NexusGenArgTypes["Query"]> =
   NexusGenArgTypes["Query"][T]

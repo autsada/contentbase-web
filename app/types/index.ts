@@ -1,5 +1,6 @@
 import type { UserRecord } from "firebase-admin/auth"
 import type { RecaptchaVerifier } from "firebase/auth"
+import type { NexusGenFieldTypes } from "~/graphql/public-apis/typegen"
 
 declare global {
   interface Window {
@@ -15,18 +16,13 @@ export type ENV = "development" | "production" | "test"
 export interface LoaderData {
   csrf: string
   user: UserRecord | null
+  account: Account | null
+  profile: Profile | null
   ENV: {
     NODE_ENV: ENV
   }
 }
 
-export type Account = {
-  address: string
-  createdAt: any
-  id: number
-  type: AccountType
-  uid?: string | null | undefined
-  updatedAt?: any
-}
-
+export type Account = NexusGenFieldTypes["Account"]
 export type AccountType = "TRADITIONAL" | "WALLET"
+export type Profile = NexusGenFieldTypes["Profile"]

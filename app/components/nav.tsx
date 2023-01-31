@@ -3,12 +3,15 @@ import { MdPerson } from "react-icons/md"
 import { IoSearchOutline } from "react-icons/io5"
 import type { UserRecord } from "firebase-admin/auth"
 
+import type { Profile } from "~/types"
+
 interface Props {
   user: UserRecord | null
   openDrawer: (open: boolean) => void
+  profile: Profile | null
 }
 
-export function Nav({ user, openDrawer }: Props) {
+export function Nav({ user, openDrawer, profile }: Props) {
   const { pathname } = useLocation()
 
   return (
@@ -52,7 +55,15 @@ export function Nav({ user, openDrawer }: Props) {
             ) : (
               <div className="w-[40px] h-[40px] p-4 bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
                 <div onClick={openDrawer.bind(undefined, true)}>
-                  <MdPerson size={30} color="#3f3f46" />
+                  {!profile || !profile.imageURI ? (
+                    <MdPerson size={30} color="#3f3f46" />
+                  ) : (
+                    <img
+                      src={profile.imageURI}
+                      alt={profile.originalHandle}
+                      className="object-cover"
+                    />
+                  )}
                 </div>
               </div>
             )}
