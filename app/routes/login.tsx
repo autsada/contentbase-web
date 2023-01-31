@@ -30,20 +30,21 @@ export async function action({ request }: ActionArgs) {
     }
     const { sessionCookie, uid } = await createSessionCookie(idToken)
     session.set("session", sessionCookie)
+    const headers = {
+      "Set-Cookie": await commitSession(session),
+    }
 
     // Query account by uid to check if the user has an acccount in the database already or not.
     const account = await queryAccountByUid(uid)
-    let walletAddress: string = ""
 
     // If no account, we have to create one for the user
     if (!account) {
       if (accountType === "TRADITIONAL") {
         // Two steps process: create a wallet and create an account
         // Calling `createWallet` mutation in the server service will do these 2 steps in one go.
-        const { address } = await createWallet({
+        await createWallet({
           Authorization: `Bearer ${idToken}`,
         })
-        walletAddress = address
       }
 
       if (accountType === "WALLET") {
@@ -54,15 +55,20 @@ export async function action({ request }: ActionArgs) {
           uid,
           accountType,
         })
-        walletAddress = uid
       }
-    }
 
-    return redirect("/", {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
-    })
+      // Redirect the user to `profile` page to create a first profile
+      return redirect("/profile", { headers })
+    } else {
+      const hasProfile = account.profiles.length > 0
+
+      if (!hasProfile) {
+        // Redirect the user to `profile` page to create a first profile
+        return redirect("/profile", { headers })
+      }
+
+      return redirect("/", { headers })
+    }
   } catch (error) {
     if (session) {
       // Delete cookie
