@@ -12,12 +12,15 @@ import {
   useLoaderData,
   useTransition,
   // useFetchers,
+  useRevalidator,
 } from "@remix-run/react"
 import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 import type { UserRecord } from "firebase-admin/auth"
 import { WagmiConfig } from "wagmi"
 import { Web3Modal } from "@web3modal/react"
 import NProgress from "nprogress"
+import { firestore } from "./client/firebase.client"
+import { onSnapshot, doc } from "firebase/firestore"
 
 import ErrorComponent from "./components/error"
 import { Nav } from "./components/nav"
@@ -100,14 +103,31 @@ export default function App() {
   const loaderData = useLoaderData<LoaderData>()
   const csrf = loaderData?.csrf
   const user = loaderData?.user as UserRecord | null
+  const uid = user?.uid
   const ENV = loaderData?.ENV
+  const account = loaderData?.account
+  const address = account?.address
   const profile = loaderData?.profile as Profile | null
+  const revalidator = useRevalidator()
 
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
   const [usedProfile, setUsedProfile] = useState(() => profile)
 
   const transition = useTransition()
   // const fetchers = useFetchers()
+
+  // When user logged in, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
+  useEffect(() => {
+    if (typeof document === "undefined") return
+
+    const loggedIn = window.localStorage.getItem(LOGGED_IN_KEY)
+
+    if (uid) {
+      if (!loggedIn) {
+        window.localStorage.setItem(LOGGED_IN_KEY, Math.random().toString())
+      }
+    }
+  }, [uid])
 
   // Listen to storage event to update authenticaiton state in all tabs
   useEffect(() => {
@@ -144,6 +164,7 @@ export default function App() {
     [transition.state]
   )
 
+  // Handle progress bar
   useEffect(() => {
     // and when it's something else it means it's either submitting a form or
     // waiting for the loaders of the next location so we start it
@@ -158,6 +179,24 @@ export default function App() {
   const openRightDrawer = useCallback((open: boolean) => {
     setIsRightDrawerOpen(open)
   }, [])
+
+  // Listen to activities occurred to the address and revalidate the loader data
+  useEffect(() => {
+    if (typeof document === "undefined" || !address) return
+    const formattedAddress = address.toLowerCase()
+
+    const unsubscribe = onSnapshot(
+      doc(firestore, "activities", formattedAddress),
+      () => {
+        revalidator.revalidate()
+      }
+    )
+
+    return () => {
+      unsubscribe()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address])
 
   return (
     <AuthenticityTokenProvider token={csrf || ""}>

@@ -33,15 +33,17 @@ export async function action({ request }: ActionArgs) {
 
     // Query account by uid to check if the user has an acccount in the database already or not.
     const account = await queryAccountByUid(uid)
+    let walletAddress: string = ""
 
     // If no account, we have to create one for the user
     if (!account) {
       if (accountType === "TRADITIONAL") {
         // Two steps process: create a wallet and create an account
         // Calling `createWallet` mutation in the server service will do these 2 steps in one go.
-        await createWallet({
+        const { address } = await createWallet({
           Authorization: `Bearer ${idToken}`,
         })
+        walletAddress = address
       }
 
       if (accountType === "WALLET") {
@@ -52,6 +54,7 @@ export async function action({ request }: ActionArgs) {
           uid,
           accountType,
         })
+        walletAddress = uid
       }
     }
 
