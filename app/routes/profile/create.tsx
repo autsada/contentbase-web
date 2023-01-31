@@ -2,8 +2,7 @@ export default function CreateProfile() {
   return (
     <div className="page p-4 text-start">
       <form className="px-5">
-        <h6 className="text-center mb-4">Create Profile</h6>
-
+        <p className="mb-5 text-lg">Please provide below information.</p>
         <fieldset className="mb-6 border border-borderDarkGray pl-4 rounded-md bg-white">
           <legend className="text-textExtraLight px-1">
             Handle

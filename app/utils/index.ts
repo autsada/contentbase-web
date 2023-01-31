@@ -12,11 +12,39 @@ export function getCountryNames() {
     })
 }
 
-export async function graphqlFetch({
-  url,
-}: {
-  url: string
-  headers?: HeadersInit
-  query: string
-  variables: Record<string, any>
-}) {}
+export function getPageTitle(pathname: string) {
+  let title: string = ""
+
+  // if (pathname.startsWith("/auth")) {
+  //   const routeNames = pathname.split("/")
+  //   const name = routeNames[routeNames.length - 1]
+  //   if (name === "auth") {
+  //     title = "Connect"
+  //   }
+  //   if (name === "phone") {
+  //     title = "Log in with Phone"
+  //   }
+  //   if (name === "email") {
+  //     title = "Log in with Email"
+  //   }
+  //   if (name === "wallet") {
+  //     title = "Log in with Wallet"
+  //   }
+  // }
+
+  if (pathname.startsWith("/profile")) {
+    const routeNames = pathname.split("/")
+    const name = routeNames[routeNames.length - 1]
+    if (name === "profile") {
+      title = "Profiles"
+    }
+    if (name === "create") {
+      title = "Create Profile"
+    }
+    if (name === "wallet") {
+      title = "Wallet"
+    }
+  }
+
+  return title
+}

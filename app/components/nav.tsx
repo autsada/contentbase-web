@@ -4,6 +4,7 @@ import { IoSearchOutline } from "react-icons/io5"
 import type { UserRecord } from "firebase-admin/auth"
 
 import type { Profile } from "~/types"
+import { getPageTitle } from "~/utils"
 
 interface Props {
   user: UserRecord | null
@@ -13,6 +14,7 @@ interface Props {
 
 export function Nav({ user, openDrawer, profile }: Props) {
   const { pathname } = useLocation()
+  const pageTitle = getPageTitle(pathname)
 
   return (
     <div className="w-full h-[70px] px-4 flex items-center justify-between gap-x-5 border-b border-borderExtraLightGray shadow-neutral-300">
@@ -27,7 +29,7 @@ export function Nav({ user, openDrawer, profile }: Props) {
       </div>
 
       <div className="relative h-[50px] flex-grow flex items-center justify-between rounded-full overflow-hidden">
-        {!pathname.startsWith("/auth") && (
+        {pathname.startsWith("/auth") ? null : !pageTitle ? (
           <>
             <input
               type="text"
@@ -36,6 +38,10 @@ export function Nav({ user, openDrawer, profile }: Props) {
 
             <IoSearchOutline size={25} className="absolute right-0" />
           </>
+        ) : (
+          <div className="w-full">
+            <h5 className="text-center">{pageTitle}</h5>
+          </div>
         )}
       </div>
 

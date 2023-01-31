@@ -8,14 +8,11 @@ export default function Profiles() {
   return (
     <div className="page text-start">
       <div className="w-full p-4 border-b-[1px] border-borderLightGray">
-        <h6 className="text-base">Your Profiles</h6>
         <div className="w-full py-2 px-4">
           {!hasProfile && (
-            <>
-              <p className="font-light text-textLight">
-                You don't have any profile yet.
-              </p>
-            </>
+            <p className="font-light text-textLight text-center">
+              You don't have any profile yet.
+            </p>
           )}
         </div>
         <div className="mt-4 mb-2">
@@ -31,8 +28,8 @@ export default function Profiles() {
         <BackdropWithInfo>
           <div className="px-2">
             <p className="mb-2 text-blueBase">
-              You will need a profile to upload, share, like, and comment on
-              ContentBase.
+              You will need a profile to upload, share, like, and comment on{" "}
+              <strong className="text-blueDark">ContentBase</strong>.
             </p>
             <h6 className="text-base">
               Would you like to create your first profile now?
