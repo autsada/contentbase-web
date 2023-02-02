@@ -7,7 +7,8 @@ import { commitSession, getSession } from "./session.server"
 export async function checkSessionCookie(session: Session) {
   try {
     const decodedIdToken = await auth.verifySessionCookie(
-      session.get("session") || ""
+      session.get("session") || "",
+      true
     )
     return decodedIdToken
   } catch (error) {
@@ -77,4 +78,12 @@ export async function createUserIfNotExist(address: string) {
 
 export function createCustomToken(uid: string) {
   return auth.createCustomToken(uid)
+}
+
+export async function logOut(session: Session) {
+  const decodedClaims = await checkSessionCookie(session)
+
+  if (!decodedClaims) return
+
+  return auth.revokeRefreshTokens(decodedClaims.sub)
 }
