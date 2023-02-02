@@ -5,7 +5,7 @@
 
 import { GraphQLClient } from "graphql-request"
 
-import { CREATE_WALLET_MUTATION } from "./mutations"
+import { CREATE_WALLET_MUTATION, VALIDATE_HANDLE_MUTATION } from "./mutations"
 import { GET_BALANCE_QUERY } from "./queries"
 import type {
   QueryReturnType,
@@ -42,4 +42,16 @@ export async function getBalance(address: string) {
   >(GET_BALANCE_QUERY, { address })
 
   return data.getMyBalance
+}
+
+/**
+ * @dev Use this function for both `TRADITIONAL` and `WALLET` accounts as the function doesn't need private key.
+ */
+export async function validateHandle(handle: string) {
+  const data = await client.request<
+    MutationReturnType<"validateHandle">,
+    MutationArgsType<"validateHandle">
+  >(VALIDATE_HANDLE_MUTATION, { handle })
+
+  return data.validateHandle
 }

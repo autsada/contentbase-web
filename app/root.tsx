@@ -239,7 +239,7 @@ export default function App() {
               />
               <RightDrawer
                 openDrawer={openRightDrawer}
-                className={!isRightDrawerOpen ? "-right-full" : "right-0"}
+                className={!isRightDrawerOpen ? "-right-[100%]" : "right-0"}
                 profile={usedProfile}
               />
             </>

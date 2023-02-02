@@ -7,3 +7,9 @@ export const CREATE_WALLET_MUTATION = gql`
     }
   }
 `
+
+export const VALIDATE_HANDLE_MUTATION = gql`
+  mutation ValidateHandle($handle: String!) {
+    validateHandle(handle: $handle)
+  }
+`
