@@ -7,12 +7,13 @@ interface Props {
   profile: Profile | null
 }
 
-export default function RightDrawer({ openDrawer, className }: Props) {
+export default function RightDrawer({
+  openDrawer,
+  className = "-right-[100%]",
+}: Props) {
   return (
     <div
-      className={`fixed z-[10000] top-0 right-0 h-screen w-3/5 bg-white pt-12 overflow-hidden transition-all duration-300 ${
-        className ? className : ""
-      }`}
+      className={`fixed z-[10000] top-0 right-0 h-screen w-3/5 bg-white pt-12 overflow-hidden transition-all duration-300 ${className}`}
     >
       <button
         className="absolute top-3 right-6 text-lg text-textLight"

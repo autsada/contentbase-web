@@ -1,14 +1,17 @@
+import { useEffect, useState } from "react"
 import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react"
 
+import { BackdropWithInfo } from "~/components/backdrop-info"
 import { requireAuth } from "~/server/auth.server"
+import { clientAuth } from "~/client/firebase.client"
 import { queryAccountByUid } from "~/graphql/public-apis"
 import { getBalance } from "~/graphql/server"
 import type { Account } from "~/types"
-import { BackdropWithInfo } from "~/components/backdrop-info"
 
 type AccountContext = {
+  idToken: string
   account: Account
   balance: string | undefined
   hasProfile: boolean | undefined
@@ -42,9 +45,32 @@ export default function Profile() {
   const balance = data?.balance
   const hasProfile = data?.hasProfile
 
+  const [idToken, setIdToken] = useState("")
+
+  /**
+   * Listen to id token change, and set it to context for use to communicate with the `Server` service in server side code.
+   */
+  useEffect(() => {
+    if (typeof document === "undefined") return
+
+    const unsubscribe = clientAuth.onIdTokenChanged(async (user) => {
+      let idToken: string = ""
+      if (user) {
+        idToken = await user.getIdToken()
+      } else {
+        idToken = ""
+      }
+      setIdToken(idToken)
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [])
+
   return (
     <>
-      <Outlet context={{ account, balance, hasProfile }} />
+      <Outlet context={{ idToken, account, balance, hasProfile }} />
 
       {/* For some reason if user still doesn't have an account, we need to have them log out and log in again */}
       {!account && (

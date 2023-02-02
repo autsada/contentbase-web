@@ -16,10 +16,10 @@ import {
 } from "@remix-run/react"
 import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 import type { UserRecord } from "firebase-admin/auth"
+import { ClientOnly } from "remix-utils"
 import { WagmiConfig } from "wagmi"
 import { Web3Modal } from "@web3modal/react"
 import NProgress from "nprogress"
-import { firestore } from "./client/firebase.client"
 import { onSnapshot, doc } from "firebase/firestore"
 
 import ErrorComponent from "./components/error"
@@ -30,9 +30,15 @@ import { getSession, commitSession } from "./server/session.server"
 import { getUser } from "./server/auth.server"
 import { ethereumClient, wagmiClient } from "./ethereum/client"
 import { queryAccountByUid } from "./graphql/public-apis"
+import { firestore } from "./client/firebase.client"
 import { LOGGED_IN_KEY, WALLET_CONNECT_PROJECT_ID } from "./constants"
 import type { LoaderData, Profile } from "./types"
 import styles from "./styles/app.css"
+
+export type UserContext = {
+  idToken: string
+  user: UserRecord
+}
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -116,7 +122,9 @@ export default function App() {
   const transition = useTransition()
   // const fetchers = useFetchers()
 
-  // When user logged in, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
+  /**
+   * When user logged in, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
+   */
   useEffect(() => {
     if (typeof document === "undefined") return
 
@@ -129,7 +137,9 @@ export default function App() {
     }
   }, [uid])
 
-  // Listen to storage event to update authenticaiton state in all tabs
+  /**
+   * Listen to storage event to update authenticaiton state in all tabs
+   */
   useEffect(() => {
     if (typeof document === "undefined") return
     const storageEventHanlder = (e: StorageEvent) => {
@@ -210,7 +220,7 @@ export default function App() {
               openDrawer={openRightDrawer}
               profile={usedProfile}
             />
-            <Outlet />
+            <Outlet context={{ test: "abc123" }} />
             <ScrollRestoration />
             <script
               // Add `ENV` to the window object
@@ -221,28 +231,36 @@ export default function App() {
             <Scripts />
             <LiveReload />
 
-            {/* The Modal to connect to wallet */}
-            <Web3Modal
-              projectId={WALLET_CONNECT_PROJECT_ID}
-              ethereumClient={ethereumClient}
-            />
+            <ClientOnly>
+              {() => (
+                <>
+                  {/* The Modal to connect to wallet */}
+                  <Web3Modal
+                    projectId={WALLET_CONNECT_PROJECT_ID}
+                    ethereumClient={ethereumClient}
+                  />
 
-            {/* Right Drawer */}
-            <>
-              <Backdrop
-                className={`${
-                  !isRightDrawerOpen
-                    ? "transition-all duration-300 hidden"
-                    : "transition-all duration-300 block"
-                }`}
-                opacity={!isRightDrawerOpen ? 0 : 30}
-              />
-              <RightDrawer
-                openDrawer={openRightDrawer}
-                className={!isRightDrawerOpen ? "-right-[100%]" : "right-0"}
-                profile={usedProfile}
-              />
-            </>
+                  {/* Right Drawer */}
+                  <>
+                    <Backdrop
+                      className={`${
+                        !isRightDrawerOpen
+                          ? "transition-all duration-300 hidden"
+                          : "transition-all duration-300 block"
+                      }`}
+                      opacity={!isRightDrawerOpen ? 0 : 30}
+                    />
+                    <RightDrawer
+                      openDrawer={openRightDrawer}
+                      className={
+                        !isRightDrawerOpen ? "-right-[100%]" : "right-0"
+                      }
+                      profile={usedProfile}
+                    />
+                  </>
+                </>
+              )}
+            </ClientOnly>
           </body>
         </Document>
       </WagmiConfig>

@@ -12,6 +12,7 @@ export async function checkSessionCookie(session: Session) {
     )
     return decodedIdToken
   } catch (error) {
+    // Return null in case verify session cookie failed, and apply actions such as redirect in the place that uses this function.
     return null
   }
 }

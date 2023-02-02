@@ -4,7 +4,12 @@ import { useDropzone } from "react-dropzone"
 import debounce from "lodash/debounce"
 import { useFetcher } from "@remix-run/react"
 import { MdOutlineCheck } from "react-icons/md"
+import { useAccount } from "wagmi"
+import { useHydrated } from "remix-utils"
+import type { ActionArgs } from "@remix-run/node"
 
+import { useAccountContext } from "../profile"
+import { clientAuth } from "~/client/firebase.client"
 import type { validateActionType } from "./validate-handle"
 
 type SelectedFile = File & {
@@ -12,17 +17,31 @@ type SelectedFile = File & {
   preview: string
 }
 
+export async function action({ request }: ActionArgs) {}
+
 export default function CreateProfile() {
   const [handle, setHandle] = useState("")
   const [isHandleLenValid, setIsHandleLenValid] = useState<
     boolean | undefined
   >()
-
   const [file, setFile] = useState<SelectedFile | null>(null)
-  const [uploadError, setUploadError] = useState("File too big")
+  const [uploadError, setUploadError] = useState("")
+  const [error, setError] = useState("")
 
   const fetcher = useFetcher<validateActionType>()
   const isHandleUnique = fetcher?.data?.isUnique
+  const hydrated = useHydrated()
+  const { isConnected } = useAccount()
+  const { account } = useAccountContext()
+
+  // When the button should be disabled
+  const disabled =
+    !hydrated ||
+    !handle ||
+    !isHandleLenValid ||
+    !isHandleUnique ||
+    !file ||
+    !!uploadError
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -82,6 +101,44 @@ export default function CreateProfile() {
     validateHandleDebounce(value)
   }
 
+  async function createProfile() {
+    try {
+      if (!clientAuth || !account) {
+        setError("Something not right, please refresh the page and try again")
+        return
+      }
+      const accountType = account.type
+
+      const user = clientAuth.currentUser
+      const idToken = await user?.getIdToken()
+      // For some reason, if no idToken, we need to log user out and have them to sign in again
+      if (!idToken) {
+        fetcher.submit(null, { method: "post", action: "/logout" })
+        return
+      }
+
+      // If user uploads a profile image, save the image to storage first
+
+      // Check if it is the first profile of the user or not
+      const isFirstProfile = account.profiles?.length === 0
+
+      if (isFirstProfile) {
+        // Call the `createFirstProfile` mutation in the `Server` service for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for users first profiles.
+        fetcher.submit({ idToken })
+      } else {
+        // How to create a profile depends on the account type.
+
+        if (accountType === "TRADITIONAL") {
+          // A. Call the `Server` service to create a profile
+        }
+
+        if (accountType === "WALLET") {
+          // B. Connect to the blockchain directly.
+        }
+      }
+    } catch (error) {}
+  }
+
   return (
     <div className="page p-4 text-start">
       <fetcher.Form className="px-5">
@@ -133,14 +190,15 @@ export default function CreateProfile() {
 
         <div className="mb-5">
           <fieldset className="border border-borderDarkGray px-4 py-4 rounded-md bg-white">
-            <legend className="text-textExtraLight px-1">Image</legend>
-            <p className="block w-full pl-1 font-light text-blue-400 text-sm">
-              Your profile image
-            </p>
+            <legend className="text-textExtraLight px-1">Profile Image</legend>
             <div className="w-[150px] h-[150px] mx-auto border border-borderLightGray">
               <div
                 className="w-full h-full rounded-full bg-gray-100 overflow-hidden"
-                {...getRootProps({ isDragActive, isDragReject, isDragAccept })}
+                {...getRootProps({
+                  isDragActive,
+                  isDragReject,
+                  isDragAccept,
+                })}
               >
                 <input {...getInputProps({ multiple: false })} />
                 {file && (
@@ -161,10 +219,17 @@ export default function CreateProfile() {
           </p>
         </div>
 
-        <button type="submit" className="btn-dark w-40 rounded-full">
+        <button
+          type="submit"
+          className={`btn-dark w-40 rounded-full ${
+            disabled ? "disabled" : "opacity-100"
+          }`}
+          disabled={disabled}
+        >
           Create Profile
         </button>
       </fetcher.Form>
+      {error && <p className="error mt-4 px-5 text-center">{error}</p>}
     </div>
   )
 }
