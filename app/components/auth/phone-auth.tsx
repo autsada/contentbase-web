@@ -12,12 +12,12 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth"
 import type { ConfirmationResult } from "firebase/auth"
 
 import OtpInput from "./opt-input"
-import { Backdrop } from "../backdrop"
 import InfoSpinner from "./info-spinner"
 import { clientAuth } from "~/client/firebase.client"
 import { getCountryNames } from "~/utils"
 import { useAuthenticityToken } from "remix-utils"
 import type { AccountType } from "~/types"
+import { BackdropWithInfo } from "../backdrop-info"
 
 interface Props {
   country?: Country | null
@@ -305,9 +305,9 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
         )}
       </div>
       {verifyOtpProcessing && (
-        <Backdrop opacity={50}>
+        <BackdropWithInfo>
           <InfoSpinner />
-        </Backdrop>
+        </BackdropWithInfo>
       )}
     </>
   )
