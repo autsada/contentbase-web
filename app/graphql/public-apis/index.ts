@@ -10,6 +10,7 @@ import type { AccountType } from "~/types"
 import type { QueryReturnType, QueryArgsType } from "./types"
 
 const {
+  // PUBLIC_API_URL_DEV,
   PUBLIC_API_URL_TEST,
   PUBLIC_API_URL_PROD,
   NODE_ENV,
@@ -20,6 +21,13 @@ const {
 } = process.env
 const url =
   NODE_ENV === "production" ? PUBLIC_API_URL_PROD! : PUBLIC_API_URL_TEST!
+
+// const url =
+//   NODE_ENV === "production"
+//     ? PUBLIC_API_URL_PROD!
+//     : NODE_ENV === "test"
+//     ? PUBLIC_API_URL_TEST!
+//     : PUBLIC_API_URL_DEV!
 
 export const client = new GraphQLClient(`${url}/graphql`, {
   headers: {

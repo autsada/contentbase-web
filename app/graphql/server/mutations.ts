@@ -13,3 +13,11 @@ export const VALIDATE_HANDLE_MUTATION = gql`
     validateHandle(handle: $handle)
   }
 `
+
+export const CREATE_FIRST_PROFILE_MUTATION = gql`
+  mutation CreateFirstProfile($input: CreateDefaultProfileInput!) {
+    createFirstProfile(input: $input) {
+      status
+    }
+  }
+`

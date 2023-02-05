@@ -26,3 +26,4 @@ export interface LoaderData {
 export type Account = NexusGenFieldTypes["Account"]
 export type AccountType = "TRADITIONAL" | "WALLET"
 export type Profile = NexusGenFieldTypes["Profile"]
+export type StorageFolder = "avatars" | "videos" | "images"

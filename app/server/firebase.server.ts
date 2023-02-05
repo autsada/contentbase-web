@@ -7,7 +7,8 @@ import {
 } from "firebase-admin/app"
 import { getAuth } from "firebase-admin/auth"
 
-const { NODE_ENV, FIREBASE_ADMIN_SERVICE_ACCOUNT } = process.env
+const { NODE_ENV, FIREBASE_ADMIN_SERVICE_ACCOUNT, FIREBASE_STORAGE_BUCKET } =
+  process.env
 
 function initializeAdmin() {
   return getApps().length > 0
@@ -19,6 +20,7 @@ function initializeAdmin() {
                 JSON.parse(FIREBASE_ADMIN_SERVICE_ACCOUNT || "{}")
               )
             : applicationDefault(),
+        storageBucket: FIREBASE_STORAGE_BUCKET,
       })
 }
 

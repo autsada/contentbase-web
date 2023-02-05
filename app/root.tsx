@@ -220,7 +220,7 @@ export default function App() {
               openDrawer={openRightDrawer}
               profile={usedProfile}
             />
-            <Outlet context={{ test: "abc123" }} />
+            <Outlet />
             <ScrollRestoration />
             <script
               // Add `ENV` to the window object

@@ -1,6 +1,7 @@
 import { initializeApp, getApp, getApps } from "firebase/app"
 import { getAuth, setPersistence, inMemoryPersistence } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
+import { getStorage } from "firebase/storage"
 
 const firebaseConfig = {
   apiKey: "AIzaSyDW1tBI6rH5rbG4jOPeg7GDAvsMznC75eI",
@@ -27,3 +28,8 @@ setPersistence(
       }
 )
 export const firestore = getFirestore(firebaseApp)
+export const storage = getStorage(firebaseApp)
+
+// Storage folder names
+export const avatarsStorageFolder = "avatars"
+export const videosStorageFolder = "videos"

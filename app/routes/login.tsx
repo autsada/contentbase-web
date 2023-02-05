@@ -42,9 +42,7 @@ export async function action({ request }: ActionArgs) {
       if (accountType === "TRADITIONAL") {
         // Two steps process: create a wallet and create an account
         // Calling `createWallet` mutation in the server service will do these 2 steps in one go.
-        await createWallet({
-          Authorization: `Bearer ${idToken}`,
-        })
+        await createWallet(idToken)
       }
 
       if (accountType === "WALLET") {

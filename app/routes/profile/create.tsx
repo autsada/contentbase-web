@@ -1,23 +1,47 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
-import type { ChangeEvent } from "react"
 import { useDropzone } from "react-dropzone"
 import debounce from "lodash/debounce"
-import { useFetcher } from "@remix-run/react"
+import { useFetcher, Link } from "@remix-run/react"
 import { MdOutlineCheck } from "react-icons/md"
 import { useAccount } from "wagmi"
 import { useHydrated } from "remix-utils"
+import { json } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
+import type { ChangeEvent } from "react"
 
 import { useAccountContext } from "../profile"
-import { clientAuth } from "~/client/firebase.client"
+import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
+import { UPLOAD_SERVICE_URL } from "~/constants"
+import { createFirstProfile } from "~/graphql/server"
 import type { validateActionType } from "./validate-handle"
+import { BackdropWithInfo } from "~/components/backdrop-info"
+import { Spinner } from "~/components/spinner"
 
 type SelectedFile = File & {
   path: string
   preview: string
 }
 
-export async function action({ request }: ActionArgs) {}
+export async function action({ request }: ActionArgs) {
+  try {
+    // Get the `idToken` from the request
+    const form = await request.formData()
+    const { handle, imageURI, owner, idToken } = Object.fromEntries(form) as {
+      handle: string
+      imageURI?: string
+      owner: string
+      idToken: string
+    }
+
+    // Call create profile function
+    await createFirstProfile({ handle, imageURI, owner }, idToken)
+
+    return json({ status: "Ok" })
+  } catch (error) {
+    console.log("error: ", error)
+    return json({ status: "Error" })
+  }
+}
 
 export default function CreateProfile() {
   const [handle, setHandle] = useState("")
@@ -26,10 +50,13 @@ export default function CreateProfile() {
   >()
   const [file, setFile] = useState<SelectedFile | null>(null)
   const [uploadError, setUploadError] = useState("")
+  const [processing, setProcessing] = useState(false)
   const [error, setError] = useState("")
 
-  const fetcher = useFetcher<validateActionType>()
-  const isHandleUnique = fetcher?.data?.isUnique
+  const validateFetcher = useFetcher<validateActionType>()
+  const isHandleUnique = validateFetcher?.data?.isUnique
+  const actionFetcher = useFetcher<typeof action>()
+  const actionStatus = actionFetcher?.data?.status
   const hydrated = useHydrated()
   const { isConnected } = useAccount()
   const { account } = useAccountContext()
@@ -83,7 +110,7 @@ export default function CreateProfile() {
     }
 
     setIsHandleLenValid(true)
-    fetcher.submit(
+    validateFetcher.submit(
       { handle },
       { method: "post", action: "profile/validate-handle" }
     )
@@ -101,6 +128,15 @@ export default function CreateProfile() {
     validateHandleDebounce(value)
   }
 
+  /**
+   * When the action finished and status Ok, remove error (if any)
+   */
+  useEffect(() => {
+    if (actionStatus && actionStatus === "Ok") {
+      if (error) setError("")
+    }
+  }, [error, actionStatus])
+
   async function createProfile() {
     try {
       if (!clientAuth || !account) {
@@ -108,25 +144,51 @@ export default function CreateProfile() {
         return
       }
       const accountType = account.type
+      // The owner address
+      const address = account.address
 
+      setProcessing(true)
       const user = clientAuth.currentUser
       const idToken = await user?.getIdToken()
-      // For some reason, if no idToken, we need to log user out and have them to sign in again
-      if (!idToken) {
-        fetcher.submit(null, { method: "post", action: "/logout" })
+      // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
+      if (!idToken || account.uid !== user?.uid) {
+        setProcessing(false)
+        actionFetcher.submit(null, {
+          method: "post",
+          action: "/reauthenticate",
+        })
         return
       }
 
-      // If user uploads a profile image, save the image to storage first
+      // Profile image url
+      let imageURI: string = ""
+
+      if (file) {
+        const formData = new FormData()
+        formData.append("file", file)
+        formData.append("handle", handle)
+        formData.append("storageFolder", avatarsStorageFolder)
+
+        const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
+          method: "POST",
+          body: formData,
+        })
+
+        const data = (await res.json()) as { url: string }
+        imageURI = data.url
+      }
 
       // Check if it is the first profile of the user or not
       const isFirstProfile = account.profiles?.length === 0
 
       if (isFirstProfile) {
         // Call the `createFirstProfile` mutation in the `Server` service for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for users first profiles.
-        fetcher.submit({ idToken })
+        actionFetcher.submit(
+          { handle, imageURI, owner: address, idToken },
+          { method: "post" }
+        )
       } else {
-        // How to create a profile depends on the account type.
+        // If NOT first prifile, how to create a profile depends on the account type.
 
         if (accountType === "TRADITIONAL") {
           // A. Call the `Server` service to create a profile
@@ -136,12 +198,28 @@ export default function CreateProfile() {
           // B. Connect to the blockchain directly.
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      setProcessing(false)
+      setError(
+        "An error occurred while attempting to create a profile. Please try again."
+      )
+    }
+  }
+
+  /**
+   * Reset states so user can create a new profile
+   */
+  function clearForm() {
+    setHandle("")
+    setFile(null)
+    if (processing) setProcessing(false)
+    if (error) setError("")
+    if (isHandleLenValid) setIsHandleLenValid(false)
   }
 
   return (
     <div className="page p-4 text-start">
-      <fetcher.Form className="px-5">
+      <actionFetcher.Form className="px-5" onSubmit={createProfile}>
         <p className="mb-5 text-lg">Please provide below information.</p>
         <div className="mb-5">
           <fieldset
@@ -181,7 +259,7 @@ export default function CreateProfile() {
           </fieldset>
           <p className="error text-end">
             {typeof isHandleUnique === "boolean" && !isHandleUnique ? (
-              "Handle taken"
+              "This handle is taken"
             ) : (
               <>&nbsp;</>
             )}
@@ -228,8 +306,64 @@ export default function CreateProfile() {
         >
           Create Profile
         </button>
-      </fetcher.Form>
+      </actionFetcher.Form>
       {error && <p className="error mt-4 px-5 text-center">{error}</p>}
+
+      {/* Show backdrop and progression information */}
+      {processing && (
+        <BackdropWithInfo>
+          {actionStatus === "Ok" || actionStatus === "Error" ? (
+            actionStatus === "Ok" ? (
+              <>
+                <h6 className="text-base px-2 mt-2 text-center">
+                  <span className="text-blueBase">{handle}'s</span> Profile
+                  Created
+                </h6>
+                <div className="mt-6 text-center">
+                  <Link to="/profile">
+                    <h6 className="font-light text-blueBase text-center text-base cursor-pointer">
+                      Go to profiles dashboard
+                    </h6>
+                  </Link>
+                  <h6
+                    className="mt-4 font-light text-orange-400 text-center text-base cursor-pointer"
+                    onClick={clearForm}
+                  >
+                    Create a new profile
+                  </h6>
+                </div>
+              </>
+            ) : actionStatus === "Error" ? (
+              <>
+                <h6 className="text-base px-2 mt-2 text-center">
+                  Create <span className="text-blueBase">{handle}'s</span>{" "}
+                  Profile Failed
+                </h6>
+                <div className="mt-6">
+                  <h6
+                    className="font-light text-orange-400 text-center text-base cursor-pointer"
+                    onClick={clearForm}
+                  >
+                    Try again
+                  </h6>
+                </div>
+              </>
+            ) : (
+              <Spinner />
+            )
+          ) : (
+            <>
+              <h6 className="text-base px-2 mt-2 text-center">
+                Creating <span className="text-blueBase">{handle}'s</span>{" "}
+                Profile
+              </h6>
+              <div className="mt-4">
+                <Spinner size="sm" />
+              </div>
+            </>
+          )}
+        </BackdropWithInfo>
+      )}
     </div>
   )
 }

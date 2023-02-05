@@ -11,6 +11,7 @@ export const GET_ACCOUNT_BY_ID = gql`
         handle
         default
       }
+      uid
       type
     }
   }

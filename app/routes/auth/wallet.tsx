@@ -9,7 +9,7 @@ import { useAccount, useDisconnect } from "wagmi"
 
 import { Backdrop } from "~/components/backdrop"
 import ErrorComponent from "~/components/error"
-import InfoSpinner from "~/components/auth/info-spinner"
+import { InfoWithSpinner } from "~/components/info-spinner"
 import { createUserIfNotExist, createCustomToken } from "~/server/auth.server"
 import { signInWithToken } from "~/client/auth.client"
 import type { AccountType } from "~/types"
@@ -103,7 +103,7 @@ export default function Wallet() {
 
       {processing && (
         <Backdrop opacity={50}>
-          <InfoSpinner />
+          <InfoWithSpinner header="Processing Log in" />
         </Backdrop>
       )}
     </div>
