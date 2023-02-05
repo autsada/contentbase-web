@@ -94,7 +94,7 @@ export default function Wallet() {
               className="btn-orange w-56 h-12 rounded-full text-xl focus:outline-none"
               disabled={!hydrated}
             >
-              {processing ? "Processing Login" : "Connect Wallet"}
+              {processing ? "Processing Log in" : "Connect Wallet"}
             </button>
             {error && <p className="error mt-2">{error}</p>}
           </fetcher.Form>

@@ -1090,6 +1090,18 @@ button {
   width: 9rem;
 }
 
+.w-72 {
+  width: 18rem;
+}
+
+.w-80 {
+  width: 20rem;
+}
+
+.w-8 {
+  width: 2rem;
+}
+
 .max-w-\[360px\] {
   max-width: 360px;
 }
@@ -1246,6 +1258,11 @@ button {
   border-color: rgb(220 38 38 / var(--tw-border-opacity));
 }
 
+.border-neutral-300 {
+  --tw-border-opacity: 1;
+  border-color: rgb(212 212 212 / var(--tw-border-opacity));
+}
+
 .border-t-gray-400 {
   --tw-border-opacity: 1;
   border-top-color: rgb(156 163 175 / var(--tw-border-opacity));
@@ -1374,6 +1391,21 @@ button {
 .py-4 {
   padding-top: 1rem;
   padding-bottom: 1rem;
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.py-\[16px\] {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 .pl-4 {
