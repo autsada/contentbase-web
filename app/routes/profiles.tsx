@@ -6,12 +6,13 @@ import { Outlet, useOutletContext } from "@remix-run/react"
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { requireAuth } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
-import type { Account } from "~/types"
 import { useAppContext } from "~/root"
+import type { Account, Profile } from "~/types"
 
 type ProfileContext = {
   idToken: string
   account: Account
+  profile: Profile
   balance: string | undefined
   hasProfile: boolean | undefined
 }
@@ -26,7 +27,7 @@ export async function loader({ request }: LoaderArgs) {
   return json({ user }, { headers })
 }
 
-export default function Profile() {
+export default function ProfileDashboard() {
   const context = useAppContext()
 
   const [idToken, setIdToken] = useState("")
@@ -58,6 +59,7 @@ export default function Profile() {
         context={{
           idToken,
           account: context?.account,
+          profile: context?.profile,
           balance: context?.balance,
           hasProfile: context?.hasProfile,
         }}

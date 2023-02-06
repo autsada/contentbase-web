@@ -32,10 +32,10 @@ export function getPageTitle(pathname: string) {
   //   }
   // }
 
-  if (pathname.startsWith("/profile")) {
+  if (pathname.startsWith("/profiles")) {
     const routeNames = pathname.split("/")
     const name = routeNames[routeNames.length - 1]
-    if (name === "profile") {
+    if (name === "profiles") {
       title = "Profiles"
     }
     if (name === "create") {
