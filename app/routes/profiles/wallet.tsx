@@ -1,4 +1,4 @@
-import { useProfileContext } from "../profile"
+import { useProfileContext } from "../profiles"
 
 export default function Wallet() {
   const context = useProfileContext()

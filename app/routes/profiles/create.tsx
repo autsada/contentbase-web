@@ -9,7 +9,7 @@ import { json } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
 import type { ChangeEvent } from "react"
 
-import { useProfileContext } from "../profile"
+import { useProfileContext } from "../profiles"
 import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
 import { UPLOAD_SERVICE_URL } from "~/constants"
 import { createFirstProfile } from "~/graphql/server"
@@ -321,7 +321,7 @@ export default function CreateProfile() {
                   Minted
                 </h6>
                 <div className="mt-6 text-center">
-                  <Link to="/profile">
+                  <Link to="/profiles">
                     <h6 className="btn-light w-max mx-auto px-5 py-2 rounded-full font-light text-center text-base cursor-pointer">
                       Go to profiles dashboard
                     </h6>

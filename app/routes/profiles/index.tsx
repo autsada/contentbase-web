@@ -1,9 +1,14 @@
+import { useMemo } from "react"
 import { Link } from "@remix-run/react"
 import { BackdropWithInfo } from "~/components/backdrop-info"
-import { useProfileContext } from "../profile"
+import { useProfileContext } from "../profiles"
 
 export default function Profiles() {
   const context = useProfileContext()
+  const profiles = useMemo(
+    () => context?.account?.profiles,
+    [context?.account?.profiles]
+  )
 
   return (
     <div className="page text-start">

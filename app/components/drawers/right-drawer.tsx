@@ -22,10 +22,10 @@ export default function RightDrawer({
         &#10005;
       </button>
       <div className="w-full py-2 px-5">
-        <Link to="profile">
+        <Link to="profiles">
           <div className="py-5 text-center font-semibold text-lg">Profiles</div>
         </Link>
-        <Link to="profile/wallet">
+        <Link to="profiles/wallet">
           <div className="py-5 text-center font-semibold text-lg">Wallet</div>
         </Link>
         <div className="py-5 text-center font-semibold text-lg">
