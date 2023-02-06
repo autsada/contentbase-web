@@ -13,6 +13,7 @@ import {
   useTransition,
   // useFetchers,
   useRevalidator,
+  useOutletContext,
 } from "@remix-run/react"
 import { AuthenticityTokenProvider, createAuthenticityToken } from "remix-utils"
 import type { UserRecord } from "firebase-admin/auth"
@@ -31,9 +32,15 @@ import { getUser } from "./server/auth.server"
 import { ethereumClient, wagmiClient } from "./ethereum/client"
 import { queryAccountByUid } from "./graphql/public-apis"
 import { firestore } from "./client/firebase.client"
-import { LOGGED_IN_KEY, WALLET_CONNECT_PROJECT_ID } from "./constants"
+import {
+  INITIAL_VISIT_ID,
+  LOGGED_IN_KEY,
+  WALLET_CONNECT_PROJECT_ID,
+} from "./constants"
 import type { LoaderData, Profile } from "./types"
 import styles from "./styles/app.css"
+import carouselStyles from "react-responsive-carousel/lib/styles/carousel.min.css"
+import { Welcome } from "./components/welcome"
 
 export type UserContext = {
   idToken: string
@@ -57,7 +64,10 @@ export const meta: MetaFunction = () => {
 }
 
 export function links() {
-  return [{ rel: "stylesheet", href: styles }]
+  return [
+    { rel: "stylesheet", href: styles },
+    { rel: "stylesheet", href: carouselStyles },
+  ]
 }
 
 export async function loader({ request }: LoaderArgs) {
@@ -116,11 +126,24 @@ export default function App() {
   const profile = loaderData?.profile as Profile | null
   const revalidator = useRevalidator()
 
+  const [welcomeModalVisible, setWelcomeModalVisible] = useState(() => !address)
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
   const [usedProfile, setUsedProfile] = useState(() => profile)
 
   const transition = useTransition()
   // const fetchers = useFetchers()
+
+  useEffect(() => {
+    if (typeof document === "undefined") return
+
+    const initialVisit = window.localStorage.getItem(INITIAL_VISIT_ID)
+
+    if (!initialVisit) {
+      setWelcomeModalVisible(true)
+    } else {
+      setWelcomeModalVisible(false)
+    }
+  }, [])
 
   /**
    * When user logged in, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
@@ -220,7 +243,7 @@ export default function App() {
               openDrawer={openRightDrawer}
               profile={usedProfile}
             />
-            <Outlet />
+            <Outlet context={{ welcomeModalVisible, setWelcomeModalVisible }} />
             <ScrollRestoration />
             <script
               // Add `ENV` to the window object
@@ -230,6 +253,9 @@ export default function App() {
             />
             <Scripts />
             <LiveReload />
+
+            {/* Welcome modal */}
+            {welcomeModalVisible && <Welcome />}
 
             <ClientOnly>
               {() => (
@@ -278,4 +304,13 @@ export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error)
 
   return <ErrorComponent error={error.message} />
+}
+
+type AppContext = {
+  welcomeModalVisible: boolean
+  setWelcomeModalVisible: (open: boolean) => void
+}
+
+export function useAppContext() {
+  return useOutletContext<AppContext>()
 }

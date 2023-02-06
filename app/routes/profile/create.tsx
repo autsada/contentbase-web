@@ -315,9 +315,9 @@ export default function CreateProfile() {
           {actionStatus === "Ok" || actionStatus === "Error" ? (
             actionStatus === "Ok" ? (
               <>
-                <h6 className="text-base px-2 mt-2 text-center">
-                  <span className="text-blueBase">{handle}'s</span> Profile
-                  Created
+                <h6 className="px-2 mt-2 text-center">
+                  <span className="text-blueBase">{handle}</span> Profile NFT
+                  Minted
                 </h6>
                 <div className="mt-6 text-center">
                   <Link to="/profile">

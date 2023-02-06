@@ -19,21 +19,21 @@ import type {
 } from "./types"
 
 const {
-  // SERVER_URL_DEV,
+  SERVER_URL_DEV,
   SERVER_URL_TEST,
   SERVER_URL_PROD,
   NODE_ENV,
   SERVER_ADMIN_ROUTE_ACCESS_KEY,
   KMS_ADMIN_ROUTE_ACCESS_KEY,
 } = process.env
-const url = NODE_ENV === "production" ? SERVER_URL_PROD! : SERVER_URL_TEST!
+// const url = NODE_ENV === "production" ? SERVER_URL_PROD! : SERVER_URL_TEST!
 
-// const url =
-//   NODE_ENV === "production"
-//     ? SERVER_URL_PROD!
-//     : NODE_ENV === "test"
-//     ? SERVER_URL_TEST!
-//     : SERVER_URL_DEV!
+const url =
+  NODE_ENV === "production"
+    ? SERVER_URL_PROD!
+    : NODE_ENV === "test"
+    ? SERVER_URL_TEST!
+    : SERVER_URL_DEV!
 
 export const client = new GraphQLClient(`${url}/graphql`, {
   headers: {
