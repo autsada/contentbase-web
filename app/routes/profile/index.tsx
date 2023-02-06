@@ -27,6 +27,7 @@ export default function Profiles() {
       {account && typeof hasProfile === "boolean" && !hasProfile && (
         <BackdropWithInfo>
           <div className="px-2">
+            <h6 className="text-center mb-2">Create First Prifile</h6>
             <p className="mb-2 text-blueBase">
               You will need a profile to upload, share, like, and comment on{" "}
               <strong className="text-blueDark">ContentBase</strong>.

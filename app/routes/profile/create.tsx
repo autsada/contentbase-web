@@ -203,6 +203,7 @@ export default function CreateProfile() {
       setError(
         "An error occurred while attempting to create a profile. Please try again."
       )
+      // alert(JSON.stringify(error))
     }
   }
 
@@ -321,23 +322,31 @@ export default function CreateProfile() {
                 </h6>
                 <div className="mt-6 text-center">
                   <Link to="/profile">
-                    <h6 className="font-light text-blueBase text-center text-base cursor-pointer">
+                    <h6 className="btn-light w-max mx-auto px-5 py-2 rounded-full font-light text-center text-base cursor-pointer">
                       Go to profiles dashboard
                     </h6>
                   </Link>
                   <h6
-                    className="mt-4 font-light text-orange-400 text-center text-base cursor-pointer"
+                    className="btn-orange w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
                     onClick={clearForm}
                   >
                     Create a new profile
                   </h6>
+                  <Link to="/upload">
+                    <h6
+                      className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
+                      onClick={clearForm}
+                    >
+                      Start sharing videos
+                    </h6>
+                  </Link>
                 </div>
               </>
             ) : actionStatus === "Error" ? (
               <>
                 <h6 className="text-base px-2 mt-2 text-center">
-                  Create <span className="text-blueBase">{handle}'s</span>{" "}
-                  Profile Failed
+                  Create <span className="text-blueBase">{handle}</span> Profile
+                  Failed
                 </h6>
                 <div className="mt-6">
                   <h6
@@ -354,8 +363,8 @@ export default function CreateProfile() {
           ) : (
             <>
               <h6 className="text-base px-2 mt-2 text-center">
-                Creating <span className="text-blueBase">{handle}'s</span>{" "}
-                Profile
+                Minting <span className="text-blueBase">{handle}</span> Profile
+                NFT
               </h6>
               <div className="mt-4">
                 <Spinner size="sm" />
