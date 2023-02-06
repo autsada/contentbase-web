@@ -34,6 +34,9 @@ export default function Profiles() {
             <h6 className="text-base">
               Would you like to create your first profile now?
             </h6>
+            <p className="font-thin text-textLight italic text-sm mt-1">
+              Note: You will NOT pay gas fee for the first profile.
+            </p>
           </div>
 
           <div className="my-6">
