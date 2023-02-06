@@ -37,15 +37,11 @@ import {
   LOGGED_IN_KEY,
   WALLET_CONNECT_PROJECT_ID,
 } from "./constants"
-import type { LoaderData, Profile } from "./types"
 import styles from "./styles/app.css"
 import carouselStyles from "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Welcome } from "./components/welcome"
-
-export type UserContext = {
-  idToken: string
-  user: UserRecord
-}
+import { getBalance } from "./graphql/server"
+import type { Account, LoaderData, Profile } from "./types"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -80,6 +76,15 @@ export async function loader({ request }: LoaderArgs) {
       ? ((account.profiles.find((ac) => ac?.default) ||
           account.profiles[0]) as Profile)
       : null
+  let address = ""
+  let balance = ""
+  let hasProfile: boolean | undefined = undefined
+
+  if (account) {
+    address = account.address
+    balance = address ? await getBalance(address) : ""
+    hasProfile = account.profiles.length > 0
+  }
 
   return json<LoaderData>(
     {
@@ -87,6 +92,8 @@ export async function loader({ request }: LoaderArgs) {
       csrf: token,
       account,
       profile,
+      balance,
+      hasProfile,
       ENV: {
         // NODE_ENV: process.env.NODE_ENV,
         NODE_ENV: "test",
@@ -126,6 +133,8 @@ export default function App() {
   const ENV = useMemo(() => loaderData?.ENV, [loaderData])
   const account = useMemo(() => loaderData?.account, [loaderData])
   const address = useMemo(() => account?.address, [account])
+  const balance = useMemo(() => loaderData?.balance, [loaderData])
+  const hasProfile = useMemo(() => loaderData?.hasProfile, [loaderData])
   const profile = useMemo(
     () => loaderData?.profile as Profile | null,
     [loaderData]
@@ -134,11 +143,14 @@ export default function App() {
 
   const [welcomeModalVisible, setWelcomeModalVisible] = useState(() => !address)
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
-  const [usedProfile, setUsedProfile] = useState(() => profile)
+  const [usedProfile, setUsedProfile] = useState<Profile | null>(() => profile)
 
   const transition = useTransition()
   // const fetchers = useFetchers()
 
+  /**
+   * Check whether should show first visit welcome modal
+   */
   useEffect(() => {
     if (typeof document === "undefined") return
 
@@ -150,6 +162,16 @@ export default function App() {
       setWelcomeModalVisible(false)
     }
   }, [])
+
+  /**
+   * Set used profile state when the profile from the server is available
+   */
+  useEffect(() => {
+    if (typeof document === "undefined") return
+    if (profile) {
+      setUsedProfile(profile)
+    }
+  }, [profile])
 
   /**
    * When user logged in, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
@@ -249,7 +271,17 @@ export default function App() {
               openDrawer={openRightDrawer}
               profile={usedProfile}
             />
-            <Outlet context={{ welcomeModalVisible, setWelcomeModalVisible }} />
+            <Outlet
+              context={{
+                welcomeModalVisible,
+                setWelcomeModalVisible,
+                user,
+                account,
+                balance,
+                hasProfile,
+                profile: usedProfile,
+              }}
+            />
             <ScrollRestoration />
             <script
               // Add `ENV` to the window object
@@ -285,7 +317,7 @@ export default function App() {
                     <RightDrawer
                       openDrawer={openRightDrawer}
                       className={
-                        !isRightDrawerOpen ? "-right-[100%]" : "right-0"
+                        !isRightDrawerOpen ? "-right-[500px]" : "right-0"
                       }
                       profile={usedProfile}
                     />
@@ -315,6 +347,11 @@ export function ErrorBoundary({ error }: { error: Error }) {
 type AppContext = {
   welcomeModalVisible: boolean
   setWelcomeModalVisible: (open: boolean) => void
+  user: UserRecord
+  account: Account
+  profile: Account["profiles"]
+  balance: string | undefined
+  hasProfile: boolean | undefined
 }
 
 export function useAppContext() {

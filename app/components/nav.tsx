@@ -59,7 +59,7 @@ export function Nav({ user, openDrawer, profile }: Props) {
                 </button>
               </Link>
             ) : (
-              <div className="w-[40px] h-[40px] p-4 bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-[40px] h-[40px] bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
                 <div onClick={openDrawer.bind(undefined, true)}>
                   {!profile || !profile.imageURI ? (
                     <MdPerson size={30} color="#3f3f46" />

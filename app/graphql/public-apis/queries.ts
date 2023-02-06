@@ -9,7 +9,12 @@ export const GET_ACCOUNT_BY_ID = gql`
       profiles {
         id
         handle
+        tokenId
+        followingCount
+        followersCount
         default
+        originalHandle
+        imageURI
       }
       uid
       type

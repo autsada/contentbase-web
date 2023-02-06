@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react"
 import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react"
+import { Outlet, useOutletContext } from "@remix-run/react"
 
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { requireAuth } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
-import { queryAccountByUid } from "~/graphql/public-apis"
-import { getBalance } from "~/graphql/server"
 import type { Account } from "~/types"
+import { useAppContext } from "~/root"
 
-type AccountContext = {
+type ProfileContext = {
   idToken: string
   account: Account
   balance: string | undefined
@@ -24,26 +23,11 @@ export async function loader({ request }: LoaderArgs) {
     return redirect("/auth", { headers })
   }
 
-  // Query user's account data
-  const account = await queryAccountByUid(user.uid)
-  let address = ""
-  let balance = ""
-  let hasProfile: boolean | undefined = undefined
-
-  if (account) {
-    address = account.address
-    balance = address ? await getBalance(address) : ""
-    hasProfile = account.profiles.length > 0
-  }
-
-  return json({ account, balance, hasProfile }, { headers })
+  return json({ user }, { headers })
 }
 
 export default function Profile() {
-  const data = useLoaderData<typeof loader>()
-  const account = data?.account
-  const balance = data?.balance
-  const hasProfile = data?.hasProfile
+  const context = useAppContext()
 
   const [idToken, setIdToken] = useState("")
 
@@ -70,10 +54,17 @@ export default function Profile() {
 
   return (
     <>
-      <Outlet context={{ idToken, account, balance, hasProfile }} />
+      <Outlet
+        context={{
+          idToken,
+          account: context?.account,
+          balance: context?.balance,
+          hasProfile: context?.hasProfile,
+        }}
+      />
 
       {/* For some reason if user still doesn't have an account, we need to have them log out and log in again */}
-      {!account && (
+      {!context?.account && (
         <BackdropWithInfo>
           <h6 className="text-center text-base">
             Sorry, we couldn't find your account. Please log out and sign in
@@ -92,6 +83,6 @@ export default function Profile() {
   )
 }
 
-export function useAccountContext() {
-  return useOutletContext<AccountContext>()
+export function useProfileContext() {
+  return useOutletContext<ProfileContext>()
 }

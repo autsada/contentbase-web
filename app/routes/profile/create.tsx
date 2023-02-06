@@ -9,7 +9,7 @@ import { json } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
 import type { ChangeEvent } from "react"
 
-import { useAccountContext } from "../profile"
+import { useProfileContext } from "../profile"
 import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
 import { UPLOAD_SERVICE_URL } from "~/constants"
 import { createFirstProfile } from "~/graphql/server"
@@ -59,7 +59,7 @@ export default function CreateProfile() {
   const actionStatus = actionFetcher?.data?.status
   const hydrated = useHydrated()
   const { isConnected } = useAccount()
-  const { account } = useAccountContext()
+  const context = useProfileContext()
 
   // When the button should be disabled
   const disabled =
@@ -139,19 +139,19 @@ export default function CreateProfile() {
 
   async function createProfile() {
     try {
-      if (!clientAuth || !account) {
+      if (!clientAuth || !context?.account) {
         setError("Something not right, please refresh the page and try again")
         return
       }
-      const accountType = account.type
+      const accountType = context?.account.type
       // The owner address
-      const address = account.address
+      const address = context?.account.address
 
       setProcessing(true)
       const user = clientAuth.currentUser
       const idToken = await user?.getIdToken()
       // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
-      if (!idToken || account.uid !== user?.uid) {
+      if (!idToken || context?.account.uid !== user?.uid) {
         setProcessing(false)
         actionFetcher.submit(null, {
           method: "post",
@@ -179,7 +179,7 @@ export default function CreateProfile() {
       }
 
       // Check if it is the first profile of the user or not
-      const isFirstProfile = account.profiles?.length === 0
+      const isFirstProfile = context?.account.profiles?.length === 0
 
       if (isFirstProfile) {
         // Call the `createFirstProfile` mutation in the `Server` service for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for users first profiles.

@@ -18,6 +18,8 @@ export interface LoaderData {
   user: UserRecord | null
   account: Account | null
   profile: Profile | null
+  balance: string | undefined
+  hasProfile: boolean | undefined
   ENV: {
     NODE_ENV: ENV
   }
