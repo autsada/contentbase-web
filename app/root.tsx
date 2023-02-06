@@ -117,13 +117,19 @@ export function Document({
 
 export default function App() {
   const loaderData = useLoaderData<LoaderData>()
-  const csrf = loaderData?.csrf
-  const user = loaderData?.user as UserRecord | null
-  const uid = user?.uid
-  const ENV = loaderData?.ENV
-  const account = loaderData?.account
-  const address = account?.address
-  const profile = loaderData?.profile as Profile | null
+  const csrf = useMemo(() => loaderData?.csrf, [loaderData])
+  const user = useMemo(
+    () => loaderData?.user as UserRecord | null,
+    [loaderData]
+  )
+  const uid = useMemo(() => user?.uid, [user])
+  const ENV = useMemo(() => loaderData?.ENV, [loaderData])
+  const account = useMemo(() => loaderData?.account, [loaderData])
+  const address = useMemo(() => account?.address, [account])
+  const profile = useMemo(
+    () => loaderData?.profile as Profile | null,
+    [loaderData]
+  )
   const revalidator = useRevalidator()
 
   const [welcomeModalVisible, setWelcomeModalVisible] = useState(() => !address)
