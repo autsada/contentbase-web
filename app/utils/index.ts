@@ -36,7 +36,7 @@ export function getPageTitle(pathname: string) {
     const routeNames = pathname.split("/")
     const name = routeNames[routeNames.length - 1]
     if (name === "profiles") {
-      title = "Profiles"
+      title = "Your Profiles"
     }
     if (name === "create") {
       title = "Create Profile"
