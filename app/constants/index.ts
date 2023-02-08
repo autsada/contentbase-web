@@ -13,9 +13,9 @@ export const VERIFY_CODE = "68eiv6739eirpt6eortptbiw3854vik"
 export const LOGGED_IN_KEY = "loggedIn"
 export const CLEAN_UP_ID = "ctb"
 export const CLEAN_UP_CODE = "eiro33746581ei88447224d64cife3"
-// export const WEB_URL = "http://localhost:3000"
-export const WEB_URL =
-  "https://670e-2405-9800-b961-39d-48ce-246a-237b-a4d6.ap.ngrok.io"
+export const WEB_URL = "http://localhost:3000"
+// export const WEB_URL =
+//   "https://670e-2405-9800-b961-39d-48ce-246a-237b-a4d6.ap.ngrok.io"
 export const WALLET_CONNECT_PROJECT_ID = "f9f68f7b9b67a2dbb6cc74007927090b"
 export const UPLOAD_SERVICE_URL =
   NODE_ENV === "production"

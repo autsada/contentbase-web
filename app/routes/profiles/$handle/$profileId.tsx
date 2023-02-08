@@ -1,10 +1,19 @@
 import { json } from "@remix-run/node"
-import { Link, useCatch, useLoaderData, useParams } from "@remix-run/react"
-import { MdPerson, MdError, MdArrowBackIosNew } from "react-icons/md"
+import {
+  Link,
+  useCatch,
+  useLoaderData,
+  useParams,
+  useNavigate,
+} from "@remix-run/react"
+import { MdError, MdArrowBackIosNew } from "react-icons/md"
 import type { LoaderArgs } from "@remix-run/node"
 
 import ErrorComponent from "~/components/error"
+import { ProfileDetail } from "~/components/profiles/profile-detail"
 import { getMyProfile } from "~/graphql/public-apis"
+import { useProfileContext } from "~/routes/profiles"
+import type { Profile } from "~/types"
 
 export async function loader({ request, params }: LoaderArgs) {
   try {
@@ -30,50 +39,22 @@ export async function loader({ request, params }: LoaderArgs) {
 
 export default function MyProfile() {
   const data = useLoaderData<typeof loader>()
-  const profile = data?.profile
+  const profile = data?.profile as Profile
+  const context = useProfileContext()
+
+  const navigate = useNavigate()
+
+  function closeModal() {
+    navigate("/profiles")
+  }
 
   return (
-    <div className="page absolute inset-0">
-      <div className="w-full py-[20px] h-[100px] bg-blueBase">
-        <div className="absolute left-5 h-[60px] flex items-center">
-          <Link to="/profiles">
-            <MdArrowBackIosNew size={30} color="white" />
-          </Link>
-        </div>
-        <div className="w-[140px] h-[140px] mx-auto bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
-          {!profile.imageURI ? (
-            <MdPerson size={80} color="#3f3f46" />
-          ) : (
-            <img
-              src={profile.imageURI}
-              alt={profile.originalHandle}
-              className="object-cover"
-            />
-          )}
-        </div>
-      </div>
-      <div className="mt-[70px]">
-        <h6>{profile.originalHandle}</h6>
-        <h6 className="font-normal text-base text-textDark">
-          @{profile.handle}{" "}
-          {profile.default && (
-            <span className="font-thin italic text-textExtraLight">
-              [DEFAULT]
-            </span>
-          )}
-        </h6>
-        <div className="w-full mt-1 flex justify-center items-center gap-x-3">
-          <p className="font-light text-textLight">
-            {profile.followersCount} Followers
-          </p>
-          <p className="font-light text-textLight">
-            {profile.followingCount} Following
-          </p>
-          <p className="font-light text-textLight">
-            {profile.publishesCount} Videos
-          </p>
-        </div>
-      </div>
+    <div className="page">
+      <ProfileDetail
+        profile={profile}
+        isOwner={context?.account?.address === profile?.owner}
+        closeModal={closeModal}
+      />
     </div>
   )
 }

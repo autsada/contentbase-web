@@ -14,7 +14,7 @@ export function ProfileItem({ isInUsed, profile }: Props) {
     <Link to={`${profile.originalHandle}/${profile.id}`}>
       <div
         key={profile.id}
-        className="w-full py-2 px-4 flex items-center border-b border-borderExtraLightGray cursor-pointer"
+        className="w-full py-2 px-4 flex items-center border-b border-borderExtraLightGray cursor-pointer hover:bg-gray-50"
       >
         <div className="mr-5">
           <div className="w-[60px] h-[60px] bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
