@@ -143,7 +143,9 @@ export default function App() {
 
   const [welcomeModalVisible, setWelcomeModalVisible] = useState(() => !address)
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
-  const [usedProfile, setUsedProfile] = useState<Profile | null>(() => profile)
+  const [loggedInProfile, setLoggedInProfile] = useState<Profile | null>(
+    () => profile
+  )
 
   const transition = useTransition()
   // const fetchers = useFetchers()
@@ -169,7 +171,7 @@ export default function App() {
   useEffect(() => {
     if (typeof document === "undefined") return
     if (profile) {
-      setUsedProfile(profile)
+      setLoggedInProfile(profile)
     }
   }, [profile])
 
@@ -269,7 +271,7 @@ export default function App() {
             <Nav
               user={user}
               openDrawer={openRightDrawer}
-              profile={usedProfile}
+              profile={loggedInProfile}
             />
             <Outlet
               context={{
@@ -279,7 +281,7 @@ export default function App() {
                 account,
                 balance,
                 hasProfile,
-                profile: usedProfile,
+                loggedInProfile: loggedInProfile,
               }}
             />
             <ScrollRestoration />
@@ -319,7 +321,7 @@ export default function App() {
                       className={
                         !isRightDrawerOpen ? "-right-[500px]" : "right-0"
                       }
-                      profile={usedProfile}
+                      profile={loggedInProfile}
                     />
                   </>
                 </>
@@ -349,7 +351,7 @@ type AppContext = {
   setWelcomeModalVisible: (open: boolean) => void
   user: UserRecord
   account: Account
-  profile: Profile
+  loggedInProfile: Profile
   balance: string | undefined
   hasProfile: boolean | undefined
 }

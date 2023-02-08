@@ -10,14 +10,6 @@ import { clientAuth } from "~/client/firebase.client"
 import { useAppContext } from "~/root"
 import type { Account, Profile } from "~/types"
 
-type ProfileContext = {
-  idToken: string
-  account: Account
-  profile: Profile
-  balance: string | undefined
-  hasProfile: boolean | undefined
-}
-
 export async function loader({ request }: LoaderArgs) {
   const { user, headers } = await requireAuth(request)
 
@@ -60,7 +52,7 @@ export default function ProfileDashboard() {
         context={{
           idToken,
           account: context?.account,
-          profile: context?.profile,
+          loggedInProfile: context?.loggedInProfile,
           balance: context?.balance,
           hasProfile: context?.hasProfile,
         }}
@@ -84,6 +76,14 @@ export default function ProfileDashboard() {
       )}
     </>
   )
+}
+
+type ProfileContext = {
+  idToken: string
+  account: Account
+  loggedInProfile: Profile
+  balance: string | undefined
+  hasProfile: boolean | undefined
 }
 
 export function useProfileContext() {

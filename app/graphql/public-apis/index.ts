@@ -79,11 +79,16 @@ export async function createAccount(data: {
   return result.json()
 }
 
-export async function getMyProfile(profileId: number) {
+/**
+ * @param profileId {number} - an id of the profile to be queried
+ * @param userId {number} - an id of the profile who performs the query
+ * @returns
+ */
+export async function getProfile(profileId: number, userId?: number) {
   const data = await client.request<
     QueryReturnType<"getProfileById">,
     QueryArgsType<"getProfileById">
-  >(GET_MY_PROFILE_QUERY, { input: { profileId } })
+  >(GET_MY_PROFILE_QUERY, { input: { profileId, userId } })
 
   return data.getProfileById
 }

@@ -8,7 +8,10 @@ import { ProfileItem } from "~/components/profiles/profile-item"
 
 export default function Profiles() {
   const context = useProfileContext()
-  const usedProfile = useMemo(() => context?.profile, [context?.profile])
+  const loggedInProfile = useMemo(
+    () => context?.loggedInProfile,
+    [context?.loggedInProfile]
+  )
   const profiles = useMemo(
     () => context?.account?.profiles,
     [context?.account?.profiles]
@@ -34,7 +37,7 @@ export default function Profiles() {
               <ProfileItem
                 key={profile.id}
                 profile={profile}
-                isInUsed={profile.id === usedProfile?.id}
+                isInUsed={profile.id === loggedInProfile?.id}
               />
             ))}
           </>

@@ -11,7 +11,7 @@ import type { LoaderArgs } from "@remix-run/node"
 
 import ErrorComponent from "~/components/error"
 import { ProfileDetail } from "~/components/profiles/profile-detail"
-import { getMyProfile } from "~/graphql/public-apis"
+import { getProfile } from "~/graphql/public-apis"
 import { useProfileContext } from "~/routes/profiles"
 import type { Profile } from "~/types"
 
@@ -25,7 +25,7 @@ export async function loader({ request, params }: LoaderArgs) {
     }
 
     // Query the profile
-    const profile = await getMyProfile(Number(profileId))
+    const profile = await getProfile(Number(profileId))
 
     if (!profile) {
       throw new Response("Profile Not Found")
@@ -51,8 +51,9 @@ export default function MyProfile() {
   return (
     <div className="page">
       <ProfileDetail
-        profile={profile}
         isOwner={context?.account?.address === profile?.owner}
+        loggedInProfile={context?.loggedInProfile}
+        profile={profile}
         closeModal={closeModal}
       />
     </div>

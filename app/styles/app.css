@@ -902,6 +902,11 @@ button {
   margin-bottom: 1.5rem;
 }
 
+.my-2 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .mt-2 {
   margin-top: 0.5rem;
 }
@@ -988,6 +993,10 @@ button {
 
 .mt-\[70px\] {
   margin-top: 70px;
+}
+
+.mr-3 {
+  margin-right: 0.75rem;
 }
 
 .block {
@@ -1088,6 +1097,14 @@ button {
 
 .h-\[140px\] {
   height: 140px;
+}
+
+.h-6 {
+  height: 1.5rem;
+}
+
+.h-\[20px\] {
+  height: 20px;
 }
 
 .w-full {
@@ -1221,6 +1238,10 @@ button {
 
 .flex-col {
   flex-direction: column;
+}
+
+.items-start {
+  align-items: flex-start;
 }
 
 .items-center {
@@ -1521,6 +1542,11 @@ button {
   padding-right: 0px;
 }
 
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
 .pl-4 {
   padding-left: 1rem;
 }
@@ -1588,6 +1614,11 @@ button {
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .font-light {
@@ -1671,6 +1702,11 @@ button {
 .text-orange-500 {
   --tw-text-opacity: 1;
   color: rgb(249 115 22 / var(--tw-text-opacity));
+}
+
+.text-red-600 {
+  --tw-text-opacity: 1;
+  color: rgb(220 38 38 / var(--tw-text-opacity));
 }
 
 .opacity-20 {
