@@ -1,6 +1,6 @@
 import { gql } from "graphql-request"
 
-export const GET_ACCOUNT_BY_ID = gql`
+export const GET_ACCOUNT_BY_ID_QUERY = gql`
   query GetAccountByUid($uid: String!) {
     getAccountByUid(uid: $uid) {
       address
@@ -18,6 +18,24 @@ export const GET_ACCOUNT_BY_ID = gql`
       }
       uid
       type
+    }
+  }
+`
+
+export const GET_MY_PROFILE_QUERY = gql`
+  query GetProfileById($input: GetProfileByIdInput!) {
+    getProfileById(input: $input) {
+      id
+      tokenId
+      handle
+      originalHandle
+      imageURI
+      default
+      followersCount
+      followingCount
+      owner
+      createdAt
+      publishesCount
     }
   }
 `

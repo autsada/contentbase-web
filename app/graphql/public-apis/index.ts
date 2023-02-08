@@ -5,7 +5,7 @@
 
 import { GraphQLClient } from "graphql-request"
 
-import { GET_ACCOUNT_BY_ID } from "./queries"
+import { GET_ACCOUNT_BY_ID_QUERY, GET_MY_PROFILE_QUERY } from "./queries"
 import type { AccountType } from "~/types"
 import type { QueryReturnType, QueryArgsType } from "./types"
 
@@ -39,13 +39,15 @@ export async function queryAccountByUid(uid: string) {
   const data = await client.request<
     QueryReturnType<"getAccountByUid">,
     QueryArgsType<"getAccountByUid">
-  >(GET_ACCOUNT_BY_ID, { uid })
+  >(GET_ACCOUNT_BY_ID_QUERY, { uid })
 
   return data.getAccountByUid
 }
 
-// This is a rest endpoint for creating an account (mostly used to create accounts for users connected to ContentBase App with their own wallets)
-// Need to add the wallet address to Alcheck notify as well
+/**
+ * This is a rest endpoint for creating an account (mostly used to create accounts for users connected to ContentBase App with their own wallets)
+ * Need to add the wallet address to Alcheck notify as well
+ */
 export async function createAccount(data: {
   address: string
   uid: string
@@ -75,4 +77,13 @@ export async function createAccount(data: {
   })
 
   return result.json()
+}
+
+export async function getMyProfile(profileId: number) {
+  const data = await client.request<
+    QueryReturnType<"getProfileById">,
+    QueryArgsType<"getProfileById">
+  >(GET_MY_PROFILE_QUERY, { input: { profileId } })
+
+  return data.getProfileById
 }
