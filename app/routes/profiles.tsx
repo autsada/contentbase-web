@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Outlet, useOutletContext } from "@remix-run/react"
+import { Outlet, useCatch, useOutletContext } from "@remix-run/react"
 
 import { BackdropWithInfo } from "~/components/backdrop-info"
+import ErrorComponent from "~/components/error"
 import { requireAuth } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
 import { useAppContext } from "~/root"
@@ -87,4 +88,16 @@ export default function ProfileDashboard() {
 
 export function useProfileContext() {
   return useOutletContext<ProfileContext>()
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return <ErrorComponent error={caught.statusText} />
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return <ErrorComponent error={error.message} />
 }
