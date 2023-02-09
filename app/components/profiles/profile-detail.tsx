@@ -6,7 +6,7 @@ import { UpdateProfileImageModal } from "./update-image"
 import { clientAuth } from "~/client/firebase.client"
 import type { Profile } from "~/types"
 import type { ProfileContext } from "~/routes/profiles"
-import type { EstimateGasUpdateProfileImage } from "~/routes/gas/profile/update-image"
+import type { EstimateGasUpdateProfileImageAction } from "~/routes/gas/profile/update-image"
 
 interface Props {
   context: ProfileContext
@@ -35,7 +35,7 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
     [context?.account?.type]
   )
 
-  const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImage>()
+  const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImageAction>()
 
   const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
 
@@ -88,15 +88,17 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
           <MdArrowBackIosNew size={30} color="white" onClick={closeModal} />
         </div>
         <div className="w-[140px] h-[140px] mx-auto bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
-          {!profile.imageURI ? (
-            <MdPerson size={80} color="#3f3f46" />
-          ) : (
-            <img
-              src={profile.imageURI}
-              alt={profile.originalHandle}
-              className="object-cover"
-            />
-          )}
+          <div className="w-full h-full">
+            {!profile.imageURI ? (
+              <MdPerson size={80} color="#3f3f46" />
+            ) : (
+              <img
+                src={profile.imageURI}
+                alt={profile.originalHandle}
+                className="w-full h-full object-fill"
+              />
+            )}
+          </div>
         </div>
       </div>
       <div className="w-full mt-[20px] h-[40px] flex justify-end items-start">
@@ -166,7 +168,9 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
         <UpdateProfileImageModal
           accountType={accountType}
           gas={estimateGasFetcher?.data?.gas}
+          handle={profile?.handle}
           tokenId={profile?.tokenId}
+          oldImageURI={profile?.imageURI}
           closeModal={closeImageModal}
         />
       )}

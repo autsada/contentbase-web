@@ -13,8 +13,8 @@ import ErrorComponent from "~/components/error"
 import { ProfileDetail } from "~/components/profiles/profile-detail"
 import { getProfile } from "~/graphql/public-apis"
 import { useProfileContext } from "~/routes/profiles"
-import type { Profile } from "~/types"
 import { updateProfileImage } from "~/graphql/server"
+import type { Profile } from "~/types"
 
 export async function loader({ request, params }: LoaderArgs) {
   try {
@@ -47,18 +47,18 @@ export async function action({ request }: ActionArgs) {
       idToken: string
     }
 
-    const data = await updateProfileImage({
+    await updateProfileImage({
       idToken,
       imageURI,
       tokenId: Number(tokenId),
     })
 
-    console.log("data: ", data)
+    return json({ status: "Ok" })
   } catch (error) {
-    console.log("error: ", error)
-    throw new Response("Update profile iamge failed")
+    return json({ status: "Error" })
   }
 }
+export type UpdateProfileImageAction = typeof action
 
 export default function MyProfile() {
   const data = useLoaderData<typeof loader>()

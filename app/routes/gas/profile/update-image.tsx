@@ -27,4 +27,4 @@ export async function action({ request }: LoaderArgs) {
   }
 }
 
-export type EstimateGasUpdateProfileImage = typeof action
+export type EstimateGasUpdateProfileImageAction = typeof action
