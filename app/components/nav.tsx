@@ -23,7 +23,7 @@ export function Nav({ user, openDrawer, profile }: Props) {
           <img
             src="/logo.png"
             alt="CTB"
-            className="w-[55px] h-[55px] rounded-full object-fit"
+            className="w-[55px] h-[55px] rounded-full object-cover"
           />
         </Link>
       </div>

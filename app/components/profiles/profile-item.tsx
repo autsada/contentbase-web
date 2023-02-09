@@ -24,7 +24,7 @@ export function ProfileItem({ isInUsed, profile }: Props) {
               <img
                 src={profile.imageURI}
                 alt={profile.originalHandle}
-                className="object-cover"
+                className="w-full h-full object-cover"
               />
             )}
           </div>

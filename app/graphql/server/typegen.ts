@@ -5,9 +5,9 @@
 
 // import type { Context } from "./context"
 
-// declare global {
-//   interface NexusGen extends NexusGenTypes {}
-// }
+declare global {
+  interface NexusGen extends NexusGenTypes {}
+}
 
 export interface NexusGenInputs {
   CreateCommentInput: {
@@ -257,6 +257,7 @@ export interface NexusGenFieldTypes {
     estimateGasCreatePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     estimateGasFollow: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     estimateGasLikePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
+    estimateGasUpdateProfileImage: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     follow: NexusGenRootTypes["WriteResult"] // WriteResult!
     hasRoleFollow: boolean // Boolean!
     hasRoleLike: boolean // Boolean!
@@ -394,6 +395,7 @@ export interface NexusGenFieldTypeNames {
     estimateGasCreatePublish: "EstimateGasResult"
     estimateGasFollow: "EstimateGasResult"
     estimateGasLikePublish: "EstimateGasResult"
+    estimateGasUpdateProfileImage: "EstimateGasResult"
     follow: "WriteResult"
     hasRoleFollow: "Boolean"
     hasRoleLike: "Boolean"
@@ -533,6 +535,10 @@ export interface NexusGenArgTypes {
       // args
       profileId: number // Int!
       publishId: number // Int!
+    }
+    estimateGasUpdateProfileImage: {
+      // args
+      input: NexusGenInputs["UpdateProfileImageInput"] // UpdateProfileImageInput!
     }
     follow: {
       // args

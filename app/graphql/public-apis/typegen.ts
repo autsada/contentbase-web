@@ -3,9 +3,9 @@
  * Do not make changes to this file directly
  */
 
-declare global {
-  interface NexusGen extends NexusGenTypes {}
-}
+// declare global {
+//   interface NexusGen extends NexusGenTypes {}
+// }
 
 export interface NexusGenInputs {
   GetProfileByIdInput: {

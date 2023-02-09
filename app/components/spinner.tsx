@@ -1,7 +1,7 @@
 import React from "react"
 
 interface Props {
-  size?: "xs" | "sm" | "base" | "md" | "lg"
+  size?: "xs" | "sm" | "base" | "md" | "lg" | { w: string; h: string }
 }
 
 export function Spinner({ size = "base" }: Props) {
@@ -16,6 +16,8 @@ export function Spinner({ size = "base" }: Props) {
           ? "w-20 h-20"
           : size === "lg"
           ? "w-24 h-24"
+          : typeof size === "object"
+          ? `${size.w} ${size.h}`
           : "w-16 h-16"
       } mx-auto border-t border-t-gray-400 border-r border-r-gray-400 rounded-full border-b border-b-gray-200 border-l border-l-gray-200 animate-spin`}
     ></div>

@@ -78,7 +78,7 @@ export default function ProfileDashboard() {
   )
 }
 
-type ProfileContext = {
+export type ProfileContext = {
   idToken: string
   account: Account
   loggedInProfile: Profile

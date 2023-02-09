@@ -1,27 +1,81 @@
-import { Link } from "@remix-run/react"
-import { useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Link, useFetcher } from "@remix-run/react"
 import { MdArrowBackIosNew, MdPerson } from "react-icons/md"
 
+import { UpdateProfileImageModal } from "./update-image"
+import { clientAuth } from "~/client/firebase.client"
 import type { Profile } from "~/types"
+import type { ProfileContext } from "~/routes/profiles"
+import type { EstimateGasUpdateProfileImage } from "~/routes/gas/profile/update-image"
 
 interface Props {
+  context: ProfileContext
   profile: Profile
-  loggedInProfile: Profile
-  isOwner: boolean // Whether the account owns the profile or not
   closeModal: () => void
 }
 
-export function ProfileDetail({
-  isOwner,
-  profile,
-  closeModal,
-  loggedInProfile,
-}: Props) {
+export function ProfileDetail({ context, profile, closeModal }: Props) {
+  // Check whether the account owns the profile or not
+  const isOwner = useMemo(
+    () => context?.account?.address === profile?.owner,
+    [context?.account?.address, profile?.owner]
+  )
+  // The current profile that the user uses
+  const loggedInProfile = useMemo(
+    () => context?.loggedInProfile,
+    [context?.loggedInProfile]
+  )
   // Check whehter the logged in profile and the displayed profile is the same or not.
   const isSameProfile = useMemo(
     () => profile?.id === loggedInProfile?.id,
     [profile?.id, loggedInProfile?.id]
   )
+  const accountType = useMemo(
+    () => context?.account?.type,
+    [context?.account?.type]
+  )
+
+  const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImage>()
+
+  const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
+
+  /**
+   * On first render when the profile is available and the logged in profile and the displayed profile are the same, call the server to get estimated gas used to update an image.
+   */
+  useEffect(() => {
+    if (isSameProfile && profile?.tokenId) {
+      if (accountType === "TRADITIONAL") {
+        // Call the server
+        const getEstimatedGas = async () => {
+          const user = clientAuth.currentUser
+          const idToken = await user?.getIdToken()
+          if (!idToken) return
+          estimateGasFetcher.submit(
+            { idToken, tokenId: profile.tokenId },
+            {
+              method: "post",
+              action: `/gas/profile/update-image`,
+            }
+          )
+        }
+
+        getEstimatedGas()
+      }
+
+      if (accountType === "WALLET") {
+        // Connect to the blockchain directly
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountType, isSameProfile, profile?.tokenId])
+
+  const openImageModal = useCallback(() => {
+    setUpdateImageModalVisible(true)
+  }, [])
+
+  const closeImageModal = useCallback(() => {
+    setUpdateImageModalVisible(false)
+  }, [])
 
   /**
    * TODO: Add logic to fetch uploaded videos of the profile
@@ -48,7 +102,11 @@ export function ProfileDetail({
       <div className="w-full mt-[20px] h-[40px] flex justify-end items-start">
         {/* Allow the user to change their profile image if the displayed and the logged in is the same profile. */}
         {isSameProfile && (
-          <button className="btn-orange mr-3 h-6 px-3 rounded-full font-normal text-xs">
+          <button
+            className="btn-orange mr-3 h-6 px-3 rounded-full font-normal text-xs"
+            disabled={!isSameProfile}
+            onClick={openImageModal}
+          >
             Change image
           </button>
         )}
@@ -103,6 +161,15 @@ export function ProfileDetail({
       </div>
       {/* TODO: Display Videos */}
       <div>Videos</div>
+
+      {updateImageModalVisible && (
+        <UpdateProfileImageModal
+          accountType={accountType}
+          gas={estimateGasFetcher?.data?.gas}
+          tokenId={profile?.tokenId}
+          closeModal={closeImageModal}
+        />
+      )}
     </div>
   )
 }

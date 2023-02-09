@@ -8,6 +8,8 @@ import { GraphQLClient } from "graphql-request"
 import {
   CREATE_FIRST_PROFILE_MUTATION,
   CREATE_WALLET_MUTATION,
+  ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION,
+  UPDATE_PROFILE_IMAGE_MUTATION,
   VALIDATE_HANDLE_MUTATION,
 } from "./mutations"
 import { GET_BALANCE_QUERY } from "./queries"
@@ -100,4 +102,54 @@ export async function createFirstProfile(
     >(CREATE_FIRST_PROFILE_MUTATION, { input })
 
   return data.createFirstProfile
+}
+
+export async function estimateGaseUpdateProfileImage({
+  idToken,
+  tokenId,
+}: {
+  idToken: string
+  tokenId: number
+}) {
+  // Use a dummy hard-coded uri.
+  const imageURI =
+    "https://www.some_service.com/adam-b1665169-3f10-47ae-8af0-26db145ae157.jpg"
+
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"estimateGasUpdateProfileImage">,
+      MutationArgsType<"estimateGasUpdateProfileImage">
+    >(ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION, {
+      input: { tokenId, imageURI },
+    })
+
+  return data.estimateGasUpdateProfileImage
+}
+
+export async function updateProfileImage({
+  idToken,
+  tokenId,
+  imageURI,
+}: {
+  idToken: string
+  tokenId: number
+  imageURI: string
+}) {
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"updateProfileImage">,
+      MutationArgsType<"updateProfileImage">
+    >(UPDATE_PROFILE_IMAGE_MUTATION, {
+      input: { tokenId, imageURI },
+    })
+
+  return data.updateProfileImage
 }

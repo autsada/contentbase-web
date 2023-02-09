@@ -17,7 +17,7 @@ import type { validateActionType } from "./validate-handle"
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
 
-type SelectedFile = File & {
+export type SelectedFile = File & {
   path: string
   preview: string
 }
@@ -284,13 +284,14 @@ export default function CreateProfile() {
                   <img
                     src={file.preview}
                     alt={file.name}
-                    className="object-cover"
+                    className="w-full h-full object-cover"
                   />
                 )}
               </div>
             </div>
-            <p className="font-thin text-textLight italic text-sm mt-4">
-              Hint: you can set the profile image later.
+            <p className="font-thin text-blue-400 italic text-sm mt-4">
+              Tip: Upload your profile image now without paying gas. Update it
+              later you will need to pay some gas fee.
             </p>
           </fieldset>
           <p className="error text-end">

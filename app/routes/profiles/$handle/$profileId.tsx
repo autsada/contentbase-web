@@ -7,13 +7,14 @@ import {
   useNavigate,
 } from "@remix-run/react"
 import { MdError, MdArrowBackIosNew } from "react-icons/md"
-import type { LoaderArgs } from "@remix-run/node"
+import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 
 import ErrorComponent from "~/components/error"
 import { ProfileDetail } from "~/components/profiles/profile-detail"
 import { getProfile } from "~/graphql/public-apis"
 import { useProfileContext } from "~/routes/profiles"
 import type { Profile } from "~/types"
+import { updateProfileImage } from "~/graphql/server"
 
 export async function loader({ request, params }: LoaderArgs) {
   try {
@@ -37,6 +38,28 @@ export async function loader({ request, params }: LoaderArgs) {
   }
 }
 
+export async function action({ request }: ActionArgs) {
+  try {
+    const form = await request.formData()
+    const { tokenId, imageURI, idToken } = Object.fromEntries(form) as {
+      tokenId: string
+      imageURI: string
+      idToken: string
+    }
+
+    const data = await updateProfileImage({
+      idToken,
+      imageURI,
+      tokenId: Number(tokenId),
+    })
+
+    console.log("data: ", data)
+  } catch (error) {
+    console.log("error: ", error)
+    throw new Response("Update profile iamge failed")
+  }
+}
+
 export default function MyProfile() {
   const data = useLoaderData<typeof loader>()
   const profile = data?.profile as Profile
@@ -51,8 +74,7 @@ export default function MyProfile() {
   return (
     <div className="page">
       <ProfileDetail
-        isOwner={context?.account?.address === profile?.owner}
-        loggedInProfile={context?.loggedInProfile}
+        context={context}
         profile={profile}
         closeModal={closeModal}
       />
@@ -108,7 +130,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
             <MdError size={140} className="error" />
           </div>
         </div>
-        <div className="pt-[80px] text-center">
+        <div className="pt-[80px] text-center px-5">
           <h3 className="text-error">Error Occurred</h3>
           <p className="mt-5 text-lg">
             There was an error loading the Profile
