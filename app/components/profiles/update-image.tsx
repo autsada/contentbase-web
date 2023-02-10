@@ -1,14 +1,15 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { useDropzone } from "react-dropzone"
-import { useFetcher, useRevalidator } from "@remix-run/react"
+import { Link, useFetcher, useRevalidator } from "@remix-run/react"
 
 import { BackdropWithInfo } from "../backdrop-info"
-import { Spinner } from "../spinner"
+import { Backdrop } from "../backdrop"
 import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
 import { UPLOAD_SERVICE_URL } from "~/constants"
 import type { SelectedFile } from "~/routes/profiles/create"
 import type { AccountType } from "~/types"
 import type { UpdateProfileImageAction } from "~/routes/profiles/$handle/$profileId"
+import { Spinner } from "../spinner"
 
 interface Props {
   accountType: AccountType | null
@@ -16,6 +17,7 @@ interface Props {
   handle: string
   tokenId: string
   oldImageURI: string | null
+  balance: string | undefined
   closeModal: () => void
 }
 
@@ -25,6 +27,7 @@ export function UpdateProfileImageModal({
   handle,
   tokenId,
   oldImageURI,
+  balance,
   closeModal,
 }: Props) {
   const [file, setFile] = useState<SelectedFile | null>(null)
@@ -153,60 +156,89 @@ export function UpdateProfileImageModal({
         &#10005;
       </button>
       <actionFetcher.Form onSubmit={changeProfileImage}>
-        <h6 className="text-base mb-4">Upload the new image</h6>
-        {/* Estimate gas fee info */}
-        <p className="error text-xs mb-1">
-          {gas && file && !uploadError ? (
-            `Estimated gas fee = ${gas} ETH`
-          ) : (
-            <>&nbsp;</>
-          )}
-        </p>
-        <div className="w-[150px] h-[150px] mx-auto border border-borderLightGray">
-          <div
-            className="w-full h-full rounded-full bg-gray-100 overflow-hidden"
-            {...getRootProps({
-              isDragActive,
-              isDragReject,
-              isDragAccept,
-            })}
-          >
-            <input {...getInputProps({ multiple: false })} />
-            {file && (
-              <img
-                src={file.preview}
-                alt={file.name}
-                className="w-full h-full object-cover"
-              />
+        {Number(balance) > 0 ? (
+          <div className="pt-5">
+            <h6 className="mb-4">Upload New Image</h6>
+            {/* Estimate gas fee info */}
+            <p className="error text-xs mb-1">
+              {gas && file && !uploadError ? (
+                `Estimated gas fee = ${gas} ETH`
+              ) : (
+                <>&nbsp;</>
+              )}
+            </p>
+            <div className="w-[150px] h-[150px] mx-auto border border-borderLightGray">
+              <div
+                className="w-full h-full rounded-full bg-gray-100 overflow-hidden"
+                {...getRootProps({
+                  isDragActive,
+                  isDragReject,
+                  isDragAccept,
+                })}
+              >
+                <input {...getInputProps({ multiple: false })} />
+                {file && (
+                  <img
+                    src={file.preview}
+                    alt={file.name}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Upload error message */}
+            <p className="error mt-1">
+              {uploadError ? uploadError : <>&nbsp;</>}
+            </p>
+
+            <button
+              type="submit"
+              className={`btn-dark mt-4 h-10 py-2 w-28 flex items-center rounded-full text-sm ${
+                notReady || processing ? "opacity-30" : "opacity-100"
+              }`}
+              disabled={notReady || processing}
+            >
+              CONFIRM
+            </button>
+
+            {/* Error or Success message */}
+            <p
+              className={`error my-2 px-1 ${isSuccess ? "text-blueBase" : ""} ${
+                isError || isSuccess ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {isError ? (
+                "Update profile image failed, please make sure you have enough ETH in your balance."
+              ) : isSuccess ? (
+                "Update profile image success"
+              ) : (
+                <p>&nbsp;</p>
+              )}
+            </p>
+
+            {processing && (
+              <BackdropWithInfo>
+                <h6 className="text-base">Waiting to complete transaction.</h6>
+                <div className="mt-5">
+                  <Spinner size="sm" color="orange" />
+                </div>
+              </BackdropWithInfo>
             )}
           </div>
-        </div>
-
-        {/* Upload error message */}
-        <p className="error mt-1">{uploadError ? uploadError : <>&nbsp;</>}</p>
-
-        <button
-          type="submit"
-          className={`btn-dark mt-4 h-8 py-2 w-28 flex items-center rounded-full text-sm ${
-            notReady || processing ? "opacity-30" : "opacity-100"
-          }`}
-          disabled={notReady || processing}
-        >
-          {processing ? (
-            <Spinner size={{ w: "w-[20px]", h: "h-[20px]" }} />
-          ) : (
-            "CONFIRM"
-          )}
-        </button>
-        <p className={isError ? "error" : "error text-blueBase"}>
-          {isError ? (
-            "Update profile image failed"
-          ) : isSuccess ? (
-            "Update profile image success"
-          ) : (
-            <>&nbsp;</>
-          )}
-        </p>
+        ) : (
+          <div className="p-5 flex flex-col justify-center items-center">
+            <h6 className="text-base">
+              To update a profile image, you will need a little bit of{" "}
+              <span className="text-blueBase">ETH</span> to pay for gas fee.
+            </h6>
+            <Link to="/profiles/wallet">
+              <button className="btn-orange mt-5 px-6 rounded-full">
+                Buy ETH
+              </button>
+            </Link>
+          </div>
+        )}
       </actionFetcher.Form>
     </BackdropWithInfo>
   )

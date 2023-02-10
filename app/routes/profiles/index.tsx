@@ -19,13 +19,6 @@ export default function Profiles() {
 
   return (
     <div className="page text-start">
-      <div className="py-6 bg-gray-100">
-        <Link to="create">
-          <button className="btn-dark w-44 rounded-full">
-            Create new Profile
-          </button>
-        </Link>
-      </div>
       <div className="w-full">
         {!profiles || profiles.length === 0 ? (
           <p className="font-light text-textLight text-center">
@@ -42,6 +35,13 @@ export default function Profiles() {
             ))}
           </>
         )}
+        <div className="py-6 bg-gray-100">
+          <Link to="create">
+            <button className="btn-dark w-44 rounded-full">
+              Create new Profile
+            </button>
+          </Link>
+        </div>
       </div>
 
       {context?.account &&
@@ -49,16 +49,17 @@ export default function Profiles() {
         !context?.hasProfile && (
           <BackdropWithInfo>
             <div className="px-2">
-              <h6 className="text-center mb-2">Create First Prifile</h6>
-              <p className="mb-2 text-blueBase">
+              <h6 className="text-center mb-2">Create First Profile</h6>
+              <p className="mb-4 text-blueBase">
                 You will need a profile to upload, share, like, and comment on{" "}
                 <strong className="text-blueDark">ContentBase</strong>.
               </p>
               <h6 className="text-base">
                 Would you like to create your first profile now?
               </h6>
-              <p className="font-thin text-textLight italic text-sm mt-1">
-                Note: You will NOT pay gas fee for the first profile.
+              <p className="text-textExtraLight italic mt-1">
+                Note: It's <span className="text-orange-600">FREE</span> to
+                create the first profile.
               </p>
             </div>
 

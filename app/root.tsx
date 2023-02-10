@@ -124,21 +124,15 @@ export function Document({
 
 export default function App() {
   const loaderData = useLoaderData<LoaderData>()
-  const csrf = useMemo(() => loaderData?.csrf, [loaderData])
-  const user = useMemo(
-    () => loaderData?.user as UserRecord | null,
-    [loaderData]
-  )
-  const uid = useMemo(() => user?.uid, [user])
-  const ENV = useMemo(() => loaderData?.ENV, [loaderData])
-  const account = useMemo(() => loaderData?.account, [loaderData])
-  const address = useMemo(() => account?.address, [account])
-  const balance = useMemo(() => loaderData?.balance, [loaderData])
-  const hasProfile = useMemo(() => loaderData?.hasProfile, [loaderData])
-  const profile = useMemo(
-    () => loaderData?.profile as Profile | null,
-    [loaderData]
-  )
+  const csrf = loaderData?.csrf
+  const user = loaderData?.user as UserRecord | null
+  const uid = user?.uid
+  const ENV = loaderData?.ENV
+  const account = loaderData?.account
+  const address = account?.address
+  const balance = loaderData?.balance
+  const hasProfile = loaderData?.hasProfile
+  const profile = loaderData?.profile as Profile | null
 
   const [welcomeModalVisible, setWelcomeModalVisible] = useState(() => !address)
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
@@ -319,7 +313,7 @@ export default function App() {
                     <RightDrawer
                       openDrawer={openRightDrawer}
                       className={
-                        !isRightDrawerOpen ? "-right-[100%]" : "right-0"
+                        !isRightDrawerOpen ? "-right-[500px]" : "right-0"
                       }
                       profile={loggedInProfile}
                     />

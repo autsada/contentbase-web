@@ -33,9 +33,9 @@ const {
 const url =
   NODE_ENV === "production"
     ? SERVER_URL_PROD!
-    : NODE_ENV === "test"
-    ? SERVER_URL_TEST!
-    : SERVER_URL_DEV!
+    : // : NODE_ENV === "test"
+      SERVER_URL_TEST!
+// : SERVER_URL_DEV!
 
 export const client = new GraphQLClient(`${url}/graphql`, {
   headers: {

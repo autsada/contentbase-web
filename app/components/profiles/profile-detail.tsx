@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link, useFetcher } from "@remix-run/react"
-import { MdArrowBackIosNew, MdPerson } from "react-icons/md"
+import { MdArrowBackIosNew, MdPerson, MdOutlineEdit } from "react-icons/md"
 
 import { UpdateProfileImageModal } from "./update-image"
 import { clientAuth } from "~/client/firebase.client"
@@ -80,7 +80,6 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
   /**
    * TODO: Add logic to fetch uploaded videos of the profile
    */
-
   return (
     <div className="page absolute inset-0">
       <div className="w-full py-[20px] h-[100px] bg-blueBase">
@@ -88,7 +87,7 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
           <MdArrowBackIosNew size={30} color="white" onClick={closeModal} />
         </div>
         <div className="w-[140px] h-[140px] mx-auto bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
-          <div className="w-full h-full">
+          <div className="w-full h-full flex items-center justify-center">
             {!profile.imageURI ? (
               <MdPerson size={80} color="#3f3f46" />
             ) : (
@@ -101,17 +100,19 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
           </div>
         </div>
       </div>
-      <div className="w-full mt-[20px] h-[40px] flex justify-end items-start">
+      <div className="w-full mt-[20px] h-[40px] flex justify-end">
         {/* Allow the user to change their profile image if the displayed and the logged in is the same profile. */}
-        {isSameProfile && (
-          <button
-            className="btn-orange mr-3 h-6 px-3 rounded-full font-normal text-xs"
-            disabled={!isSameProfile}
-            onClick={openImageModal}
-          >
-            Change image
-          </button>
-        )}
+        <div className="w-1/2 pl-8">
+          {isSameProfile && (
+            <button
+              className="mx-0 w-max p-4 flex justify-start"
+              disabled={!isSameProfile}
+              onClick={openImageModal}
+            >
+              <MdOutlineEdit size={30} />
+            </button>
+          )}
+        </div>
       </div>
       <div className="mt-1">
         <h6>{profile.originalHandle}</h6>
@@ -171,6 +172,7 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
           handle={profile?.handle}
           tokenId={profile?.tokenId}
           oldImageURI={profile?.imageURI}
+          balance={context?.balance}
           closeModal={closeImageModal}
         />
       )}

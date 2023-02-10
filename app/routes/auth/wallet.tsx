@@ -18,16 +18,20 @@ import type { AccountType } from "~/types"
 export const handle = { hydrate: true }
 
 export async function action({ request }: ActionArgs) {
-  // Get a wallet address from the request
-  const form = await request.formData()
-  const { address } = Object.fromEntries(form) as { address: string }
+  try {
+    // Get a wallet address from the request
+    const form = await request.formData()
+    const { address } = Object.fromEntries(form) as { address: string }
 
-  if (address) {
-    const user = await createUserIfNotExist(address)
-    const token = await createCustomToken(user.uid)
-    return json({ token })
-  } else {
-    return json({ token: null })
+    if (address) {
+      const user = await createUserIfNotExist(address)
+      const token = await createCustomToken(user.uid)
+      return json({ token })
+    } else {
+      return json({ token: null })
+    }
+  } catch (error) {
+    return new Response("Something went wrong")
   }
 }
 
@@ -35,8 +39,9 @@ export default function Wallet() {
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState("")
 
-  const fetcher = useFetcher<typeof action>()
-  const token = fetcher?.data?.token
+  const createUserFetcher = useFetcher<typeof action>()
+  const token = createUserFetcher?.data?.token
+  const logInFetcher = useFetcher()
   const csrf = useAuthenticityToken()
   const hydrated = useHydrated()
   const { open } = useWeb3Modal()
@@ -46,7 +51,7 @@ export default function Wallet() {
   // When users connected their wallet, submit the address to the server for processing Firebase Auth login
   useEffect(() => {
     if (isConnected && !!address) {
-      fetcher.submit({ address }, { method: "post" })
+      createUserFetcher.submit({ address }, { method: "post" })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, isConnected])
@@ -66,7 +71,7 @@ export default function Wallet() {
           const idToken = await credential.user.getIdToken()
           const accountType: AccountType = "WALLET"
           // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
-          fetcher.submit(
+          logInFetcher.submit(
             { idToken, accountType, csrf },
             { method: "post", action: "/login" }
           )
@@ -88,7 +93,7 @@ export default function Wallet() {
     <div className="page p-10">
       <ClientOnly fallback={<p className="text-textLight">Loading...</p>}>
         {() => (
-          <fetcher.Form onSubmit={openModal}>
+          <logInFetcher.Form onSubmit={openModal}>
             <button
               type="submit"
               className="btn-orange w-56 h-12 rounded-full text-xl focus:outline-none"
@@ -97,7 +102,7 @@ export default function Wallet() {
               {processing ? "Processing Log in" : "Connect Wallet"}
             </button>
             {error && <p className="error mt-2">{error}</p>}
-          </fetcher.Form>
+          </logInFetcher.Form>
         )}
       </ClientOnly>
 

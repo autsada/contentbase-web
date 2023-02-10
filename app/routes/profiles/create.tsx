@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { useDropzone } from "react-dropzone"
 import debounce from "lodash/debounce"
-import { useFetcher, Link } from "@remix-run/react"
+import { useFetcher, Link, useRevalidator } from "@remix-run/react"
 import { MdOutlineCheck } from "react-icons/md"
 import { useAccount } from "wagmi"
 import { useHydrated } from "remix-utils"
@@ -38,7 +38,6 @@ export async function action({ request }: ActionArgs) {
 
     return json({ status: "Ok" })
   } catch (error) {
-    console.log("error: ", error)
     return json({ status: "Error" })
   }
 }
@@ -57,6 +56,7 @@ export default function CreateProfile() {
   const isHandleUnique = validateFetcher?.data?.isUnique
   const actionFetcher = useFetcher<typeof action>()
   const actionStatus = actionFetcher?.data?.status
+  const revalidator = useRevalidator()
   const hydrated = useHydrated()
   const { isConnected } = useAccount()
   const context = useProfileContext()
@@ -67,7 +67,6 @@ export default function CreateProfile() {
     !handle ||
     !isHandleLenValid ||
     !isHandleUnique ||
-    !file ||
     !!uploadError
 
   const onDrop = useCallback(
@@ -129,12 +128,14 @@ export default function CreateProfile() {
   }
 
   /**
-   * When the action finished and status Ok, remove error (if any)
+   * When the action finished and status Ok, revalidate states and remove error (if any)
    */
   useEffect(() => {
     if (actionStatus && actionStatus === "Ok") {
+      revalidator.revalidate()
       if (error) setError("")
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, actionStatus])
 
   async function createProfile() {
@@ -289,9 +290,9 @@ export default function CreateProfile() {
                 )}
               </div>
             </div>
-            <p className="font-thin text-blue-400 italic text-sm mt-4">
-              Tip: Upload your profile image now without paying gas. Update it
-              later you will need to pay some gas fee.
+            <p className="font-light text-blueBase italic text-sm mt-4">
+              Tip: Upload your profile image now to enjoy{" "}
+              <span className="text-orange-600">GAS FREE</span>.
             </p>
           </fieldset>
           <p className="error text-end">

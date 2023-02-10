@@ -25,9 +25,9 @@ const {
 const url =
   NODE_ENV === "production"
     ? PUBLIC_API_URL_PROD!
-    : NODE_ENV === "test"
-    ? PUBLIC_API_URL_TEST!
-    : PUBLIC_API_URL_DEV!
+    : // : NODE_ENV === "test"
+      PUBLIC_API_URL_TEST!
+// : PUBLIC_API_URL_DEV!
 
 export const client = new GraphQLClient(`${url}/graphql`, {
   headers: {

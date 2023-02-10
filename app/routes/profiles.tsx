@@ -3,7 +3,6 @@ import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import { Outlet, useCatch, useOutletContext } from "@remix-run/react"
 
-import { BackdropWithInfo } from "~/components/backdrop-info"
 import ErrorComponent from "~/components/error"
 import { requireAuth } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
@@ -59,7 +58,7 @@ export default function ProfileDashboard() {
       />
 
       {/* For some reason if user still doesn't have an account, we need to have them log out and log in again */}
-      {!context?.account && (
+      {/* {!context?.account && (
         <BackdropWithInfo>
           <h6 className="text-center text-base">
             Sorry, we couldn't find your account. Please log out and sign in
@@ -73,7 +72,7 @@ export default function ProfileDashboard() {
             </form>
           </div>
         </BackdropWithInfo>
-      )}
+      )} */}
     </>
   )
 }

@@ -1,10 +1,9 @@
-import React from "react"
-
 interface Props {
   size?: "xs" | "sm" | "base" | "md" | "lg" | { w: string; h: string }
+  color?: "default" | "blue" | "orange"
 }
 
-export function Spinner({ size = "base" }: Props) {
+export function Spinner({ size = "base", color = "default" }: Props) {
   return (
     <div
       className={`${
@@ -19,7 +18,13 @@ export function Spinner({ size = "base" }: Props) {
           : typeof size === "object"
           ? `${size.w} ${size.h}`
           : "w-16 h-16"
-      } mx-auto border-t border-t-gray-400 border-r border-r-gray-400 rounded-full border-b border-b-gray-200 border-l border-l-gray-200 animate-spin`}
+      } mx-auto border-[2px] rounded-full animate-spin ${
+        color === "blue"
+          ? "border-t-blue-400 border-r-blue-400 border-b-blue-50 border-l-blue-50"
+          : color === "orange"
+          ? "border-t-orange-400 border-r-orange-400 border-b-orange-50 border-l-orange-50"
+          : "border-t-gray-400 border-r-gray-400 border-b-gray-50 border-l-gray-50"
+      }`}
     ></div>
   )
 }

@@ -3,6 +3,8 @@ import { Spinner } from "./spinner"
 interface Props {
   children?: React.ReactNode
   withSpinner?: boolean
+  spinnerColor?: "default" | "blue" | "orange"
+  spinnerSize?: "xs" | "sm" | "base" | "md" | "lg" | { w: string; h: string }
   opacity?: 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 96 | 100
   bgWhite?: boolean
   className?: string
@@ -11,6 +13,8 @@ interface Props {
 export function Backdrop({
   children,
   withSpinner = false,
+  spinnerColor = "default",
+  spinnerSize = "base",
   opacity = 30,
   bgWhite = false,
   className,
@@ -23,7 +27,7 @@ export function Backdrop({
       style={{ opacity: `${opacity}%` }}
     >
       {children && children}
-      {withSpinner && <Spinner />}
+      {withSpinner && <Spinner size={spinnerSize} color={spinnerColor} />}
     </div>
   )
 }
