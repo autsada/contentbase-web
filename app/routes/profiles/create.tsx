@@ -112,7 +112,7 @@ export default function CreateProfile() {
     setIsHandleLenValid(true)
     validateFetcher.submit(
       { handle },
-      { method: "post", action: "profile/validate-handle" }
+      { method: "post", action: "profiles/validate-handle" }
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
