@@ -337,13 +337,25 @@ export default function App() {
 export function CatchBoundary() {
   const caught = useCatch()
 
-  return <ErrorComponent error={caught.statusText} />
+  return (
+    <Document>
+      <body>
+        <ErrorComponent error={caught.statusText} />
+      </body>
+    </Document>
+  )
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error)
 
-  return <ErrorComponent error={error.message} />
+  return (
+    <Document>
+      <body>
+        <ErrorComponent error={error.message} />
+      </body>
+    </Document>
+  )
 }
 
 type AppContext = {

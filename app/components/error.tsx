@@ -8,21 +8,19 @@ export default function ErrorComponent({
   children?: React.ReactNode
 }) {
   return (
-    <Document>
-      <body>
-        {children ? (
-          children
-        ) : (
-          <div className="text-center py-10">
-            <h3 className="text-error">Error Occurred</h3>
-            <div className="px-5">
-              <p className="my-5 font-light text-textLight">
-                {error || "Something not right"}
-              </p>
-            </div>
+    <>
+      {children ? (
+        children
+      ) : (
+        <div className="text-center py-10">
+          <h3 className="text-error">Error Occurred</h3>
+          <div className="px-5">
+            <p className="my-5 font-light text-textLight">
+              {error || "Something not right"}
+            </p>
           </div>
-        )}
-      </body>
-    </Document>
+        </div>
+      )}
+    </>
   )
 }
