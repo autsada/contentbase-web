@@ -192,11 +192,11 @@ export default function CreateProfile() {
         // If NOT first prifile, how to create a profile depends on the account type.
 
         if (accountType === "TRADITIONAL") {
-          // A. Call the `Server` service to create a profile
+          // TODO: A. Call the `Server` service to create a profile
         }
 
         if (accountType === "WALLET") {
-          // B. Connect to the blockchain directly.
+          // TODO: B. Connect to the blockchain directly.
         }
       }
     } catch (error) {
@@ -204,7 +204,6 @@ export default function CreateProfile() {
       setError(
         "An error occurred while attempting to create a profile. Please try again."
       )
-      // alert(JSON.stringify(error))
     }
   }
 

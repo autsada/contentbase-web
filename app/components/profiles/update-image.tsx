@@ -3,13 +3,12 @@ import { useDropzone } from "react-dropzone"
 import { Link, useFetcher, useRevalidator } from "@remix-run/react"
 
 import { BackdropWithInfo } from "../backdrop-info"
-import { Backdrop } from "../backdrop"
+import { Spinner } from "../spinner"
 import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
 import { UPLOAD_SERVICE_URL } from "~/constants"
 import type { SelectedFile } from "~/routes/profiles/create"
 import type { AccountType } from "~/types"
 import type { UpdateProfileImageAction } from "~/routes/profiles/$handle/$profileId"
-import { Spinner } from "../spinner"
 
 interface Props {
   accountType: AccountType | null
@@ -137,7 +136,6 @@ export function UpdateProfileImageModal({
         // Connect to the blockchain directly
       }
     } catch (error) {
-      console.log("error: ", error)
       setProcessing(false)
       setIsError(true)
     }
@@ -219,7 +217,9 @@ export function UpdateProfileImageModal({
 
             {processing && (
               <BackdropWithInfo>
-                <h6 className="text-base">Waiting to complete transaction.</h6>
+                <h6 className="text-base">
+                  Waiting to complete the transaction.
+                </h6>
                 <div className="mt-5">
                   <Spinner size="sm" color="orange" />
                 </div>

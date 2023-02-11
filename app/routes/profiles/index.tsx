@@ -21,21 +21,22 @@ export default function Profiles() {
     <div className="page text-start">
       <div className="w-full">
         {!profiles || profiles.length === 0 ? (
-          <p className="font-light text-textLight text-center">
-            You don't have any profile yet.
-          </p>
+          <div className="p-6">
+            <p className="text-lg text-center">
+              You don't have any profile yet.
+            </p>
+          </div>
         ) : (
-          <>
-            {profiles.map((profile) => (
-              <ProfileItem
-                key={profile.id}
-                profile={profile}
-                isInUsed={profile.id === loggedInProfile?.id}
-              />
-            ))}
-          </>
+          profiles.map((profile) => (
+            <ProfileItem
+              key={profile.id}
+              profile={profile}
+              isInUsed={profile.id === loggedInProfile?.id}
+            />
+          ))
         )}
-        <div className="py-6 bg-gray-100">
+
+        <div className="py-6">
           <Link to="create">
             <button className="btn-dark w-44 rounded-full">
               Create new Profile
