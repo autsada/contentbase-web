@@ -127,11 +127,7 @@ export default function App() {
   const csrf = loaderData?.csrf
   const user = loaderData?.user as UserRecord | null
   const uid = user?.uid
-  const ENV = loaderData?.ENV
-  const account = loaderData?.account
-  const address = account?.address
-  const balance = loaderData?.balance
-  const hasProfile = loaderData?.hasProfile
+  const address = loaderData?.account?.address
   const profile = loaderData?.profile as Profile | null
 
   const [welcomeModalVisible, setWelcomeModalVisible] = useState(() => !address)
@@ -158,16 +154,6 @@ export default function App() {
       setWelcomeModalVisible(false)
     }
   }, [])
-
-  /**
-   * Set used profile state when the profile from the server is available
-   */
-  useEffect(() => {
-    if (typeof document === "undefined") return
-    if (profile) {
-      setLoggedInProfile(profile)
-    }
-  }, [profile])
 
   /**
    * When user logged in, write `loggedIn` key to localStorage so all opened tabs will be reloaded to update session state.
@@ -255,6 +241,10 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address])
 
+  const switchProfile = useCallback((p: Profile) => {
+    setLoggedInProfile(p)
+  }, [])
+
   return (
     <AuthenticityTokenProvider token={csrf || ""}>
       <WagmiConfig client={wagmiClient}>
@@ -272,17 +262,18 @@ export default function App() {
                 welcomeModalVisible,
                 setWelcomeModalVisible,
                 user,
-                account,
-                balance,
-                hasProfile,
+                account: loaderData?.account,
+                balance: loaderData?.balance,
+                hasProfile: loaderData?.hasProfile,
                 loggedInProfile: loggedInProfile,
+                switchProfile,
               }}
             />
             <ScrollRestoration />
             <script
               // Add `ENV` to the window object
               dangerouslySetInnerHTML={{
-                __html: `window.ENV = ${JSON.stringify(ENV)}`,
+                __html: `window.ENV = ${JSON.stringify(loaderData?.ENV)}`,
               }}
             />
             <Scripts />
@@ -357,9 +348,10 @@ type AppContext = {
   setWelcomeModalVisible: (open: boolean) => void
   user: UserRecord
   account: Account
-  loggedInProfile: Profile
   balance: string | undefined
   hasProfile: boolean | undefined
+  loggedInProfile: Profile
+  switchProfile: (p: Profile) => void
 }
 
 export function useAppContext() {

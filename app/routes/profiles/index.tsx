@@ -1,37 +1,29 @@
-import { useMemo } from "react"
 import { Link } from "@remix-run/react"
 
 import { BackdropWithInfo } from "~/components/backdrop-info"
+import { ProfileItem } from "~/components/profiles/profile-item"
 import { useProfileContext } from "../profiles"
 import type { Profile } from "~/types"
-import { ProfileItem } from "~/components/profiles/profile-item"
 
 export default function Profiles() {
   const context = useProfileContext()
-  const loggedInProfile = useMemo(
-    () => context?.loggedInProfile,
-    [context?.loggedInProfile]
-  )
-  const profiles = useMemo(
-    () => context?.account?.profiles,
-    [context?.account?.profiles]
-  ) as Profile[]
 
   return (
     <div className="page text-start">
       <div className="w-full">
-        {!profiles || profiles.length === 0 ? (
+        {!context?.account?.profiles ||
+        context?.account?.profiles.length === 0 ? (
           <div className="p-6">
             <p className="text-lg text-center">
               You don't have any profile yet.
             </p>
           </div>
         ) : (
-          profiles.map((profile) => (
+          (context?.account?.profiles as Profile[]).map((profile) => (
             <ProfileItem
               key={profile.id}
               profile={profile}
-              isInUsed={profile.id === loggedInProfile?.id}
+              isInUsed={profile.id === context?.loggedInProfile?.id}
             />
           ))
         )}

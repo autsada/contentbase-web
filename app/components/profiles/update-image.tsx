@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useDropzone } from "react-dropzone"
 import { Link, useFetcher, useRevalidator } from "@remix-run/react"
 
@@ -34,11 +34,6 @@ export function UpdateProfileImageModal({
   const [processing, setProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState<boolean>()
   const [isError, setIsError] = useState<boolean>()
-
-  const notReady = useMemo(
-    () => !accountType || !tokenId || !handle || !file || !!uploadError,
-    [accountType, tokenId, handle, file, uploadError]
-  )
 
   const revalidator = useRevalidator()
   const reauthenticateFetcher = useFetcher()
@@ -96,7 +91,7 @@ export function UpdateProfileImageModal({
 
   async function changeProfileImage() {
     try {
-      if (notReady) return
+      if (!accountType || !tokenId || !handle || !file || !!uploadError) return
 
       setProcessing(true)
       if (accountType === "TRADITIONAL") {
@@ -193,9 +188,23 @@ export function UpdateProfileImageModal({
             <button
               type="submit"
               className={`btn-dark mt-4 h-10 py-2 w-28 flex items-center rounded-full text-sm ${
-                notReady || processing ? "opacity-30" : "opacity-100"
+                !accountType ||
+                !tokenId ||
+                !handle ||
+                !file ||
+                !!uploadError ||
+                processing
+                  ? "opacity-30"
+                  : "opacity-100"
               }`}
-              disabled={notReady || processing}
+              disabled={
+                !accountType ||
+                !tokenId ||
+                !handle ||
+                !file ||
+                !!uploadError ||
+                processing
+              }
             >
               CONFIRM
             </button>

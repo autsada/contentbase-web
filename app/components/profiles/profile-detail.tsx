@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Link, useFetcher } from "@remix-run/react"
 import { MdArrowBackIosNew, MdPerson, MdOutlineEdit } from "react-icons/md"
 
@@ -15,29 +15,13 @@ interface Props {
 }
 
 export function ProfileDetail({ context, profile, closeModal }: Props) {
-  // Check whether the account owns the profile or not
-  const isOwner = useMemo(
-    () => context?.account?.address === profile?.owner,
-    [context?.account?.address, profile?.owner]
-  )
-  // The current profile that the user uses
-  const loggedInProfile = useMemo(
-    () => context?.loggedInProfile,
-    [context?.loggedInProfile]
-  )
   // Check whehter the logged in profile and the displayed profile is the same or not.
-  const isSameProfile = useMemo(
-    () => profile?.id === loggedInProfile?.id,
-    [profile?.id, loggedInProfile?.id]
-  )
-  const accountType = useMemo(
-    () => context?.account?.type,
-    [context?.account?.type]
-  )
-
-  const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImageAction>()
+  const isSameProfile = profile?.id === context?.loggedInProfile?.id
+  const accountType = context?.account?.type
 
   const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
+
+  const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImageAction>()
 
   /**
    * On first render when the profile is available and the logged in profile and the displayed profile are the same, call the server to get estimated gas used to update an image.
@@ -119,7 +103,7 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
         <h6 className="font-normal text-base text-textDark">
           @{profile.handle}{" "}
           {/* Display `DEFAULT` if the user is the owner of the profile */}
-          {isOwner && profile.default && (
+          {context?.account?.address === profile?.owner && profile.default && (
             <span className="font-thin italic text-textExtraLight">
               [DEFAULT]
             </span>
