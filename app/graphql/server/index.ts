@@ -8,6 +8,7 @@ import { dummyImageURI } from "~/constants"
 
 import {
   CREATE_FIRST_PROFILE_MUTATION,
+  CREATE_PROFILE_MUTATION,
   CREATE_WALLET_MUTATION,
   ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION,
   UPDATE_PROFILE_IMAGE_MUTATION,
@@ -29,14 +30,14 @@ const {
   SERVER_ADMIN_ROUTE_ACCESS_KEY,
   KMS_ADMIN_ROUTE_ACCESS_KEY,
 } = process.env
-const url = NODE_ENV === "production" ? SERVER_URL_PROD! : SERVER_URL_TEST!
+// const url = NODE_ENV === "production" ? SERVER_URL_PROD! : SERVER_URL_TEST!
 
-// const url =
-//   NODE_ENV === "production"
-//     ? SERVER_URL_PROD!
-//     : NODE_ENV === "test"
-//     ? SERVER_URL_TEST!
-//     : SERVER_URL_DEV!
+const url =
+  NODE_ENV === "production"
+    ? SERVER_URL_PROD!
+    : NODE_ENV === "test"
+    ? SERVER_URL_TEST!
+    : SERVER_URL_DEV!
 
 export const client = new GraphQLClient(`${url}/graphql`, {
   headers: {
@@ -85,7 +86,6 @@ export async function validateHandle(handle: string) {
 /**
  * @dev Use this function for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for all users.
  */
-
 export async function createFirstProfile(
   input: MutationArgsType<"createFirstProfile">["input"],
   idToken: string
@@ -149,4 +149,21 @@ export async function updateProfileImage({
     })
 
   return data.updateProfileImage
+}
+
+export async function createProfile(
+  input: MutationArgsType<"createProfile">["input"],
+  idToken: string
+) {
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"createProfile">,
+      MutationArgsType<"createProfile">
+    >(CREATE_PROFILE_MUTATION, { input })
+
+  return data.createProfile
 }

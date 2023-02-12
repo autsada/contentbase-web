@@ -95,8 +95,8 @@ export async function loader({ request }: LoaderArgs) {
       balance,
       hasProfile,
       ENV: {
-        // NODE_ENV: process.env.NODE_ENV,
-        NODE_ENV: "test",
+        NODE_ENV: process.env.NODE_ENV,
+        // NODE_ENV: "test",
       },
     },
     { headers: { "Set-Cookie": await commitSession(session) } }
@@ -311,7 +311,7 @@ export default function App() {
                     <RightDrawer
                       openDrawer={openRightDrawer}
                       className={
-                        !isRightDrawerOpen ? "-right-[200%]" : "right-0"
+                        !isRightDrawerOpen ? "-right-[100%]" : "right-0"
                       }
                       profile={loggedInProfile}
                     />

@@ -42,15 +42,20 @@ export default function Profiles() {
         !context?.hasProfile && (
           <BackdropWithInfo>
             <div className="px-2">
-              <h6 className="text-center mb-2">Create First Profile</h6>
-              <p className="mb-4 text-blueBase">
-                You will need a profile to upload, share, like, and comment on{" "}
-                <strong className="text-blueDark">ContentBase</strong>.
-              </p>
-              <h6 className="text-base">
+              <h5 className="text-center mb-2">Create First Profile</h5>
+              <div className="mb-4 p-4 bg-gray-100 rounded-2xl">
+                <p className="font-light text-center text-lg text-blueBase">
+                  You will need a profile to upload, share, like, and comment on{" "}
+                  <strong className="font-semibold text-blueDark text-base">
+                    ContentBase
+                  </strong>
+                  .
+                </p>
+              </div>
+              <h6 className="text-center">
                 Would you like to create your first profile now?
               </h6>
-              <p className="text-textExtraLight italic mt-1">
+              <p className="text-center text-textExtraLight italic mt-1">
                 Note: It's <span className="text-orange-600">FREE</span> to
                 create the first profile.
               </p>

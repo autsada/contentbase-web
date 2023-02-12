@@ -37,3 +37,11 @@ export const UPDATE_PROFILE_IMAGE_MUTATION = gql`
     }
   }
 `
+
+export const CREATE_PROFILE_MUTATION = gql`
+  mutation CreateProfile($input: CreateProfileInput!) {
+    createProfile(input: $input) {
+      status
+    }
+  }
+`

@@ -12,7 +12,7 @@ import type { ChangeEvent } from "react"
 import { useProfileContext } from "../profiles"
 import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
 import { UPLOAD_SERVICE_URL } from "~/constants"
-import { createFirstProfile } from "~/graphql/server"
+import { createFirstProfile, createProfile } from "~/graphql/server"
 import type { validateActionType } from "./validate-handle"
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
@@ -26,15 +26,24 @@ export async function action({ request }: ActionArgs) {
   try {
     // Get the `idToken` from the request
     const form = await request.formData()
-    const { handle, imageURI, owner, idToken } = Object.fromEntries(form) as {
-      handle: string
-      imageURI?: string
-      owner: string
-      idToken: string
+    const { handle, imageURI, owner, idToken, isFirstProfile } =
+      Object.fromEntries(form) as {
+        handle: string
+        imageURI?: string
+        owner: string
+        idToken: string
+        isFirstProfile: "True" | "False"
+      }
+
+    if (isFirstProfile === "True") {
+      // Call `createFirstProfile` mutation in the `Server` service
+      await createFirstProfile({ handle, imageURI, owner }, idToken)
     }
 
-    // Call create profile function
-    await createFirstProfile({ handle, imageURI, owner }, idToken)
+    if (isFirstProfile === "False") {
+      // Call `createProfile` mutation in the `Server` service
+      await createProfile({ handle, imageURI }, idToken)
+    }
 
     return json({ status: "Ok" })
   } catch (error) {
@@ -73,8 +82,8 @@ export default function CreateProfile() {
     (acceptedFiles: File[]) => {
       const selectedFile = acceptedFiles[0] as SelectedFile
 
-      if (selectedFile.size / 1000 > 2048) {
-        // Maximum allowed image size = 2mb
+      if (selectedFile.size / 1000 > 4096) {
+        // Maximum allowed image size = 4mb
         setUploadError("File too big")
         return
       }
@@ -183,16 +192,26 @@ export default function CreateProfile() {
       const isFirstProfile = context?.account.profiles?.length === 0
 
       if (isFirstProfile) {
-        // Call the `createFirstProfile` mutation in the `Server` service for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for users first profiles.
+        // If the first profile, call the action for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for all users first profiles.
         actionFetcher.submit(
-          { handle, imageURI, owner: address, idToken },
+          { handle, imageURI, owner: address, idToken, isFirstProfile: "True" },
           { method: "post" }
         )
       } else {
         // If NOT first prifile, how to create a profile depends on the account type.
 
         if (accountType === "TRADITIONAL") {
-          // TODO: A. Call the `Server` service to create a profile
+          // A. Call the action
+          actionFetcher.submit(
+            {
+              handle,
+              imageURI,
+              owner: address,
+              idToken,
+              isFirstProfile: "False",
+            },
+            { method: "post" }
+          )
         }
 
         if (accountType === "WALLET") {
