@@ -12,50 +12,55 @@ interface Props {
 export function ProfileItem({ isInUsed, profile }: Props) {
   return (
     <Link to={`${profile.originalHandle}/${profile.id}`}>
-      <div
-        key={profile.id}
-        className="w-full py-2 px-4 flex items-center border-b border-borderExtraLightGray cursor-pointer hover:bg-gray-50"
-      >
-        <div className="mr-5">
-          <div className="w-[60px] h-[60px] bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
-            {!profile.imageURI ? (
-              <MdPerson size={30} color="#3f3f46" />
+      <div className="w-full py-2 px-4 border-b border-borderExtraLightGray cursor-pointer hover:bg-gray-50">
+        <div className="w-[60px] text-center">
+          <h6 className="text-lg">{profile.originalHandle}</h6>
+        </div>
+        <div key={profile.id} className="mt-1 flex items-center">
+          <div className="mr-5 h-[60px]">
+            <div className="w-[60px] h-[60px] bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
+              {!profile.imageURI ? (
+                <MdPerson size={30} color="#3f3f46" />
+              ) : (
+                <img
+                  src={profile.imageURI}
+                  alt={profile.originalHandle}
+                  className="w-full h-full object-cover leading-[60px] text-center text-xs"
+                />
+              )}
+            </div>
+          </div>
+          <div className="h-[60px] flex-grow px-2">
+            <p>
+              @{profile.handle}{" "}
+              {profile.default && (
+                <span className="font-light italic text-textExtraLight">
+                  [DEFAULT]
+                </span>
+              )}
+            </p>
+            <div className="flex justify-start items-start">
+              <button className="h-max w-max py-1 m-0 font-light text-sm text-textExtraLight mr-5">
+                <span className="p-0 m-0 text-textDark mr-1">
+                  {profile.followersCount}
+                </span>{" "}
+                Followers
+              </button>
+              <button className="h-max w-max py-1 m-0 font-light text-sm text-textExtraLight">
+                <span className="text-textDark mr-1">
+                  {profile.followingCount}
+                </span>{" "}
+                Following
+              </button>
+            </div>
+          </div>
+          <div className="h-[60px] flex items-center justify-center ml-2">
+            {isInUsed ? (
+              <IoIosRadioButtonOn size={26} className="text-orange-500" />
             ) : (
-              <img
-                src={profile.imageURI}
-                alt={profile.originalHandle}
-                className="w-full h-full object-cover leading-[60px] text-center text-xs"
-              />
+              <IoIosRadioButtonOff size={26} className="text-textExtraLight" />
             )}
           </div>
-        </div>
-        <div className="flex-grow px-2">
-          <h6 className="text-base">{profile.originalHandle}</h6>
-          <p className="font-light text-textLight">
-            @{profile.handle}{" "}
-            {profile.default && (
-              <span className="font-thin italic text-textExtraLight">
-                [DEFAULT]
-              </span>
-            )}
-          </p>
-          <div className="flex mt-1">
-            <p className="font-light text-sm text-textExtraLight mr-5">
-              <span className="text-textDark">{profile.followersCount}</span>{" "}
-              Followers
-            </p>
-            <p className="font-light text-sm text-textExtraLight">
-              <span className="text-textDark">{profile.followingCount}</span>{" "}
-              Following
-            </p>
-          </div>
-        </div>
-        <div>
-          {isInUsed ? (
-            <IoIosRadioButtonOn size={26} className="text-orange-500" />
-          ) : (
-            <IoIosRadioButtonOff size={26} className="text-textExtraLight" />
-          )}
         </div>
       </div>
     </Link>

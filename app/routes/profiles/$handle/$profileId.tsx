@@ -121,11 +121,9 @@ export function ErrorBoundary({ error }: { error: Error }) {
         <div className="pt-[80px] text-center px-5">
           <h3 className="text-error">Error Occurred</h3>
           <p className="mt-5 text-lg">
-            There was an error loading the Profile
-            <span className="text-blueBase">
-              {params.handle}#{params.profileId}
-            </span>
-            . Please try again.
+            There was an error loading{" "}
+            <span className="text-blueBase">{params.handle}</span> Profile.
+            Please try again.
           </p>
         </div>
 

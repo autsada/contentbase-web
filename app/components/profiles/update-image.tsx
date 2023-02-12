@@ -420,10 +420,10 @@ export function UpdateProfileImageModal({
               </div>
             </div>
           ) : (
-            <div className="p-5 flex flex-col justify-center items-center">
+            <div className="pt-12 pb-8 px-5 flex flex-col justify-center items-center">
               <h6 className="text-base">
-                To update a profile image, you will need a little bit of{" "}
-                <span className="text-blueBase">ETH</span> to pay for gas fee.
+                You have not enough <span className="text-blueBase">ETH</span>{" "}
+                to pay for gas fee.
               </h6>
               <Link to="/profiles/wallet">
                 <button className="btn-orange mt-5 px-6 rounded-full">

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link, useFetcher, useLoaderData } from "@remix-run/react"
-import { MdArrowBackIosNew, MdPerson, MdOutlineEdit } from "react-icons/md"
+import { MdArrowBackIosNew, MdPerson, MdEdit } from "react-icons/md"
 import { useAccount } from "wagmi"
 
 import { UpdateProfileImageModal } from "./update-image"
@@ -120,7 +120,7 @@ export function ProfileDetail({ context, closeModal }: Props) {
               disabled={!isSameProfile}
               onClick={openImageModal}
             >
-              <MdOutlineEdit size={30} />
+              <MdEdit size={30} className="text-orange-500" />
             </button>
           )}
         </div>
@@ -132,7 +132,7 @@ export function ProfileDetail({ context, closeModal }: Props) {
           {/* Display `DEFAULT` if the user is the owner of the profile */}
           {context?.account?.address === data?.profile?.owner &&
             data?.profile.default && (
-              <span className="font-thin italic text-textExtraLight">
+              <span className="font-light italic text-textExtraLight">
                 [DEFAULT]
               </span>
             )}

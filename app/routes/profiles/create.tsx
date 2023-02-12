@@ -289,10 +289,16 @@ export default function CreateProfile() {
                 )}
               </div>
             </div>
-            <p className="font-light text-blueBase italic text-sm mt-4">
-              Tip: Upload your profile image now to enjoy{" "}
-              <span className="text-orange-600">GAS FREE</span>.
-            </p>
+            {context?.account?.profiles?.length === 0 ? (
+              <p className="font-light text-blueBase italic text-sm mt-4">
+                Tip: Upload your profile image now to enjoy{" "}
+                <span className="text-orange-600">GAS FREE</span>.
+              </p>
+            ) : (
+              <p className="font-light text-blueBase italic text-sm mt-4">
+                &nbsp;
+              </p>
+            )}
           </fieldset>
           <p className="error text-end">
             {uploadError ? uploadError : <>&nbsp;</>}

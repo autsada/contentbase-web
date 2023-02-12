@@ -45,7 +45,7 @@ export function Nav({ user, openDrawer, profile }: Props) {
         )}
       </div>
 
-      <div className="w-[60px] h-full flex items-center justify-end">
+      <div className="w-[80px] h-full flex items-center justify-end">
         {pathname.startsWith("/auth") ? (
           <Link to="auth" replace={true} className="px-4">
             &#10005;
@@ -54,7 +54,7 @@ export function Nav({ user, openDrawer, profile }: Props) {
           <>
             {!user ? (
               <Link to="auth">
-                <button className="btn-orange text-sm rounded-3xl w-max h-8 px-4">
+                <button className="btn-orange text-base rounded-3xl w-max px-5">
                   Login
                 </button>
               </Link>
