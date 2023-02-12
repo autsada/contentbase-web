@@ -1,11 +1,12 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useDropzone } from "react-dropzone"
 import { Link, useFetcher, useRevalidator } from "@remix-run/react"
 
 import { BackdropWithInfo } from "../backdrop-info"
 import { Spinner } from "../spinner"
-import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
-import { UPLOAD_SERVICE_URL } from "~/constants"
+import { clientAuth } from "~/client/firebase.client"
+import { useUpdateProfileImage } from "~/hooks/profile-contract"
+import { uploadImage, wait } from "~/utils"
 import type { SelectedFile } from "~/routes/profiles/create"
 import type { AccountType } from "~/types"
 import type { UpdateProfileImageAction } from "~/routes/profiles/$handle/$profileId"
@@ -30,14 +31,31 @@ export function UpdateProfileImageModal({
   closeModal,
 }: Props) {
   const [file, setFile] = useState<SelectedFile | null>(null)
-  const [uploadError, setUploadError] = useState("")
-  const [processing, setProcessing] = useState(false)
-  const [isSuccess, setIsSuccess] = useState<boolean>()
-  const [isError, setIsError] = useState<boolean>()
+  const [imageSizeError, setImageSizeError] = useState("")
+  const [uploadingImage, setUploadingImage] = useState<boolean>()
+  const [uploadImageError, setUploadImageError] = useState<boolean>()
+  const [isTraditionalLoading, setIsTraditionalLoading] = useState<boolean>()
+  const [isTraditionalSuccess, setIsTraditionalSuccess] = useState<boolean>()
+  const [isTraditionalError, setIsTraditionalError] = useState<boolean>() // For `TRADITIONAL`
+  const [imageURI, setImageURI] = useState("") // For `WALLET` account, we need to set the image uri to state in order to pass it to wagmi hook.
+  const [noWriteError, setNoWriteError] = useState<boolean>() // If, for some reason, there is no `write` transaction after magmi prepare transaction done, use this state to inform user.
 
+  const executeTxnBtnRef = useRef<HTMLButtonElement>(null)
   const revalidator = useRevalidator()
   const reauthenticateFetcher = useFetcher()
   const actionFetcher = useFetcher<UpdateProfileImageAction>()
+
+  const {
+    isPrepareLoading,
+    isPrepareError,
+    write,
+    isWriteLoading,
+    isWriteSuccess,
+    isWriteError,
+    isWaitLoading,
+    isWaitSuccess,
+    isWaitError,
+  } = useUpdateProfileImage(Number(tokenId), imageURI)
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -45,11 +63,11 @@ export function UpdateProfileImageModal({
 
       if (selectedFile.size / 1000 > 4096) {
         // Maximum allowed image size = 4mb
-        setUploadError("File too big (max allowed 4mb)")
+        setImageSizeError("File too big (max allowed 4mb)")
         return
       }
 
-      setUploadError("")
+      setImageSizeError("")
       const fileWithPreview = Object.assign(selectedFile, {
         preview: URL.createObjectURL(selectedFile),
       })
@@ -72,183 +90,355 @@ export function UpdateProfileImageModal({
     },
   })
 
-  // When the action returns, update processing status.
+  // `TRADITIONAL` Account: Edit profile image.
+  async function updateProfileImageForTraditional() {
+    try {
+      if (
+        accountType !== "TRADITIONAL" ||
+        !tokenId ||
+        !handle ||
+        !file ||
+        !!imageSizeError
+      )
+        return
+
+      setUploadingImage(true)
+
+      const imageURI = await uploadImage({ file, handle, oldImageURI })
+      if (!imageURI) {
+        setUploadImageError(true)
+        setUploadingImage(false)
+        return
+      }
+
+      // Reset upload error if it's true
+      if (uploadImageError) setUploadImageError(false)
+
+      // Call the `Server` service
+      const user = clientAuth.currentUser
+      const idToken = await user?.getIdToken()
+      // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
+      if (!idToken) {
+        setUploadingImage(false)
+        reauthenticateFetcher.submit(null, {
+          method: "post",
+          action: "/reauthenticate",
+        })
+        return
+      }
+
+      setIsTraditionalLoading(true)
+      setUploadingImage(false)
+      actionFetcher.submit({ idToken, tokenId, imageURI }, { method: "post" })
+    } catch (error) {
+      setUploadingImage(false)
+      setIsTraditionalError(true)
+    }
+  }
+
+  // `TRADITIONAL` Account:  When the action returns, update processing status and revalidate the states.
   useEffect(() => {
     if (actionFetcher?.data?.status) {
-      setProcessing(false)
+      setIsTraditionalLoading(false)
       if (actionFetcher.data.status === "Ok") {
-        setFile(null)
-        setIsSuccess(true)
-        setIsError(false)
         revalidator.revalidate()
+        setFile(null)
+        setIsTraditionalSuccess(true)
+        setIsTraditionalError(false)
       }
       if (actionFetcher.data.status === "Error") {
-        setIsError(true)
+        setIsTraditionalError(true)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionFetcher?.data?.status])
 
-  async function changeProfileImage() {
+  // `WALLET` Account: Listen to wagmi transaction success and revalidate the states.
+  useEffect(() => {
+    if (isWaitSuccess) {
+      revalidator.revalidate()
+      setFile(null)
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWaitSuccess])
+
+  // `WALLET` Account: Update profile image
+  async function updateProfileImageForWallet() {
     try {
-      if (!accountType || !tokenId || !handle || !file || !!uploadError) return
+      if (
+        accountType !== "WALLET" ||
+        !tokenId ||
+        !handle ||
+        !file ||
+        !!imageSizeError ||
+        !executeTxnBtnRef ||
+        !executeTxnBtnRef.current
+      )
+        return
 
-      setProcessing(true)
-      if (accountType === "TRADITIONAL") {
-        // Call the `Server` service
-        const user = clientAuth.currentUser
-        const idToken = await user?.getIdToken()
-        // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
-        if (!idToken) {
-          setProcessing(false)
-          reauthenticateFetcher.submit(null, {
-            method: "post",
-            action: "/reauthenticate",
-          })
-          return
-        }
-
-        // Profile image url
-        const formData = new FormData()
-        formData.append("file", file!)
-        formData.append("handle", handle)
-        formData.append("storageFolder", avatarsStorageFolder)
-        if (oldImageURI) {
-          formData.append("oldURI", oldImageURI)
-        }
-
-        const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
-          method: "POST",
-          body: formData,
-        })
-        const data = (await res.json()) as { url: string }
-        const imageURI = data.url
-
-        actionFetcher.submit({ idToken, tokenId, imageURI }, { method: "post" })
+      setUploadingImage(true)
+      const imageURI = await uploadImage({ file, handle, oldImageURI })
+      if (!imageURI) {
+        setUploadImageError(true)
+        setUploadingImage(false)
+        return
       }
 
-      if (accountType === "WALLET") {
-        // Connect to the blockchain directly
-      }
+      if (uploadImageError) setUploadImageError(false)
+      setImageURI(imageURI)
+
+      // Wait 2000ms to make sure the `write` function is available
+      await wait(2000)
+
+      executeTxnBtnRef.current.click()
+      setUploadingImage(false)
     } catch (error) {
-      setProcessing(false)
-      setIsError(true)
+      setUploadingImage(false)
     }
   }
 
-  // console.log("action data: ", actionFetcher?.data)
+  // `WALLET` Account: This function will be called after the `write` function is ready.
+  function execute() {
+    let count = 0
+    executeWrite()
+
+    async function executeWrite() {
+      if (write) {
+        write()
+      } else {
+        if (count <= 10) {
+          await wait(1000)
+          count = count + 1
+          executeWrite()
+        } else {
+          if (uploadingImage) setUploadingImage(false)
+          setNoWriteError(true)
+        }
+      }
+    }
+  }
+
   return (
     <BackdropWithInfo>
-      <button
-        className={`absolute top-2 right-6 font-thin text-textExtraLight cursor-pointer ${
-          processing ? "hidden" : "block"
-        }`}
-        disabled={processing}
-        onClick={closeModal}
-      >
-        &#10005;
-      </button>
-      <actionFetcher.Form onSubmit={changeProfileImage}>
-        {Number(balance) > 0 ? (
-          <div className="pt-5">
-            <h6 className="mb-4">Upload New Image</h6>
-            {/* Estimate gas fee info */}
-            <p className="error text-xs mb-1">
-              {gas && file && !uploadError ? (
-                `Estimated gas fee = ${gas} ETH`
-              ) : (
-                <>&nbsp;</>
-              )}
-            </p>
-            <div className="w-[150px] h-[150px] mx-auto border border-borderLightGray">
-              <div
-                className="w-full h-full rounded-full bg-gray-100 overflow-hidden"
-                {...getRootProps({
-                  isDragActive,
-                  isDragReject,
-                  isDragAccept,
-                })}
-              >
-                <input {...getInputProps({ multiple: false })} />
-                {file && (
-                  <img
-                    src={file.preview}
-                    alt={file.name}
-                    className="w-full h-full object-cover"
-                  />
+      <div className="relative">
+        <button
+          className={
+            "absolute top-2 right-6 font-thin text-textExtraLight cursor-pointer"
+          }
+          disabled={
+            isTraditionalLoading ||
+            isPrepareLoading ||
+            isWaitLoading ||
+            isWaitLoading
+          }
+          onClick={closeModal}
+        >
+          &#10005;
+        </button>
+        <actionFetcher.Form
+          onSubmit={
+            accountType === "TRADITIONAL"
+              ? updateProfileImageForTraditional
+              : accountType === "WALLET"
+              ? updateProfileImageForWallet
+              : undefined
+          }
+        >
+          {Number(balance) > 0 ? (
+            <div className="pt-5">
+              <h6 className="mb-4">Edit Profile Image</h6>
+
+              <div className="flex flex-col justify-center min-h-[120px]">
+                {isTraditionalSuccess || isWaitSuccess ? (
+                  <h6 className="text-blueBase text-base">
+                    Your profile image has been updated.
+                  </h6>
+                ) : (
+                  <>
+                    {/* `TRADITIONAL` Account: Estimate gas fee info */}
+                    <p className="error text-xs mb-1">
+                      {accountType === "TRADITIONAL" &&
+                      gas &&
+                      file &&
+                      !imageSizeError ? (
+                        `Estimated gas fee = ${gas} ETH`
+                      ) : (
+                        <>&nbsp;</>
+                      )}
+                    </p>
+
+                    <div className="w-[150px] h-[150px] mx-auto border border-borderLightGray">
+                      <div
+                        className="w-full h-full rounded-full bg-gray-100 overflow-hidden"
+                        {...getRootProps({
+                          isDragActive,
+                          isDragReject,
+                          isDragAccept,
+                        })}
+                      >
+                        <input {...getInputProps({ multiple: false })} />
+                        {file && (
+                          <img
+                            src={file.preview}
+                            alt={file.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Image size error message */}
+                    <p className="error mt-1">
+                      {imageSizeError ? imageSizeError : <>&nbsp;</>}
+                    </p>
+
+                    {/* Confirm Button */}
+                    <button
+                      type="submit"
+                      className={`btn-dark mt-4 h-10 py-2 w-28 flex items-center rounded-full text-sm ${
+                        !accountType ||
+                        !tokenId ||
+                        !handle ||
+                        !file ||
+                        !!imageSizeError
+                          ? "opacity-30"
+                          : "opacity-100"
+                      }`}
+                      disabled={
+                        !accountType ||
+                        !tokenId ||
+                        !handle ||
+                        !file ||
+                        !!imageSizeError
+                      }
+                    >
+                      CONFIRM
+                    </button>
+
+                    {/* `TRADITIONAL` Account */}
+                    {accountType === "TRADITIONAL" && (
+                      <>
+                        {/* Info and spinner */}
+                        {(uploadingImage || isTraditionalLoading) && (
+                          <BackdropWithInfo>
+                            <h6
+                              className={`text-base ${
+                                isTraditionalLoading ? "text-orange-600" : ""
+                              }`}
+                            >
+                              {uploadingImage
+                                ? "Uploading Image."
+                                : isTraditionalLoading
+                                ? "Transaction Submitted. Waiting..."
+                                : null}
+                            </h6>
+                            <div className="mt-5">
+                              <Spinner
+                                size="sm"
+                                color={
+                                  isTraditionalLoading ? "orange" : "default"
+                                }
+                              />
+                            </div>
+                          </BackdropWithInfo>
+                        )}
+
+                        {/* Error message */}
+                        <div className="mt-1 px-2">
+                          <p className="error">
+                            {uploadImageError ? (
+                              "Failed to upload the image. Please try again."
+                            ) : isTraditionalError ? (
+                              "Edit profile image failed. Please ensuer you have enough funds to pay gas and try again."
+                            ) : (
+                              <>&nbsp;</>
+                            )}
+                          </p>
+                        </div>
+                      </>
+                    )}
+
+                    {/* `WALLET` Account */}
+                    {accountType === "WALLET" && (
+                      <>
+                        {/* Info and spinner */}
+                        {(uploadingImage ||
+                          isWriteLoading ||
+                          isWaitLoading) && (
+                          <BackdropWithInfo>
+                            <h6
+                              className={`text-base ${
+                                isWriteLoading
+                                  ? "text-blueBase"
+                                  : isWriteSuccess || isWaitLoading
+                                  ? "text-orange-600"
+                                  : ""
+                              }`}
+                            >
+                              {uploadingImage
+                                ? "Uploading Image."
+                                : isWriteLoading
+                                ? "Connecting Wallet."
+                                : isWriteSuccess || isWaitLoading
+                                ? "Transaction Submitted. Waiting..."
+                                : null}
+                            </h6>
+                            <div className="mt-5">
+                              <Spinner
+                                size="sm"
+                                color={
+                                  isWriteLoading
+                                    ? "blue"
+                                    : isWriteSuccess || isWaitLoading
+                                    ? "orange"
+                                    : "default"
+                                }
+                              />
+                            </div>
+                          </BackdropWithInfo>
+                        )}
+
+                        {/* Error message */}
+                        <div className="mt-1 px-2">
+                          <p className="error">
+                            {uploadImageError ? (
+                              "Failed to upload the image. Please try again."
+                            ) : isPrepareError || isWriteError ? (
+                              "Failed to connect to wallet. Please try again."
+                            ) : isWaitError || noWriteError ? (
+                              "Edit profile image failed. Please ensuer you have enough funds to pay gas and try again."
+                            ) : (
+                              <>&nbsp;</>
+                            )}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </>
                 )}
               </div>
             </div>
+          ) : (
+            <div className="p-5 flex flex-col justify-center items-center">
+              <h6 className="text-base">
+                To update a profile image, you will need a little bit of{" "}
+                <span className="text-blueBase">ETH</span> to pay for gas fee.
+              </h6>
+              <Link to="/profiles/wallet">
+                <button className="btn-orange mt-5 px-6 rounded-full">
+                  Buy ETH
+                </button>
+              </Link>
+            </div>
+          )}
+        </actionFetcher.Form>
 
-            {/* Upload error message */}
-            <p className="error mt-1">
-              {uploadError ? uploadError : <>&nbsp;</>}
-            </p>
-
-            <button
-              type="submit"
-              className={`btn-dark mt-4 h-10 py-2 w-28 flex items-center rounded-full text-sm ${
-                !accountType ||
-                !tokenId ||
-                !handle ||
-                !file ||
-                !!uploadError ||
-                processing
-                  ? "opacity-30"
-                  : "opacity-100"
-              }`}
-              disabled={
-                !accountType ||
-                !tokenId ||
-                !handle ||
-                !file ||
-                !!uploadError ||
-                processing
-              }
-            >
-              CONFIRM
-            </button>
-
-            {/* Error or Success message */}
-            <p
-              className={`error my-2 px-1 ${isSuccess ? "text-blueBase" : ""} ${
-                isError || isSuccess ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              {isError ? (
-                "Update profile image failed, please make sure you have enough ETH in your balance."
-              ) : isSuccess ? (
-                "Update profile image success"
-              ) : (
-                <p>&nbsp;</p>
-              )}
-            </p>
-
-            {processing && (
-              <BackdropWithInfo>
-                <h6 className="text-base">
-                  Waiting to complete the transaction.
-                </h6>
-                <div className="mt-5">
-                  <Spinner size="sm" color="orange" />
-                </div>
-              </BackdropWithInfo>
-            )}
-          </div>
-        ) : (
-          <div className="p-5 flex flex-col justify-center items-center">
-            <h6 className="text-base">
-              To update a profile image, you will need a little bit of{" "}
-              <span className="text-blueBase">ETH</span> to pay for gas fee.
-            </h6>
-            <Link to="/profiles/wallet">
-              <button className="btn-orange mt-5 px-6 rounded-full">
-                Buy ETH
-              </button>
-            </Link>
-          </div>
-        )}
-      </actionFetcher.Form>
+        {/* `Wallet` Account: Hidden button to execute `write` function */}
+        <button ref={executeTxnBtnRef} className="hidden" onClick={execute}>
+          Execute
+        </button>
+      </div>
     </BackdropWithInfo>
   )
 }

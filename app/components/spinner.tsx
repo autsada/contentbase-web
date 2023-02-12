@@ -20,10 +20,10 @@ export function Spinner({ size = "base", color = "default" }: Props) {
           : "w-16 h-16"
       } mx-auto border-[2px] rounded-full animate-spin ${
         color === "blue"
-          ? "border-t-blue-400 border-r-blue-400 border-b-blue-50 border-l-blue-50"
+          ? "border-t-blue-400 border-r-blue-400 border-b-blue-100 border-l-blue-100"
           : color === "orange"
-          ? "border-t-orange-400 border-r-orange-400 border-b-orange-50 border-l-orange-50"
-          : "border-t-gray-400 border-r-gray-400 border-b-gray-50 border-l-gray-50"
+          ? "border-t-orange-400 border-r-orange-400 border-b-orange-100 border-l-orange-100"
+          : "border-t-gray-400 border-r-gray-400 border-b-gray-100 border-l-gray-100"
       }`}
     ></div>
   )

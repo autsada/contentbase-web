@@ -1,5 +1,3 @@
-import { Document } from "~/root"
-
 export default function ErrorComponent({
   error,
   children,

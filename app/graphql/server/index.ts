@@ -4,6 +4,7 @@
  */
 
 import { GraphQLClient } from "graphql-request"
+import { dummyImageURI } from "~/constants"
 
 import {
   CREATE_FIRST_PROFILE_MUTATION,
@@ -28,14 +29,14 @@ const {
   SERVER_ADMIN_ROUTE_ACCESS_KEY,
   KMS_ADMIN_ROUTE_ACCESS_KEY,
 } = process.env
-// const url = NODE_ENV === "production" ? SERVER_URL_PROD! : SERVER_URL_TEST!
+const url = NODE_ENV === "production" ? SERVER_URL_PROD! : SERVER_URL_TEST!
 
-const url =
-  NODE_ENV === "production"
-    ? SERVER_URL_PROD!
-    : // : NODE_ENV === "test"
-      SERVER_URL_TEST!
-// : SERVER_URL_DEV!
+// const url =
+//   NODE_ENV === "production"
+//     ? SERVER_URL_PROD!
+//     : NODE_ENV === "test"
+//     ? SERVER_URL_TEST!
+//     : SERVER_URL_DEV!
 
 export const client = new GraphQLClient(`${url}/graphql`, {
   headers: {
@@ -111,10 +112,6 @@ export async function estimateGaseUpdateProfileImage({
   idToken: string
   tokenId: number
 }) {
-  // Use a dummy hard-coded uri.
-  const imageURI =
-    "https://www.some_service.com/adam-b1665169-3f10-47ae-8af0-26db145ae157.jpg"
-
   const data = await client
     .setHeaders({
       "Content-Type": "application/json",
@@ -124,7 +121,7 @@ export async function estimateGaseUpdateProfileImage({
       MutationReturnType<"estimateGasUpdateProfileImage">,
       MutationArgsType<"estimateGasUpdateProfileImage">
     >(ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION, {
-      input: { tokenId, imageURI },
+      input: { tokenId, imageURI: dummyImageURI }, // Use a dummy hard-coded uri.
     })
 
   return data.estimateGasUpdateProfileImage

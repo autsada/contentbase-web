@@ -1,11 +1,5 @@
 import { json } from "@remix-run/node"
-import {
-  Link,
-  useCatch,
-  useLoaderData,
-  useParams,
-  useNavigate,
-} from "@remix-run/react"
+import { Link, useCatch, useParams, useNavigate } from "@remix-run/react"
 import { MdError, MdArrowBackIosNew } from "react-icons/md"
 import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 
@@ -14,7 +8,6 @@ import { ProfileDetail } from "~/components/profiles/profile-detail"
 import { getProfile } from "~/graphql/public-apis"
 import { useProfileContext } from "~/routes/profiles"
 import { updateProfileImage } from "~/graphql/server"
-import type { Profile } from "~/types"
 
 export async function loader({ request, params }: LoaderArgs) {
   try {
@@ -37,6 +30,7 @@ export async function loader({ request, params }: LoaderArgs) {
     throw new Response("Profile Not Found")
   }
 }
+export type LoadProfileLoader = typeof loader
 
 export async function action({ request }: ActionArgs) {
   try {
@@ -61,8 +55,6 @@ export async function action({ request }: ActionArgs) {
 export type UpdateProfileImageAction = typeof action
 
 export default function MyProfile() {
-  const data = useLoaderData<typeof loader>()
-  const profile = data?.profile as Profile
   const context = useProfileContext()
 
   const navigate = useNavigate()
@@ -73,11 +65,7 @@ export default function MyProfile() {
 
   return (
     <div className="page">
-      <ProfileDetail
-        context={context}
-        profile={profile}
-        closeModal={closeModal}
-      />
+      <ProfileDetail context={context} closeModal={closeModal} />
     </div>
   )
 }

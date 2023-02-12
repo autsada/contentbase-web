@@ -67,7 +67,7 @@ export function Nav({ user, openDrawer, profile }: Props) {
                     <img
                       src={profile.imageURI}
                       alt={profile.originalHandle}
-                      className="object-cover"
+                      className="w-full h-full object-cover leading-[40px] text-center text-xs"
                     />
                   )}
                 </div>

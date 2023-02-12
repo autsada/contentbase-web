@@ -241,6 +241,13 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address])
 
+  /**
+   * When a profile that fetched from the server changes, set the logged in profile in the state.
+   */
+  useEffect(() => {
+    setLoggedInProfile(profile)
+  }, [profile])
+
   const switchProfile = useCallback((p: Profile) => {
     setLoggedInProfile(p)
   }, [])
@@ -304,7 +311,7 @@ export default function App() {
                     <RightDrawer
                       openDrawer={openRightDrawer}
                       className={
-                        !isRightDrawerOpen ? "-right-[100%]" : "right-0"
+                        !isRightDrawerOpen ? "-right-[200%]" : "right-0"
                       }
                       profile={loggedInProfile}
                     />
