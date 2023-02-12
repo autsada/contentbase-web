@@ -38,6 +38,7 @@ export function UpdateProfileImageModal({
   const [isTraditionalSuccess, setIsTraditionalSuccess] = useState<boolean>()
   const [isTraditionalError, setIsTraditionalError] = useState<boolean>() // For `TRADITIONAL`
   const [imageURI, setImageURI] = useState("") // For `WALLET` account, we need to set the image uri to state in order to pass it to wagmi hook.
+  const [retryCount, setRetryCount] = useState(0)
   const [noWriteError, setNoWriteError] = useState<boolean>() // If, for some reason, there is no `write` transaction after magmi prepare transaction done, use this state to inform user.
 
   const executeTxnBtnRef = useRef<HTMLButtonElement>(null)
@@ -188,8 +189,8 @@ export function UpdateProfileImageModal({
       if (uploadImageError) setUploadImageError(false)
       setImageURI(imageURI)
 
-      // Wait 2000ms to make sure the `write` function is available
-      await wait(2000)
+      // Wait 1000ms to make sure the `write` function is available
+      await wait(1000)
 
       executeTxnBtnRef.current.click()
       setUploadingImage(false)
@@ -199,22 +200,22 @@ export function UpdateProfileImageModal({
   }
 
   // `WALLET` Account: This function will be called after the `write` function is ready.
-  function execute() {
-    let count = 0
-    executeWrite()
-
-    async function executeWrite() {
-      if (write) {
-        write()
-      } else {
-        if (count <= 10) {
-          await wait(1000)
-          count = count + 1
-          executeWrite()
-        } else {
-          if (uploadingImage) setUploadingImage(false)
-          setNoWriteError(true)
+  async function execute() {
+    if (write) {
+      write()
+      if (retryCount) setRetryCount(0)
+    } else {
+      if (retryCount <= 10) {
+        // Wait 500ms before calling
+        await wait(500)
+        if (executeTxnBtnRef && executeTxnBtnRef.current) {
+          executeTxnBtnRef.current.click()
         }
+        setRetryCount((prev) => prev + 1)
+      } else {
+        if (uploadingImage) setUploadingImage(false)
+        setNoWriteError(true)
+        setRetryCount(0)
       }
     }
   }
