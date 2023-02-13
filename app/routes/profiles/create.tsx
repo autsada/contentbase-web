@@ -1,9 +1,8 @@
-import { useEffect, useState, useCallback, useMemo } from "react"
+import { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import { useDropzone } from "react-dropzone"
 import debounce from "lodash/debounce"
 import { useFetcher, Link, useRevalidator } from "@remix-run/react"
 import { MdOutlineCheck } from "react-icons/md"
-import { useAccount } from "wagmi"
 import { useHydrated } from "remix-utils"
 import { json } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
@@ -16,6 +15,7 @@ import { createFirstProfile, createProfile } from "~/graphql/server"
 import type { validateActionType } from "./validate-handle"
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
+import { wait } from "~/utils"
 
 export type SelectedFile = File & {
   path: string
@@ -57,9 +57,14 @@ export default function CreateProfile() {
     boolean | undefined
   >()
   const [file, setFile] = useState<SelectedFile | null>(null)
-  const [uploadError, setUploadError] = useState("")
-  const [processing, setProcessing] = useState(false)
-  const [error, setError] = useState("")
+  const [imageSizeError, setImageSizeError] = useState("")
+  const [uploadingImage, setUploadingImage] = useState<boolean>()
+  const [uploadImageError, setUploadImageError] = useState<boolean>()
+  const [connectServerLoading, setConnectServerLoading] = useState<boolean>()
+  const [connectServerError, setConnectServerError] = useState<boolean>()
+  const [isCreateProfileSuccess, setIsCreateProfileSuccess] =
+    useState<boolean>()
+  const [isCreateProfileError, setIsCreateProfileError] = useState<boolean>()
 
   const validateFetcher = useFetcher<validateActionType>()
   const isHandleUnique = validateFetcher?.data?.isUnique
@@ -67,8 +72,10 @@ export default function CreateProfile() {
   const actionStatus = actionFetcher?.data?.status
   const revalidator = useRevalidator()
   const hydrated = useHydrated()
-  const { isConnected } = useAccount()
   const context = useProfileContext()
+  const accountType = context?.account.type
+  // Check if it is the first profile of the user or not
+  const isFirstProfile = context?.account.profiles?.length === 0
 
   // When the button should be disabled
   const disabled =
@@ -76,7 +83,9 @@ export default function CreateProfile() {
     !handle ||
     !isHandleLenValid ||
     !isHandleUnique ||
-    !!uploadError
+    !!imageSizeError
+
+  const executeTxnBtnRef = useRef<HTMLButtonElement>(null)
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -84,11 +93,11 @@ export default function CreateProfile() {
 
       if (selectedFile.size / 1000 > 4096) {
         // Maximum allowed image size = 4mb
-        setUploadError("File too big")
+        setImageSizeError("File too big")
         return
       }
 
-      setUploadError("")
+      setImageSizeError("")
       const fileWithPreview = Object.assign(selectedFile, {
         preview: URL.createObjectURL(selectedFile),
       })
@@ -136,33 +145,28 @@ export default function CreateProfile() {
     validateHandleDebounce(value)
   }
 
-  /**
-   * When the action finished and status Ok, revalidate states and remove error (if any)
-   */
+  // First profile or `TRADITIONAL` Account: When the action returns
   useEffect(() => {
-    if (actionStatus && actionStatus === "Ok") {
-      revalidator.revalidate()
-      if (error) setError("")
+    if (actionStatus) {
+      setConnectServerLoading(false)
+
+      if (actionStatus === "Ok") {
+        revalidator.revalidate()
+        setConnectServerError(false)
+        setIsCreateProfileSuccess(true)
+      }
+
+      if (actionStatus === "Error") {
+        setIsCreateProfileError(true)
+      }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error, actionStatus])
+  }, [actionStatus])
 
   async function createProfile() {
     try {
       if (!clientAuth || !context?.account) {
-        setError("Something not right, please refresh the page and try again")
-        return
-      }
-      const accountType = context?.account.type
-      // The owner address
-      const address = context?.account.address
-
-      setProcessing(true)
-      const user = clientAuth.currentUser
-      const idToken = await user?.getIdToken()
-      // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
-      if (!idToken || context?.account.uid !== user?.uid) {
-        setProcessing(false)
         actionFetcher.submit(null, {
           method: "post",
           action: "/reauthenticate",
@@ -170,38 +174,66 @@ export default function CreateProfile() {
         return
       }
 
-      // Profile image url
+      // If user upload an image
       let imageURI: string = ""
 
       if (file) {
-        const formData = new FormData()
-        formData.append("file", file)
-        formData.append("handle", handle)
-        formData.append("storageFolder", avatarsStorageFolder)
+        try {
+          setUploadingImage(true)
+          const formData = new FormData()
+          formData.append("file", file)
+          formData.append("handle", handle)
+          formData.append("storageFolder", avatarsStorageFolder)
 
-        const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
-          method: "POST",
-          body: formData,
-        })
+          const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
+            method: "POST",
+            body: formData,
+          })
 
-        const data = (await res.json()) as { url: string }
-        imageURI = data.url
+          const data = (await res.json()) as { url: string }
+          imageURI = data.url
+          if (uploadImageError) setUploadImageError(false)
+          setUploadingImage(false)
+        } catch (error) {
+          setUploadImageError(true)
+          setUploadingImage(false)
+        }
       }
 
-      // Check if it is the first profile of the user or not
-      const isFirstProfile = context?.account.profiles?.length === 0
+      // If first profile or a traditional account, call the server.
+      if (isFirstProfile || accountType === "TRADITIONAL") {
+        // The owner address
+        const address = context?.account.address
 
-      if (isFirstProfile) {
-        // If the first profile, call the action for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for all users first profiles.
-        actionFetcher.submit(
-          { handle, imageURI, owner: address, idToken, isFirstProfile: "True" },
-          { method: "post" }
-        )
-      } else {
-        // If NOT first prifile, how to create a profile depends on the account type.
+        setConnectServerLoading(true)
 
-        if (accountType === "TRADITIONAL") {
-          // A. Call the action
+        // Get user's id token
+        const user = clientAuth.currentUser
+        const idToken = await user?.getIdToken()
+        // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
+        if (!idToken || context?.account.uid !== user?.uid) {
+          setConnectServerLoading(false)
+          actionFetcher.submit(null, {
+            method: "post",
+            action: "/reauthenticate",
+          })
+          return
+        }
+
+        if (isFirstProfile) {
+          // If the first profile, call the action for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for all users first profiles.
+          actionFetcher.submit(
+            {
+              handle,
+              imageURI,
+              owner: address,
+              idToken,
+              isFirstProfile: "True",
+            },
+            { method: "post" }
+          )
+        } else {
+          // `TRADITIONAL` account and NOT a first profile
           actionFetcher.submit(
             {
               handle,
@@ -213,17 +245,44 @@ export default function CreateProfile() {
             { method: "post" }
           )
         }
+      } else {
+        // `WALLET` account and NOT a first profile
 
         if (accountType === "WALLET") {
-          // TODO: B. Connect to the blockchain directly.
+          // B. Connect to the blockchain directly.
+
+          if (!executeTxnBtnRef || !executeTxnBtnRef.current) return
+
+          // Wait 1000ms to make sure the `write` function is available
+          await wait(1000)
+
+          executeTxnBtnRef.current.click()
         }
       }
     } catch (error) {
-      setProcessing(false)
-      setError(
-        "An error occurred while attempting to create a profile. Please try again."
-      )
+      setConnectServerLoading(false)
+      setConnectServerError(true)
     }
+  }
+
+  async function execute() {
+    // if (write) {
+    //   write()
+    //   if (retryCount) setRetryCount(0)
+    // } else {
+    //   if (retryCount <= 10) {
+    //     // Wait 500ms before calling
+    //     await wait(500)
+    //     if (executeTxnBtnRef && executeTxnBtnRef.current) {
+    //       executeTxnBtnRef.current.click()
+    //     }
+    //     setRetryCount((prev) => prev + 1)
+    //   } else {
+    //     if (uploadingImage) setUploadingImage(false)
+    //     setNoWriteError(true)
+    //     setRetryCount(0)
+    //   }
+    // }
   }
 
   /**
@@ -232,9 +291,12 @@ export default function CreateProfile() {
   function clearForm() {
     setHandle("")
     setFile(null)
-    if (processing) setProcessing(false)
-    if (error) setError("")
     if (isHandleLenValid) setIsHandleLenValid(false)
+    if (uploadingImage) setUploadingImage(false)
+    if (uploadImageError) setUploadImageError(false)
+    if (connectServerLoading) setConnectServerLoading(false)
+    if (connectServerError) setConnectServerError(false)
+    if (isCreateProfileSuccess) setIsCreateProfileSuccess(false)
   }
 
   return (
@@ -320,7 +382,7 @@ export default function CreateProfile() {
             )}
           </fieldset>
           <p className="error text-end">
-            {uploadError ? uploadError : <>&nbsp;</>}
+            {imageSizeError ? imageSizeError : <>&nbsp;</>}
           </p>
         </div>
 
@@ -333,13 +395,102 @@ export default function CreateProfile() {
         >
           Create Profile
         </button>
-      </actionFetcher.Form>
-      {error && <p className="error mt-4 px-5 text-center">{error}</p>}
 
-      {/* Show backdrop and progression information */}
-      {processing && (
+        {/* `Wallet` Account: Hidden button to execute `write` function */}
+        <button ref={executeTxnBtnRef} className="hidden" onClick={execute}>
+          Execute
+        </button>
+      </actionFetcher.Form>
+
+      {/* `first profile` || `TRADITIONAL` Account: Info/Spiner and Error message */}
+      {(isFirstProfile || accountType === "TRADITIONAL") && (
+        <>
+          {/* Info and spinner */}
+          {(uploadingImage || connectServerLoading) && (
+            <BackdropWithInfo>
+              <h6
+                className={`text-base text-center ${
+                  connectServerLoading ? "text-orange-600" : ""
+                }`}
+              >
+                {uploadingImage
+                  ? "Uploading Image."
+                  : connectServerLoading
+                  ? "Transaction Submitted. Waiting..."
+                  : null}
+              </h6>
+              <div className="mt-5">
+                <Spinner
+                  size="sm"
+                  color={connectServerLoading ? "orange" : "default"}
+                />
+              </div>
+            </BackdropWithInfo>
+          )}
+
+          {/* Error message */}
+          <div className="mt-1 px-2">
+            <p className="error text-center">
+              {uploadImageError ? (
+                "Failed to upload the image. Please try again."
+              ) : connectServerError ? (
+                "Error occcurred while attempting to create a profile. Please try again."
+              ) : (
+                <>&nbsp;</>
+              )}
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* All Accounts */}
+      {(isCreateProfileSuccess || isCreateProfileError) && (
         <BackdropWithInfo>
-          {actionStatus === "Ok" || actionStatus === "Error" ? (
+          {isCreateProfileSuccess ? (
+            <>
+              <h6 className="px-2 mt-2 text-center">
+                <span className="text-blueBase">{handle}</span> Profile NFT
+                Minted
+              </h6>
+              <div className="mt-6 text-center">
+                <Link to="/profiles">
+                  <h6 className="btn-light w-max mx-auto px-5 py-2 rounded-full font-light text-center text-base cursor-pointer">
+                    Go to profiles dashboard
+                  </h6>
+                </Link>
+                <h6
+                  className="btn-orange w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
+                  onClick={clearForm}
+                >
+                  Create a new profile
+                </h6>
+                <Link to="/upload">
+                  <h6
+                    className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
+                    onClick={clearForm}
+                  >
+                    Start sharing videos
+                  </h6>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <h6 className="text-base px-2 mt-2 text-center">
+                Create <span className="text-blueBase">{handle}</span> Profile
+                Failed
+              </h6>
+              <div className="mt-6">
+                <h6
+                  className="font-light text-orange-400 text-center text-base cursor-pointer"
+                  onClick={clearForm}
+                >
+                  Try again
+                </h6>
+              </div>
+            </>
+          )}
+          {/* {isCreateProfileSuccess ? (
             actionStatus === "Ok" ? (
               <>
                 <h6 className="px-2 mt-2 text-center">
@@ -396,7 +547,7 @@ export default function CreateProfile() {
                 <Spinner size="sm" />
               </div>
             </>
-          )}
+          )} */}
         </BackdropWithInfo>
       )}
     </div>

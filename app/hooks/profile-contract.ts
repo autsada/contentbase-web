@@ -37,6 +37,66 @@ const contract =
 //   return { data: data as string, isError, error, isLoading, refetch }
 // }
 
+export function useCreateProfile(handle: string, imageURI: string) {
+  const {
+    config,
+    isLoading: isPrepareLoading,
+    isSuccess: isPrepareSuccess,
+    isError: isPrepareError,
+    error: prepareError,
+  } = usePrepareContractWrite({
+    address: contract.address as any,
+    abi: [
+      {
+        type: "function",
+        name: "createProfile",
+        constant: false,
+        payable: false,
+        inputs: [
+          { type: "string", name: "handle" },
+          { type: "string", name: "imageURI" },
+          { type: "string", name: "originalHandle" },
+        ],
+        outputs: [],
+      },
+    ],
+    functionName: "createProfile",
+    args: [handle.toLowerCase(), imageURI, handle],
+    enabled: Boolean(handle),
+  })
+
+  const {
+    data,
+    write,
+    isLoading: isWriteLoading,
+    isError: isWriteError,
+    isSuccess: isWriteSuccess,
+  } = useContractWrite(config)
+  const {
+    isLoading: isWaitLoading,
+    isSuccess: isWaitSuccess,
+    isError: isWaitError,
+    error: waitError,
+  } = useWaitForTransaction({
+    hash: data?.hash,
+  })
+
+  return {
+    isPrepareLoading,
+    isPrepareSuccess,
+    isPrepareError,
+    prepareError,
+    isWriteLoading,
+    isWriteError,
+    isWriteSuccess,
+    write,
+    isWaitLoading,
+    isWaitSuccess,
+    isWaitError,
+    waitError,
+  }
+}
+
 export function useUpdateProfileImage(tokenId: number, imageURI: string) {
   const {
     config,
