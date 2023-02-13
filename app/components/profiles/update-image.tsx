@@ -91,16 +91,12 @@ export function UpdateProfileImageModal({
     },
   })
 
-  // `TRADITIONAL` Account: Edit profile image.
-  async function updateProfileImageForTraditional() {
+  /**
+   * Upload an image first and then call a function depending on the account type in order to execute blockchain logic
+   */
+  async function updateProfileImage() {
     try {
-      if (
-        accountType !== "TRADITIONAL" ||
-        !tokenId ||
-        !handle ||
-        !file ||
-        !!imageSizeError
-      )
+      if (!accountType || !tokenId || !handle || !file || !!imageSizeError)
         return
 
       setUploadingImage(true)
@@ -115,12 +111,34 @@ export function UpdateProfileImageModal({
       // Reset upload error if it's true
       if (uploadImageError) setUploadImageError(false)
 
+      if (accountType === "TRADITIONAL") {
+        updateProfileImageForTraditional(imageURI)
+        setUploadingImage(false)
+      }
+
+      if (accountType === "WALLET") {
+        setImageURI(imageURI)
+
+        // Wait 1000ms to make sure the `write` function is available
+        await wait(1000)
+
+        updateProfileImageForWallet()
+        setUploadingImage(false)
+      }
+    } catch (error) {
+      setUploadImageError(true)
+      setUploadingImage(false)
+    }
+  }
+
+  // `TRADITIONAL` Account: Edit profile image.
+  async function updateProfileImageForTraditional(uri: string) {
+    try {
       // Call the `Server` service
       const user = clientAuth.currentUser
       const idToken = await user?.getIdToken()
       // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
       if (!idToken) {
-        setUploadingImage(false)
         reauthenticateFetcher.submit(null, {
           method: "post",
           action: "/reauthenticate",
@@ -128,12 +146,15 @@ export function UpdateProfileImageModal({
         return
       }
 
+      if (isTraditionalError) setIsTraditionalError(false)
       setIsTraditionalLoading(true)
-      setUploadingImage(false)
-      actionFetcher.submit({ idToken, tokenId, imageURI }, { method: "post" })
+      actionFetcher.submit(
+        { idToken, tokenId, imageURI: uri },
+        { method: "post" }
+      )
     } catch (error) {
-      setUploadingImage(false)
       setIsTraditionalError(true)
+      setIsTraditionalLoading(false)
     }
   }
 
@@ -166,37 +187,10 @@ export function UpdateProfileImageModal({
 
   // `WALLET` Account: Update profile image
   async function updateProfileImageForWallet() {
-    try {
-      if (
-        accountType !== "WALLET" ||
-        !tokenId ||
-        !handle ||
-        !file ||
-        !!imageSizeError ||
-        !executeTxnBtnRef ||
-        !executeTxnBtnRef.current
-      )
-        return
+    // try {
+    if (!executeTxnBtnRef || !executeTxnBtnRef.current) return
 
-      setUploadingImage(true)
-      const imageURI = await uploadImage({ file, handle, oldImageURI })
-      if (!imageURI) {
-        setUploadImageError(true)
-        setUploadingImage(false)
-        return
-      }
-
-      if (uploadImageError) setUploadImageError(false)
-      setImageURI(imageURI)
-
-      // Wait 1000ms to make sure the `write` function is available
-      await wait(1000)
-
-      executeTxnBtnRef.current.click()
-      setUploadingImage(false)
-    } catch (error) {
-      setUploadingImage(false)
-    }
+    executeTxnBtnRef.current.click()
   }
 
   // `WALLET` Account: This function will be called after the `write` function is ready.
@@ -238,13 +232,14 @@ export function UpdateProfileImageModal({
           &#10005;
         </button>
         <actionFetcher.Form
-          onSubmit={
-            accountType === "TRADITIONAL"
-              ? updateProfileImageForTraditional
-              : accountType === "WALLET"
-              ? updateProfileImageForWallet
-              : undefined
-          }
+          onSubmit={updateProfileImage}
+          // onSubmit={
+          //   accountType === "TRADITIONAL"
+          //     ? updateProfileImageForTraditional
+          //     : accountType === "WALLET"
+          //     ? updateProfileImageForWallet
+          //     : undefined
+          // }
         >
           {Number(balance) > 0 ? (
             <div className="pt-5">
