@@ -203,9 +203,9 @@ export function UpdateProfileImageModal({
         // Wait 500ms before calling
         await wait(500)
         if (executeTxnBtnRef && executeTxnBtnRef.current) {
+          setRetryCount((prev) => prev + 1)
           executeTxnBtnRef.current.click()
         }
-        setRetryCount((prev) => prev + 1)
       } else {
         if (uploadingImage) setUploadingImage(false)
         setNoWriteError(true)
@@ -231,16 +231,7 @@ export function UpdateProfileImageModal({
         >
           &#10005;
         </button>
-        <actionFetcher.Form
-          onSubmit={updateProfileImage}
-          // onSubmit={
-          //   accountType === "TRADITIONAL"
-          //     ? updateProfileImageForTraditional
-          //     : accountType === "WALLET"
-          //     ? updateProfileImageForWallet
-          //     : undefined
-          // }
-        >
+        <actionFetcher.Form onSubmit={updateProfileImage}>
           {Number(balance) > 0 ? (
             <div className="pt-5">
               <h6 className="mb-4">Edit Profile Image</h6>

@@ -8,14 +8,15 @@ import { json } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
 import type { ChangeEvent } from "react"
 
-import { useProfileContext } from "../profiles"
-import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
-import { UPLOAD_SERVICE_URL } from "~/constants"
-import { createFirstProfile, createProfile } from "~/graphql/server"
-import type { validateActionType } from "./validate-handle"
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
+import { useProfileContext } from "../profiles"
+import { useCreateProfile } from "~/hooks/profile-contract"
+import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
+import { createFirstProfile, createProfile } from "~/graphql/server"
 import { wait } from "~/utils"
+import { UPLOAD_SERVICE_URL } from "~/constants"
+import type { validateActionType } from "./validate-handle"
 
 export type SelectedFile = File & {
   path: string
@@ -65,17 +66,21 @@ export default function CreateProfile() {
   const [isCreateProfileSuccess, setIsCreateProfileSuccess] =
     useState<boolean>()
   const [isCreateProfileError, setIsCreateProfileError] = useState<boolean>()
+  const [imageURI, setImageURI] = useState("") // For `WALLET` account, we need to set the image uri to state in order to pass it to wagmi hook.
+  const [retryCount, setRetryCount] = useState(0)
+  const [noWriteError, setNoWriteError] = useState<boolean>() // If, for some reason, there is no `write` transaction after magmi prepare transaction done, use this state to inform user.
 
   const validateFetcher = useFetcher<validateActionType>()
   const isHandleUnique = validateFetcher?.data?.isUnique
   const actionFetcher = useFetcher<typeof action>()
   const actionStatus = actionFetcher?.data?.status
+  const loaderFetcher = useFetcher()
   const revalidator = useRevalidator()
   const hydrated = useHydrated()
   const context = useProfileContext()
-  const accountType = context?.account.type
+  const accountType = context?.account?.type
   // Check if it is the first profile of the user or not
-  const isFirstProfile = context?.account.profiles?.length === 0
+  const isFirstProfile = context?.account?.profiles?.length === 0
 
   // When the button should be disabled
   const disabled =
@@ -86,6 +91,17 @@ export default function CreateProfile() {
     !!imageSizeError
 
   const executeTxnBtnRef = useRef<HTMLButtonElement>(null)
+  const {
+    isPrepareLoading,
+    isPrepareError,
+    write,
+    isWriteLoading,
+    isWriteSuccess,
+    isWriteError,
+    isWaitLoading,
+    isWaitSuccess,
+    isWaitError,
+  } = useCreateProfile(handle, imageURI)
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -152,6 +168,8 @@ export default function CreateProfile() {
 
       if (actionStatus === "Ok") {
         revalidator.revalidate()
+        // Refetch the profile
+        loaderFetcher.submit(null, { method: "get", action: "/profiles" })
         setConnectServerError(false)
         setIsCreateProfileSuccess(true)
       }
@@ -164,7 +182,36 @@ export default function CreateProfile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionStatus])
 
-  async function createProfile() {
+  // Upload image function
+  const uploadImage = useCallback(
+    async ({ f, h, s }: { f: File; h: string; s: string }) => {
+      try {
+        setUploadingImage(true)
+        const formData = new FormData()
+        formData.append("file", f)
+        formData.append("handle", h)
+        formData.append("storageFolder", s)
+
+        const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
+          method: "POST",
+          body: formData,
+        })
+
+        const data = (await res.json()) as { url: string }
+        setUploadImageError(false)
+
+        return data.url
+      } catch (error) {
+        setUploadImageError(true)
+        setUploadingImage(false)
+        return ""
+      }
+    },
+    []
+  )
+
+  // Create profile logc
+  async function handleCreateProfile() {
     try {
       if (!clientAuth || !context?.account) {
         actionFetcher.submit(null, {
@@ -178,26 +225,13 @@ export default function CreateProfile() {
       let imageURI: string = ""
 
       if (file) {
-        try {
-          setUploadingImage(true)
-          const formData = new FormData()
-          formData.append("file", file)
-          formData.append("handle", handle)
-          formData.append("storageFolder", avatarsStorageFolder)
+        imageURI = await uploadImage({
+          f: file,
+          h: handle,
+          s: avatarsStorageFolder,
+        })
 
-          const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
-            method: "POST",
-            body: formData,
-          })
-
-          const data = (await res.json()) as { url: string }
-          imageURI = data.url
-          if (uploadImageError) setUploadImageError(false)
-          setUploadingImage(false)
-        } catch (error) {
-          setUploadImageError(true)
-          setUploadingImage(false)
-        }
+        if (!imageURI) return
       }
 
       // If first profile or a traditional account, call the server.
@@ -206,6 +240,7 @@ export default function CreateProfile() {
         const address = context?.account.address
 
         setConnectServerLoading(true)
+        setUploadingImage(false)
 
         // Get user's id token
         const user = clientAuth.currentUser
@@ -247,16 +282,13 @@ export default function CreateProfile() {
         }
       } else {
         // `WALLET` account and NOT a first profile
-
         if (accountType === "WALLET") {
           // B. Connect to the blockchain directly.
-
-          if (!executeTxnBtnRef || !executeTxnBtnRef.current) return
-
+          setImageURI(imageURI)
           // Wait 1000ms to make sure the `write` function is available
           await wait(1000)
-
-          executeTxnBtnRef.current.click()
+          setUploadingImage(false)
+          createProfileForWallet()
         }
       }
     } catch (error) {
@@ -265,24 +297,49 @@ export default function CreateProfile() {
     }
   }
 
+  // `WALLET` Account: create profile
+  async function createProfileForWallet() {
+    // try {
+    if (!executeTxnBtnRef || !executeTxnBtnRef.current) return
+
+    executeTxnBtnRef.current.click()
+  }
+
+  // `WALLET` Account: Listen to wagmi transaction success and revalidate the states.
+  useEffect(() => {
+    if (isWaitSuccess) {
+      revalidator.revalidate()
+      // Refetch the profile
+      loaderFetcher.submit(null, { method: "get", action: "/profiles" })
+      setIsCreateProfileSuccess(true)
+      clearForm()
+    }
+
+    if (isWaitError || noWriteError) {
+      setIsCreateProfileError(true)
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWaitSuccess, isWaitError, noWriteError])
+
+  // `WALLET` Account: execute write transaction
   async function execute() {
-    // if (write) {
-    //   write()
-    //   if (retryCount) setRetryCount(0)
-    // } else {
-    //   if (retryCount <= 10) {
-    //     // Wait 500ms before calling
-    //     await wait(500)
-    //     if (executeTxnBtnRef && executeTxnBtnRef.current) {
-    //       executeTxnBtnRef.current.click()
-    //     }
-    //     setRetryCount((prev) => prev + 1)
-    //   } else {
-    //     if (uploadingImage) setUploadingImage(false)
-    //     setNoWriteError(true)
-    //     setRetryCount(0)
-    //   }
-    // }
+    if (write) {
+      write()
+    } else {
+      if (retryCount <= 10) {
+        // Wait 500ms before calling
+        await wait(500)
+        if (executeTxnBtnRef && executeTxnBtnRef.current) {
+          setRetryCount((prev) => prev + 1)
+          executeTxnBtnRef.current.click()
+        }
+      } else {
+        if (uploadingImage) setUploadingImage(false)
+        setNoWriteError(true)
+        setRetryCount(0)
+      }
+    }
   }
 
   /**
@@ -301,7 +358,7 @@ export default function CreateProfile() {
 
   return (
     <div className="page p-4 text-start">
-      <actionFetcher.Form className="px-5" onSubmit={createProfile}>
+      <actionFetcher.Form className="px-5" onSubmit={handleCreateProfile}>
         <p className="mb-5 text-lg">Please provide below information.</p>
         <div className="mb-5">
           <fieldset
@@ -391,16 +448,15 @@ export default function CreateProfile() {
           className={`btn-dark w-40 rounded-full ${
             disabled ? "disabled" : "opacity-100"
           }`}
-          disabled={disabled}
+          disabled={disabled || isPrepareLoading}
         >
           Create Profile
         </button>
-
-        {/* `Wallet` Account: Hidden button to execute `write` function */}
-        <button ref={executeTxnBtnRef} className="hidden" onClick={execute}>
-          Execute
-        </button>
       </actionFetcher.Form>
+      {/* `Wallet` Account: Hidden button to execute `write` function */}
+      <button ref={executeTxnBtnRef} className="hidden" onClick={execute}>
+        Execute
+      </button>
 
       {/* `first profile` || `TRADITIONAL` Account: Info/Spiner and Error message */}
       {(isFirstProfile || accountType === "TRADITIONAL") && (
@@ -443,111 +499,86 @@ export default function CreateProfile() {
         </>
       )}
 
-      {/* All Accounts */}
-      {(isCreateProfileSuccess || isCreateProfileError) && (
-        <BackdropWithInfo>
-          {isCreateProfileSuccess ? (
-            <>
-              <h6 className="px-2 mt-2 text-center">
-                <span className="text-blueBase">{handle}</span> Profile NFT
-                Minted
+      {/* NOT `first profile` and `WALLET` Account */}
+      {!isFirstProfile && accountType === "WALLET" && (
+        <>
+          {/* Info and spinner */}
+          {(uploadingImage || isWriteLoading || isWaitLoading) && (
+            <BackdropWithInfo>
+              <h6
+                className={`text-base text-center ${
+                  isWriteLoading
+                    ? "text-blueBase"
+                    : isWriteSuccess || isWaitLoading
+                    ? "text-orange-600"
+                    : ""
+                }`}
+              >
+                {uploadingImage
+                  ? "Uploading Image."
+                  : isWriteLoading
+                  ? "Connecting Wallet."
+                  : isWriteSuccess || isWaitLoading
+                  ? "Transaction Submitted. Waiting..."
+                  : null}
               </h6>
-              <div className="mt-6 text-center">
-                <Link to="/profiles">
-                  <h6 className="btn-light w-max mx-auto px-5 py-2 rounded-full font-light text-center text-base cursor-pointer">
-                    Go to profiles dashboard
-                  </h6>
-                </Link>
-                <h6
-                  className="btn-orange w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
-                  onClick={clearForm}
-                >
-                  Create a new profile
-                </h6>
-                <Link to="/upload">
-                  <h6
-                    className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
-                    onClick={clearForm}
-                  >
-                    Start sharing videos
-                  </h6>
-                </Link>
+              <div className="mt-5">
+                <Spinner
+                  size="sm"
+                  color={
+                    isWriteLoading
+                      ? "blue"
+                      : isWriteSuccess || isWaitLoading
+                      ? "orange"
+                      : "default"
+                  }
+                />
               </div>
-            </>
-          ) : (
-            <>
-              <h6 className="text-base px-2 mt-2 text-center">
-                Create <span className="text-blueBase">{handle}</span> Profile
-                Failed
-              </h6>
-              <div className="mt-6">
-                <h6
-                  className="font-light text-orange-400 text-center text-base cursor-pointer"
-                  onClick={clearForm}
-                >
-                  Try again
-                </h6>
-              </div>
-            </>
+            </BackdropWithInfo>
           )}
-          {/* {isCreateProfileSuccess ? (
-            actionStatus === "Ok" ? (
-              <>
-                <h6 className="px-2 mt-2 text-center">
-                  <span className="text-blueBase">{handle}</span> Profile NFT
-                  Minted
-                </h6>
-                <div className="mt-6 text-center">
-                  <Link to="/profiles">
-                    <h6 className="btn-light w-max mx-auto px-5 py-2 rounded-full font-light text-center text-base cursor-pointer">
-                      Go to profiles dashboard
-                    </h6>
-                  </Link>
-                  <h6
-                    className="btn-orange w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
-                    onClick={clearForm}
-                  >
-                    Create a new profile
-                  </h6>
-                  <Link to="/upload">
-                    <h6
-                      className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
-                      onClick={clearForm}
-                    >
-                      Start sharing videos
-                    </h6>
-                  </Link>
-                </div>
-              </>
-            ) : actionStatus === "Error" ? (
-              <>
-                <h6 className="text-base px-2 mt-2 text-center">
-                  Create <span className="text-blueBase">{handle}</span> Profile
-                  Failed
-                </h6>
-                <div className="mt-6">
-                  <h6
-                    className="font-light text-orange-400 text-center text-base cursor-pointer"
-                    onClick={clearForm}
-                  >
-                    Try again
-                  </h6>
-                </div>
-              </>
-            ) : (
-              <Spinner />
-            )
-          ) : (
-            <>
-              <h6 className="text-base px-2 mt-2 text-center">
-                Minting <span className="text-blueBase">{handle}</span> Profile
-                NFT
+
+          {/* Error message */}
+          <div className="mt-1 px-2">
+            <p className="error text-center">
+              {uploadImageError ? (
+                "Failed to upload the image. Please try again."
+              ) : isPrepareError || isWriteError || isCreateProfileError ? (
+                "Failed to connect to wallet. Please check your wallet and ensure you use the correct network."
+              ) : (
+                <>&nbsp;</>
+              )}
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* All Accounts */}
+      {isCreateProfileSuccess && (
+        <BackdropWithInfo>
+          <h6 className="px-2 mt-2 text-center">
+            <span className="text-blueBase">{handle}</span> Profile NFT Minted
+          </h6>
+          <div className="mt-6 text-center">
+            <Link to="/profiles">
+              <h6 className="btn-light w-max mx-auto px-5 py-2 rounded-full font-light text-center text-base cursor-pointer">
+                Go to profiles dashboard
               </h6>
-              <div className="mt-4">
-                <Spinner size="sm" />
-              </div>
-            </>
-          )} */}
+            </Link>
+            <h6
+              className="btn-orange w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
+              onClick={clearForm}
+            >
+              Create a new profile
+            </h6>
+            <Link to="/upload">
+              <h6
+                className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
+                onClick={clearForm}
+              >
+                Start sharing videos
+              </h6>
+            </Link>
+          </div>
         </BackdropWithInfo>
       )}
     </div>

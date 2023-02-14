@@ -62,7 +62,7 @@ export function useCreateProfile(handle: string, imageURI: string) {
     ],
     functionName: "createProfile",
     args: [handle.toLowerCase(), imageURI, handle],
-    enabled: Boolean(handle),
+    enabled: Boolean(handle) && Boolean(imageURI),
   })
 
   const {

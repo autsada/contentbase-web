@@ -771,8 +771,8 @@ button {
   left: 0px;
 }
 
-.-right-\[100\%\] {
-  right: -100%;
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .right-0 {
@@ -789,6 +789,10 @@ button {
 
 .-top-11 {
   top: -2.75rem;
+}
+
+.-right-\[100\%\] {
+  right: -100%;
 }
 
 .top-0 {
@@ -825,10 +829,6 @@ button {
 
 .right-1 {
   right: 0.25rem;
-}
-
-.-right-\[200\%\] {
-  right: -200%;
 }
 
 .z-50 {
@@ -1675,6 +1675,11 @@ button {
   color: rgb(115 115 115 / var(--tw-text-opacity));
 }
 
+.text-blueBase {
+  --tw-text-opacity: 1;
+  color: rgb(59 130 246 / var(--tw-text-opacity));
+}
+
 .text-textExtraLight {
   --tw-text-opacity: 1;
   color: rgb(163 163 163 / var(--tw-text-opacity));
@@ -1688,11 +1693,6 @@ button {
 .text-textDark {
   --tw-text-opacity: 1;
   color: rgb(64 64 64 / var(--tw-text-opacity));
-}
-
-.text-blueBase {
-  --tw-text-opacity: 1;
-  color: rgb(59 130 246 / var(--tw-text-opacity));
 }
 
 .text-orange-600 {
