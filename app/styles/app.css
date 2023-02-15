@@ -771,8 +771,8 @@ button {
   left: 0px;
 }
 
-.-right-\[200\%\] {
-  right: -200%;
+.-right-\[100\%\] {
+  right: -100%;
 }
 
 .right-0 {
@@ -789,10 +789,6 @@ button {
 
 .-top-11 {
   top: -2.75rem;
-}
-
-.-right-\[100\%\] {
-  right: -100%;
 }
 
 .top-0 {
@@ -829,6 +825,10 @@ button {
 
 .right-1 {
   right: 0.25rem;
+}
+
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .z-50 {

@@ -12,10 +12,10 @@ import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
 import { useProfileContext } from "../profiles"
 import { useCreateProfile } from "~/hooks/profile-contract"
-import { avatarsStorageFolder, clientAuth } from "~/client/firebase.client"
+import { clientAuth } from "~/client/firebase.client"
 import { createFirstProfile, createProfile } from "~/graphql/server"
-import { wait } from "~/utils"
-import { UPLOAD_SERVICE_URL } from "~/constants"
+import { uploadImage, wait } from "~/utils"
+import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
 import type { validateActionType } from "./validate-handle"
 
 export type SelectedFile = File & {
@@ -93,15 +93,20 @@ export default function CreateProfile() {
   const executeTxnBtnRef = useRef<HTMLButtonElement>(null)
   const {
     isPrepareLoading,
-    isPrepareError,
     write,
     isWriteLoading,
     isWriteSuccess,
     isWriteError,
+    writeError,
     isWaitLoading,
     isWaitSuccess,
     isWaitError,
-  } = useCreateProfile(handle, imageURI)
+    waitError,
+  } = useCreateProfile(
+    handle,
+    imageURI,
+    accountType === "WALLET" && !!isHandleUnique
+  )
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -137,7 +142,10 @@ export default function CreateProfile() {
   })
 
   const handleValidateHandle = useCallback((handle: string) => {
-    if (handle && handle.length < 3) {
+    if (
+      handle &&
+      (handle.length < MIN_HANDLE_LENGTH || handle.length > MAX_HANDLE_LENGTH)
+    ) {
       setIsHandleLenValid(false)
       return
     }
@@ -182,35 +190,8 @@ export default function CreateProfile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionStatus])
 
-  // Upload image function
-  const uploadImage = useCallback(
-    async ({ f, h, s }: { f: File; h: string; s: string }) => {
-      try {
-        setUploadingImage(true)
-        const formData = new FormData()
-        formData.append("file", f)
-        formData.append("handle", h)
-        formData.append("storageFolder", s)
-
-        const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
-          method: "POST",
-          body: formData,
-        })
-
-        const data = (await res.json()) as { url: string }
-        setUploadImageError(false)
-
-        return data.url
-      } catch (error) {
-        setUploadImageError(true)
-        setUploadingImage(false)
-        return ""
-      }
-    },
-    []
-  )
-
   // Create profile logc
+  // TODO: Find a way to prevent reupload an image when `WALLET` account rejects the transaction.
   async function handleCreateProfile() {
     try {
       if (!clientAuth || !context?.account) {
@@ -221,17 +202,19 @@ export default function CreateProfile() {
         return
       }
 
-      // If user upload an image
       let imageURI: string = ""
 
+      // If user upload an image
       if (file) {
-        imageURI = await uploadImage({
-          f: file,
-          h: handle,
-          s: avatarsStorageFolder,
-        })
+        setUploadingImage(true)
+        imageURI = await uploadImage({ file, handle, oldImageURI: null })
+        if (!imageURI) {
+          setUploadImageError(true)
+          setUploadingImage(false)
+          return
+        }
 
-        if (!imageURI) return
+        if (uploadImageError) setUploadImageError(false)
       }
 
       // If first profile or a traditional account, call the server.
@@ -284,10 +267,15 @@ export default function CreateProfile() {
         // `WALLET` account and NOT a first profile
         if (accountType === "WALLET") {
           // B. Connect to the blockchain directly.
-          setImageURI(imageURI)
-          // Wait 1000ms to make sure the `write` function is available
-          await wait(1000)
-          setUploadingImage(false)
+          if (file && imageURI) {
+            setImageURI(imageURI)
+            // Wait 1000ms to make sure the `write` function is available
+            await wait(1000)
+            setUploadingImage(false)
+          } else {
+            // Don't need to wait
+          }
+
           createProfileForWallet()
         }
       }
@@ -398,7 +386,7 @@ export default function CreateProfile() {
           </fieldset>
           <p className="error text-end">
             {typeof isHandleUnique === "boolean" && !isHandleUnique ? (
-              "This handle is taken"
+              "This handle is taken or invalid."
             ) : (
               <>&nbsp;</>
             )}
@@ -542,8 +530,12 @@ export default function CreateProfile() {
             <p className="error text-center">
               {uploadImageError ? (
                 "Failed to upload the image. Please try again."
-              ) : isPrepareError || isWriteError || isCreateProfileError ? (
-                "Failed to connect to wallet. Please check your wallet and ensure you use the correct network."
+              ) : isWriteError ? (
+                writeError?.message
+              ) : isWaitError ? (
+                waitError?.message
+              ) : isCreateProfileError ? (
+                "Failed to connect to wallet. Please check your wallet and ensure you use the correct network and have enough funds to pay gas fee."
               ) : (
                 <>&nbsp;</>
               )}

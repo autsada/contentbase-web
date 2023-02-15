@@ -24,4 +24,5 @@ export const UPLOAD_SERVICE_URL =
 export const INITIAL_VISIT_ID = "ctb-initial-1675651642366"
 export const dummyImageURI =
   "https://www.some_service.com/adam-b1665169-3f10-47ae-8af0-26db145ae157.jpg"
-// 0xF86f216A08f62f1c20e06c791C1BB5f83e8F60C5
+export const MIN_HANDLE_LENGTH = 3
+export const MAX_HANDLE_LENGTH = 31

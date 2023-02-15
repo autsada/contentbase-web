@@ -48,14 +48,15 @@ export function UpdateProfileImageModal({
 
   const {
     isPrepareLoading,
-    isPrepareError,
     write,
     isWriteLoading,
     isWriteSuccess,
     isWriteError,
+    writeError,
     isWaitLoading,
     isWaitSuccess,
     isWaitError,
+    waitError,
   } = useUpdateProfileImage(Number(tokenId), imageURI)
 
   const onDrop = useCallback(
@@ -94,6 +95,7 @@ export function UpdateProfileImageModal({
   /**
    * Upload an image first and then call a function depending on the account type in order to execute blockchain logic
    */
+  // TODO: Find a way to prevent reupload an image when `WALLET` account rejects the transaction.
   async function updateProfileImage() {
     try {
       if (!accountType || !tokenId || !handle || !file || !!imageSizeError)
@@ -108,6 +110,9 @@ export function UpdateProfileImageModal({
         return
       }
 
+      // Save image uri to state
+      setImageURI(imageURI)
+
       // Reset upload error if it's true
       if (uploadImageError) setUploadImageError(false)
 
@@ -117,8 +122,6 @@ export function UpdateProfileImageModal({
       }
 
       if (accountType === "WALLET") {
-        setImageURI(imageURI)
-
         // Wait 1000ms to make sure the `write` function is available
         await wait(1000)
 
@@ -167,9 +170,11 @@ export function UpdateProfileImageModal({
         setFile(null)
         setIsTraditionalSuccess(true)
         setIsTraditionalError(false)
+        setImageURI("")
       }
       if (actionFetcher.data.status === "Error") {
         setIsTraditionalError(true)
+        setImageURI("")
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -180,6 +185,7 @@ export function UpdateProfileImageModal({
     if (isWaitSuccess) {
       revalidator.revalidate()
       setFile(null)
+      setImageURI("")
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -391,10 +397,12 @@ export function UpdateProfileImageModal({
                           <p className="error">
                             {uploadImageError ? (
                               "Failed to upload the image. Please try again."
-                            ) : isPrepareError || isWriteError ? (
-                              "Failed to connect to wallet. Please try again."
-                            ) : isWaitError || noWriteError ? (
-                              "Edit profile image failed. Please ensuer you have enough funds to pay gas and try again."
+                            ) : isWriteError ? (
+                              writeError?.message
+                            ) : isWaitError ? (
+                              waitError?.message
+                            ) : noWriteError ? (
+                              "Edit profile image failed. Please check your wallet and ensure you use the correct network and have enough funds to pay gas fee."
                             ) : (
                               <>&nbsp;</>
                             )}

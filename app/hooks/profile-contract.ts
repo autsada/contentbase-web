@@ -6,6 +6,7 @@ import {
 
 import ProfileContractV1Dev from "~/abi/localhost/ContentBaseProfileV1.json"
 import ProfileContractV1Test from "~/abi/testnet/ContentBaseProfileV1.json"
+import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
 import type { ENV } from "~/types"
 
 let NODE_ENV: ENV = "development"
@@ -37,7 +38,11 @@ const contract =
 //   return { data: data as string, isError, error, isLoading, refetch }
 // }
 
-export function useCreateProfile(handle: string, imageURI: string) {
+export function useCreateProfile(
+  handle: string,
+  imageURI: string,
+  isHandleUnique: boolean
+) {
   const {
     config,
     isLoading: isPrepareLoading,
@@ -62,7 +67,10 @@ export function useCreateProfile(handle: string, imageURI: string) {
     ],
     functionName: "createProfile",
     args: [handle.toLowerCase(), imageURI, handle],
-    enabled: Boolean(handle) && Boolean(imageURI),
+    enabled:
+      handle.length >= MIN_HANDLE_LENGTH &&
+      handle.length <= MAX_HANDLE_LENGTH &&
+      isHandleUnique,
   })
 
   const {
@@ -70,6 +78,7 @@ export function useCreateProfile(handle: string, imageURI: string) {
     write,
     isLoading: isWriteLoading,
     isError: isWriteError,
+    error: writeError,
     isSuccess: isWriteSuccess,
   } = useContractWrite(config)
   const {
@@ -88,6 +97,7 @@ export function useCreateProfile(handle: string, imageURI: string) {
     prepareError,
     isWriteLoading,
     isWriteError,
+    writeError,
     isWriteSuccess,
     write,
     isWaitLoading,
@@ -130,6 +140,7 @@ export function useUpdateProfileImage(tokenId: number, imageURI: string) {
     isLoading: isWriteLoading,
     isError: isWriteError,
     isSuccess: isWriteSuccess,
+    error: writeError,
   } = useContractWrite(config)
   const {
     isLoading: isWaitLoading,
@@ -149,6 +160,7 @@ export function useUpdateProfileImage(tokenId: number, imageURI: string) {
     isWriteError,
     isWriteSuccess,
     write,
+    writeError,
     isWaitLoading,
     isWaitSuccess,
     isWaitError,
