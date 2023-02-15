@@ -25,6 +25,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function Auth() {
   const { welcomeModalVisible, setWelcomeModalVisible } = useAppContext()
 
+  // Once user go to auth page, close Welcome modal and save an id to localstorage so it will not show up again.
   useEffect(() => {
     if (welcomeModalVisible) {
       setWelcomeModalVisible(false)

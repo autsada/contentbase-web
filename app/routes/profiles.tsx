@@ -17,6 +17,9 @@ import { queryAccountByUid } from "~/graphql/public-apis"
 import { getBalance } from "~/graphql/server"
 import type { Account, Profile } from "~/types"
 
+/**
+ * Query account by uid
+ */
 export async function loader({ request }: LoaderArgs) {
   const { user, headers } = await requireAuth(request)
 
@@ -70,15 +73,16 @@ export default function ProfileDashboard() {
         context={{
           idToken,
           account: loaderData?.account,
-          loggedInProfile: context?.loggedInProfile,
           balance: loaderData?.balance,
           hasProfile: loaderData?.hasProfile,
           // For logged in profile, use context as it will be handled client side
+          loggedInProfile: context?.loggedInProfile,
+          switchProfile: context?.switchProfile,
         }}
       />
 
       {/* For some reason if user still doesn't have an account, we need to have them log out and log in again */}
-      {!context?.account && (
+      {!loaderData?.account && (
         <BackdropWithInfo>
           <div className="px-2">
             <h6 className="text-center text-base">
@@ -106,6 +110,7 @@ export type ProfileContext = {
   idToken: string
   account: Account
   loggedInProfile: Profile
+  switchProfile: (p: Profile) => void
   balance: string | undefined
   hasProfile: boolean | undefined
 }

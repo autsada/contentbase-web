@@ -1,40 +1,37 @@
 import { useCallback, useEffect, useState } from "react"
-import { Link, useFetcher, useLoaderData } from "@remix-run/react"
+import { Link, useFetcher, useRevalidator } from "@remix-run/react"
 import { MdArrowBackIosNew, MdPerson, MdEdit } from "react-icons/md"
-import { useAccount } from "wagmi"
 
 import { UpdateProfileImageModal } from "./update-image"
 import { clientAuth } from "~/client/firebase.client"
 import type { ProfileContext } from "~/routes/profiles"
 import type { EstimateGasUpdateProfileImageAction } from "~/routes/gas/profile/update-image"
-import type { LoadProfileLoader } from "~/routes/profiles/$handle/$profileId"
+import type { Profile } from "~/types"
 
 interface Props {
   context: ProfileContext
+  profile: Profile
   closeModal: () => void
 }
 
-export function ProfileDetail({ context, closeModal }: Props) {
-  // Get profile data from the loader
-  const data = useLoaderData<LoadProfileLoader>()
-  // Check whehter the logged in profile and the displayed profile is the same or not (check to confirm the user is the owner of the profile also).
-  const isSameProfile =
-    context?.account?.address === data?.profile?.owner && // check owner
-    context?.loggedInProfile?.id === data?.profile?.id // check if same profile
-  const accountType = context?.account?.type
-
+export function ProfileDetail({ context, profile, closeModal }: Props) {
   const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
 
+  // Get profile data from the loader
+  // const data = useLoaderData<LoadProfileLoader>()
+  // Check whehter the logged in profile and the displayed profile is the same or not (check to confirm the user is the owner of the profile also).
+  const isSameProfile =
+    context?.account?.address === profile?.owner && // check owner
+    context?.loggedInProfile?.id === profile?.id // check if same profile
+  const accountType = context?.account?.type
   const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImageAction>()
-  const reauthenticateFetcher = useFetcher()
-  const loaderFetcher = useFetcher()
-  const { address, isConnected } = useAccount()
+  const revalidator = useRevalidator()
 
   /**
    * On first render when the profile is available and the logged in profile and the displayed profile are the same, check gas fee for updating an image.
    */
   useEffect(() => {
-    if (isSameProfile && data?.profile?.tokenId) {
+    if (isSameProfile && profile?.tokenId) {
       if (accountType === "TRADITIONAL") {
         // Call the server
         const getEstimatedGas = async () => {
@@ -42,7 +39,7 @@ export function ProfileDetail({ context, closeModal }: Props) {
           const idToken = await user?.getIdToken()
           if (!idToken) return
           estimateGasFetcher.submit(
-            { idToken, tokenId: data?.profile.tokenId },
+            { idToken, tokenId: profile.tokenId },
             {
               method: "post",
               action: `/gas/profile/update-image`,
@@ -52,38 +49,18 @@ export function ProfileDetail({ context, closeModal }: Props) {
 
         getEstimatedGas()
       }
-
-      if (accountType === "WALLET") {
-        // 1. Force reauthenticate if NOT connected or the connected address is different than the account address.
-        if (
-          !isConnected ||
-          !address ||
-          context?.account?.address.toLowerCase() !== address?.toLowerCase()
-        ) {
-          reauthenticateFetcher.submit(null, {
-            method: "post",
-            action: "/reauthenticate",
-          })
-        }
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    accountType,
-    isSameProfile,
-    data?.profile?.tokenId,
-    context?.account?.address,
-    isConnected,
-    address,
-  ])
+  }, [accountType, isSameProfile, profile?.tokenId])
 
   const openImageModal = useCallback(() => {
     setUpdateImageModalVisible(true)
   }, [])
 
   const closeImageModal = useCallback(() => {
-    loaderFetcher.submit(null, { method: "get" })
     setUpdateImageModalVisible(false)
+    // Revalidate one more time to make sure the data is up to date
+    revalidator.revalidate()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -99,12 +76,12 @@ export function ProfileDetail({ context, closeModal }: Props) {
         </div>
         <div className="w-[140px] h-[140px] mx-auto bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
           <div className="w-full h-full flex items-center justify-center">
-            {!data?.profile.imageURI ? (
+            {!profile.imageURI ? (
               <MdPerson size={80} color="#3f3f46" />
             ) : (
               <img
-                src={data?.profile.imageURI}
-                alt={data?.profile.originalHandle}
+                src={profile.imageURI}
+                alt={profile.originalHandle}
                 className="w-full h-full object-cover leading-[140px] text-center text-lg text-textDark"
               />
             )}
@@ -126,45 +103,44 @@ export function ProfileDetail({ context, closeModal }: Props) {
         </div>
       </div>
       <div className="mt-1">
-        <h6>{data?.profile.originalHandle}</h6>
+        <h6>{profile.originalHandle}</h6>
         <h6 className="font-normal text-base text-textDark">
-          @{data?.profile.handle}{" "}
+          @{profile.handle}{" "}
           {/* Display `DEFAULT` if the user is the owner of the profile */}
-          {context?.account?.address === data?.profile?.owner &&
-            data?.profile.default && (
-              <span className="font-light italic text-textExtraLight">
-                [DEFAULT]
-              </span>
-            )}
+          {context?.account?.address === profile?.owner && profile.default && (
+            <span className="font-light italic text-textExtraLight">
+              [DEFAULT]
+            </span>
+          )}
         </h6>
         <div className="w-full mt-1 flex justify-center items-center gap-x-3">
           {isSameProfile ? (
-            <Link to={`/profiles/${data?.profile.originalHandle}/followers`}>
+            <Link to={`/profiles/${profile.originalHandle}/followers`}>
               <p className="font-light text-textLight">
-                {data?.profile.followersCount} followers
+                {profile.followersCount} followers
               </p>
             </Link>
           ) : (
             <p className="font-light text-textLight">
-              {data?.profile.followersCount} followers
+              {profile.followersCount} followers
             </p>
           )}
           {/* Show following if logged in and displayed profile is the same profile */}
           {isSameProfile && (
-            <Link to={`/profiles/${data?.profile.originalHandle}/following`}>
+            <Link to={`/profiles/${profile.originalHandle}/following`}>
               <p className="font-light text-textLight">
-                {data?.profile.followingCount} following
+                {profile.followingCount} following
               </p>
             </Link>
           )}
           <p className="font-light text-textLight">
-            {data?.profile.publishesCount} videos
+            {profile.publishesCount} videos
           </p>
         </div>
         {/* Add the ability to follow/unfollow if the logged in and displayed is NOT the same profile. */}
         {!isSameProfile && (
           <div className="w-full my-2">
-            {!data?.profile?.isFollowing ? (
+            {!profile?.isFollowing ? (
               <button className="btn-dark w-3/5 rounded-full">Follow</button>
             ) : (
               <button className="btn-light w-3/5 rounded-full text-error">
@@ -181,9 +157,9 @@ export function ProfileDetail({ context, closeModal }: Props) {
         <UpdateProfileImageModal
           accountType={accountType}
           gas={estimateGasFetcher?.data?.gas}
-          handle={data?.profile?.handle}
-          tokenId={data?.profile?.tokenId}
-          oldImageURI={data?.profile?.imageURI}
+          handle={profile?.handle}
+          tokenId={profile?.tokenId}
+          oldImageURI={profile?.imageURI}
           balance={context?.balance}
           closeModal={closeImageModal}
         />
