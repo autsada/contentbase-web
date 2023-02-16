@@ -1,3 +1,7 @@
+/**
+ * This is the layout for pages that display content
+ */
+
 import { Outlet } from "@remix-run/react"
 import PublicTabs from "~/components/public-tabs"
 

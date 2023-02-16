@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react"
-import { IoIosRadioButtonOn, IoIosRadioButtonOff } from "react-icons/io"
-import { MdPerson } from "react-icons/md"
+import { IoIosRadioButtonOff } from "react-icons/io"
+import { MdPerson, MdCheck } from "react-icons/md"
 
 import type { Profile } from "~/types"
 
@@ -13,8 +13,8 @@ interface Props {
 export function ProfileItem({ isInUsed, profile, switchProfile }: Props) {
   return (
     <div className="relative">
-      <Link to={`${profile.originalHandle}/${profile.id}`}>
-        <div className="w-full py-2 px-4 border-b border-borderExtraLightGray cursor-pointer hover:bg-gray-50">
+      <Link to={`/${profile.originalHandle}/${profile.id}`}>
+        <div className="w-full py-2 px-4 cursor-pointer hover:bg-gray-50">
           <div className="w-[60px] text-center">
             <h6 className="text-lg">{profile.originalHandle}</h6>
           </div>
@@ -66,7 +66,7 @@ export function ProfileItem({ isInUsed, profile, switchProfile }: Props) {
           onClick={switchProfile.bind(undefined, profile)}
         >
           {isInUsed ? (
-            <IoIosRadioButtonOn size={26} className="text-orange-500" />
+            <MdCheck size={26} className="text-orange-500" />
           ) : (
             <IoIosRadioButtonOff size={26} className="text-textExtraLight" />
           )}
