@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { json } from "@remix-run/node"
 import {
   Link,
@@ -69,6 +70,10 @@ export type UpdateProfileImageAction = typeof action
 
 export default function MyProfile() {
   const context = useProfileContext()
+
+  const params = useParams()
+  const isLoggedInProfile =
+    params?.profileId?.toString() === context?.loggedInProfile?.id?.toString()
   const data = useLoaderData<typeof loader>()
 
   const navigate = useNavigate()
@@ -76,6 +81,13 @@ export default function MyProfile() {
   function closeModal() {
     navigate("/profiles")
   }
+
+  useEffect(() => {
+    if (isLoggedInProfile && data?.profile) {
+      context?.switchProfile(data.profile as Profile)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedInProfile, data?.profile])
 
   return (
     <div className="page">

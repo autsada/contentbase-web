@@ -71,7 +71,7 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
   return (
     <div className="page absolute inset-0">
       <div className="w-full py-[20px] h-[100px] bg-blueBase">
-        <div className="absolute left-5 h-[60px] flex items-center">
+        <div className="absolute left-5 h-[60px] flex items-center cursor-pointer">
           <MdArrowBackIosNew size={30} color="white" onClick={closeModal} />
         </div>
         <div className="w-[140px] h-[140px] mx-auto bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">

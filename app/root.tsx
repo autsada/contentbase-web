@@ -33,6 +33,7 @@ import { ethereumClient, wagmiClient } from "./ethereum/client"
 import { queryAccountByUid } from "./graphql/public-apis"
 import { firestore } from "./client/firebase.client"
 import {
+  CURRENT_PROFILE,
   INITIAL_VISIT_ID,
   LOGGED_IN_KEY,
   WALLET_CONNECT_PROJECT_ID,
@@ -41,7 +42,7 @@ import styles from "./styles/app.css"
 import carouselStyles from "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Welcome } from "./components/welcome"
 import { getBalance } from "./graphql/server"
-import type { Account, LoaderData, Profile } from "./types"
+import type { LoaderData, Profile } from "./types"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -83,7 +84,7 @@ export async function loader({ request }: LoaderArgs) {
   if (account) {
     address = account.address
     balance = address ? await getBalance(address) : ""
-    hasProfile = account.profiles.length > 0
+    hasProfile = !!profile
   }
 
   return json<LoaderData>(
@@ -249,6 +250,7 @@ export default function App() {
   }, [profile])
 
   const switchProfile = useCallback((p: Profile) => {
+    window.localStorage.setItem(CURRENT_PROFILE, `${p.id}`)
     setLoggedInProfile(p)
   }, [])
 
@@ -268,10 +270,6 @@ export default function App() {
               context={{
                 welcomeModalVisible,
                 setWelcomeModalVisible,
-                user,
-                account: loaderData?.account,
-                balance: loaderData?.balance,
-                hasProfile: loaderData?.hasProfile,
                 loggedInProfile: loggedInProfile,
                 switchProfile,
               }}
@@ -353,10 +351,6 @@ export function ErrorBoundary({ error }: { error: Error }) {
 type AppContext = {
   welcomeModalVisible: boolean
   setWelcomeModalVisible: (open: boolean) => void
-  user: UserRecord
-  account: Account
-  balance: string | undefined
-  hasProfile: boolean | undefined
   loggedInProfile: Profile
   switchProfile: (p: Profile) => void
 }

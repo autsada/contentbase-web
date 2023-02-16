@@ -24,6 +24,7 @@ export default function Profiles() {
               key={profile.id}
               profile={profile}
               isInUsed={profile.id === context?.loggedInProfile?.id}
+              switchProfile={context?.switchProfile}
             />
           ))
         )}
