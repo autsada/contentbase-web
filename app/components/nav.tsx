@@ -1,10 +1,9 @@
 import { Link, useLocation } from "@remix-run/react"
-import { MdPerson } from "react-icons/md"
-import { IoSearchOutline } from "react-icons/io5"
+import { MdPerson, MdMenu } from "react-icons/md"
 import type { UserRecord } from "firebase-admin/auth"
 
 import type { Profile } from "~/types"
-import { getPageTitle } from "~/utils"
+import { IoSearchOutline } from "react-icons/io5"
 
 interface Props {
   user: UserRecord | null
@@ -14,7 +13,6 @@ interface Props {
 
 export function Nav({ user, openDrawer, profile }: Props) {
   const { pathname } = useLocation()
-  const pageTitle = getPageTitle(pathname)
 
   return (
     <div className="w-full h-[70px] px-4 flex items-center justify-between gap-x-5 border-b border-borderExtraLightGray shadow-neutral-300">
@@ -28,21 +26,14 @@ export function Nav({ user, openDrawer, profile }: Props) {
         </Link>
       </div>
 
-      <div className="relative h-[50px] flex-grow flex items-center justify-between rounded-full overflow-hidden">
-        {pathname.startsWith("/auth") ? null : !pageTitle ? (
-          <>
-            <input
-              type="text"
-              className="block h-full w-4/5 outline-none focus:outline-none"
-            />
-
-            <IoSearchOutline size={25} className="absolute right-0" />
-          </>
-        ) : (
-          <div className="w-full">
-            <h5 className="text-center">{pageTitle}</h5>
-          </div>
-        )}
+      <div className="relative h-[50px] flex items-center justify-between rounded-full overflow-hidden">
+        <IoSearchOutline size={25} className="absolute" />
+        <div className="pl-8 h-full">
+          <input
+            type="text"
+            className="font-bold text-textLight text-lg h-full w-full outline-none focus:outline-none"
+          />
+        </div>
       </div>
 
       <div className="w-[80px] h-full flex items-center justify-end">
@@ -54,9 +45,7 @@ export function Nav({ user, openDrawer, profile }: Props) {
           <>
             {!user ? (
               <Link to="auth">
-                <button className="btn-orange text-base rounded-3xl w-max px-5">
-                  Login
-                </button>
+                <MdMenu size={40} className="text-orange-400" />
               </Link>
             ) : (
               <div className="w-[40px] h-[40px] bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">

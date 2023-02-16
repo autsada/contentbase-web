@@ -26,7 +26,7 @@ export default function Connect() {
       </div>
 
       <h4 className="self-center mt-5 mb-8">
-        Let's share, watch, like, and comment on NFTs.
+        Let's share, like, and comment on content NFTs.
       </h4>
 
       <div className="mb-8">
