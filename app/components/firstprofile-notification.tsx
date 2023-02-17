@@ -18,13 +18,13 @@ export default function FirstprofileNotification({
           {title ? title : "Create First Profile"}
         </h6>
         <div className="mb-4 p-4 bg-gray-100 rounded-2xl">
-          <p className="font-light text-left text-lg text-blueBase">
+          <p className="font-semibold text-left text-lg text-blueBase">
             You are almost there!, now you only need to{" "}
-            <strong className="font-semibold text-orange-500">
+            <strong className="text-orange-500">
               create your first profile
             </strong>{" "}
             so you can upload, share, like, and comment on{" "}
-            <strong className="font-semibold text-blueDark text-lg">
+            <strong className="font-bold text-blueDark text-lg">
               ContentBase
             </strong>
             .
@@ -32,7 +32,7 @@ export default function FirstprofileNotification({
         </div>
         <h6 className="text-center">
           Would you like to create your first profile now?{" "}
-          <span className="text-orange-600">It's FREE.</span>
+          <span className="text-orange-500">It's FREE!</span>
         </h6>
       </div>
 

@@ -41,7 +41,7 @@ export function Welcome() {
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Create your first profile without gas fee. Follow other
+                  Create your first profile with NO gas fee. Follow other
                   profiles and get Follow NFTs
                 </p>
               </div>
@@ -53,13 +53,13 @@ export function Welcome() {
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Give likes to your favorite content and tip the creators with
-                  ETH (0.1 USD per like), and receive Like NFTs.
+                  Give a like to your favorite content and tip the creator with
+                  0.1USD equivalent of ETH, and receive a Like NFT.
                 </p>
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Earn platform advertisement revenue sharing with your NFTs.
+                  Earn ContentBase Advertisement Revenue Sharing with your NFTs.
                 </p>
               </div>
             </Carousel>

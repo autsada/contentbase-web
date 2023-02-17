@@ -177,7 +177,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
       // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
       fetcher.submit(
         { idToken, accountType, csrf },
-        { method: "post", action: "login" }
+        { method: "post", action: "/auth/login" }
       )
     } catch (error) {
       setVerifyOtpProcessing(false)

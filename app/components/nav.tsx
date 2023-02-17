@@ -9,21 +9,24 @@ interface Props {
   user: UserRecord | null
   openDrawer: (open: boolean) => void
   profile: Profile | null
+  isDrawerOpen: boolean
 }
 
-export function Nav({ user, openDrawer, profile }: Props) {
+export function Nav({ user, openDrawer, profile, isDrawerOpen }: Props) {
   const { pathname } = useLocation()
 
   return (
     <div className="w-full h-[70px] px-4 flex items-center justify-between gap-x-3 border-b border-borderExtraLightGray shadow-neutral-300">
       <div className="w-[120px] h-full flex items-center justify-start">
-        <Link to="/">
-          <img
-            src="/logo.png"
-            alt="CTB"
-            className="w-[55px] h-[55px] rounded-full object-cover"
-          />
-        </Link>
+        {!isDrawerOpen && (
+          <Link to="/">
+            <img
+              src="/logo.png"
+              alt="CTB"
+              className="w-[55px] h-[55px] rounded-full object-cover"
+            />
+          </Link>
+        )}
       </div>
 
       <div className="relative h-[50px] flex items-center justify-between rounded-full overflow-hidden">

@@ -18,7 +18,7 @@ export function ProfileItem({ isInUsed, profile, switchProfile }: Props) {
       <Link to={`/${profile.originalHandle}/${profile.id}`}>
         <div className="w-full py-2 px-4 cursor-pointer hover:bg-gray-50">
           <div className="w-[60px] text-center">
-            <h6 className="text-lg">{profile.originalHandle}</h6>
+            <h6 className="text-base">{profile.originalHandle}</h6>
           </div>
           <div key={profile.id} className="mt-1 flex items-center">
             <div className="mr-5 h-[60px]">
@@ -44,13 +44,13 @@ export function ProfileItem({ isInUsed, profile, switchProfile }: Props) {
                 )}
               </p>
               <div className="flex justify-start items-start">
-                <button className="h-max w-max py-1 m-0 font-light text-sm text-textExtraLight mr-5">
+                <button className="h-max w-max py-1 m-0 font-light text-textExtraLight mr-5">
                   <span className="p-0 m-0 text-textDark mr-1">
                     {profile.followersCount}
                   </span>{" "}
                   Followers
                 </button>
-                <button className="h-max w-max py-1 m-0 font-light text-sm text-textExtraLight">
+                <button className="h-max w-max py-1 m-0 font-light text-textExtraLight">
                   <span className="text-textDark mr-1">
                     {profile.followingCount}
                   </span>{" "}

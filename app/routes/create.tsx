@@ -227,7 +227,7 @@ export default function CreateProfile() {
 
       if (actionStatus === "Ok") {
         revalidator.revalidate()
-        // Refetch the profile
+        // Refetch the profile in the root component to update `nav` and `drawer` UIs
         loaderFetcher.submit(null, { method: "get", action: "/" })
         setConnectServerError(false)
         setIsCreateProfileSuccess(true)
@@ -348,7 +348,7 @@ export default function CreateProfile() {
   useEffect(() => {
     if (isWaitSuccess) {
       revalidator.revalidate()
-      // Refetch the profile
+      // Refetch the profile in the root component to update `nav` and `drawer` UIs
       loaderFetcher.submit(null, { method: "get", action: "/" })
       setIsCreateProfileSuccess(true)
       clearForm()
@@ -619,14 +619,14 @@ export default function CreateProfile() {
                 className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
                 onClick={clearForm}
               >
-                Start sharing videos
+                Start sharing
               </h6>
             </Link>
             <h6
               className="btn-orange w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
               onClick={clearForm}
             >
-              Create a new profile
+              Create new profile
             </h6>
           </div>
         </BackdropWithInfo>
