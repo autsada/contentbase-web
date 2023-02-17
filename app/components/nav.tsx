@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@remix-run/react"
-import { MdPerson, MdMenu } from "react-icons/md"
+import { MdPerson } from "react-icons/md"
 import type { UserRecord } from "firebase-admin/auth"
 
 import type { Profile } from "~/types"
@@ -15,8 +15,8 @@ export function Nav({ user, openDrawer, profile }: Props) {
   const { pathname } = useLocation()
 
   return (
-    <div className="w-full h-[70px] px-4 flex items-center justify-between gap-x-5 border-b border-borderExtraLightGray shadow-neutral-300">
-      <div className="w-[70px] h-full flex items-center justify-start">
+    <div className="w-full h-[70px] px-4 flex items-center justify-between gap-x-3 border-b border-borderExtraLightGray shadow-neutral-300">
+      <div className="w-[120px] h-full flex items-center justify-start">
         <Link to="/">
           <img
             src="/logo.png"
@@ -30,10 +30,10 @@ export function Nav({ user, openDrawer, profile }: Props) {
         {!pathname.startsWith("/auth") ? (
           <>
             <IoSearchOutline size={25} className="absolute" />
-            <div className="pl-8 h-full">
+            <div className="pl-6 h-full">
               <input
                 type="text"
-                className="font-bold text-textLight text-lg h-full w-full outline-none focus:outline-none"
+                className="text-textLight text-lg h-full w-full outline-none focus:outline-none"
               />
             </div>
           </>
@@ -42,7 +42,7 @@ export function Nav({ user, openDrawer, profile }: Props) {
         )}
       </div>
 
-      <div className="w-[70px] h-full flex items-center justify-end">
+      <div className="w-[120px] h-full flex items-center justify-end">
         {pathname.startsWith("/auth") ? (
           <Link to="auth" replace={true} className="px-4">
             &#10005;
@@ -51,7 +51,9 @@ export function Nav({ user, openDrawer, profile }: Props) {
           <>
             {!user ? (
               <Link to="auth">
-                <MdMenu size={40} className="text-orange-400" />
+                <button className="btn-orange h-9 px-4 rounded-full">
+                  Log in
+                </button>
               </Link>
             ) : (
               <div className="w-[40px] h-[40px] bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
