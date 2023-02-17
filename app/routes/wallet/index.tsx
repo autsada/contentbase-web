@@ -1,7 +1,7 @@
-import { useProfileContext } from "../../profiles"
+import { useAppContext } from "~/root"
 
 export default function Wallet() {
-  const context = useProfileContext()
+  const context = useAppContext()
 
   return (
     <div className="page py-5">

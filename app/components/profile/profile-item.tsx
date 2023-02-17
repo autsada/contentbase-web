@@ -11,6 +11,8 @@ interface Props {
 }
 
 export function ProfileItem({ isInUsed, profile, switchProfile }: Props) {
+  if (!profile) return null
+
   return (
     <div className="relative">
       <Link to={`/${profile.originalHandle}/${profile.id}`}>

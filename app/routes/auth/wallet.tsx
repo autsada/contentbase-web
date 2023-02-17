@@ -44,7 +44,7 @@ export default function Wallet() {
   const logInFetcher = useFetcher()
   const csrf = useAuthenticityToken()
   const hydrated = useHydrated()
-  const { open } = useWeb3Modal()
+  const { open, isOpen } = useWeb3Modal()
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
 
@@ -89,6 +89,7 @@ export default function Wallet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, isConnected, csrf])
 
+  console.log("isOpen: ", isOpen)
   return (
     <div className="page p-10">
       <ClientOnly fallback={<p className="text-textLight">Loading...</p>}>

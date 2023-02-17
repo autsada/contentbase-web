@@ -7,9 +7,9 @@ import { Spinner } from "../spinner"
 import { clientAuth } from "~/client/firebase.client"
 import { useUpdateProfileImage } from "~/hooks/profile-contract"
 import { uploadImage, wait } from "~/utils"
-import type { SelectedFile } from "~/routes/profiles/create"
+import type { SelectedFile } from "~/routes/settings/create"
 import type { AccountType } from "~/types"
-import type { UpdateProfileImageAction } from "~/routes/profiles/$handle/$profileId"
+import type { UpdateProfileImageAction } from "~/routes/$handle/$profileId"
 
 interface Props {
   accountType: AccountType | null
@@ -420,7 +420,7 @@ export function UpdateProfileImageModal({
                 You have not enough <span className="text-blueBase">ETH</span>{" "}
                 to pay for gas fee.
               </h6>
-              <Link to="/profiles/wallet">
+              <Link to="/wallet">
                 <button className="btn-orange mt-5 px-6 rounded-full">
                   Buy ETH
                 </button>

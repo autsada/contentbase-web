@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react"
 import type { Profile } from "~/types"
-import { ProfileItem } from "../profiles/profile-item"
+import { ProfileItem } from "../profile/profile-item"
 
 interface Props {
   openDrawer: (open: boolean) => void
@@ -37,22 +37,24 @@ export default function RightDrawer({
       </div>
       <div className="w-full border-b border-borderGray">
         <h6 className="px-4 mt-4 text-textLight">Other profiles</h6>
-        {(profiles as Profile[])
-          .filter((p) => p.id !== profile?.id)
-          .map((p) => (
-            <ProfileItem
-              key={p.id}
-              profile={p}
-              isInUsed={p.id === profile?.id}
-              switchProfile={switchProfile}
-            />
-          ))}
+        {profiles &&
+          profiles.length > 0 &&
+          (profiles as Profile[])
+            .filter((p) => p.id !== profile?.id)
+            .map((p) => (
+              <ProfileItem
+                key={p.id}
+                profile={p}
+                isInUsed={p.id === profile?.id}
+                switchProfile={switchProfile}
+              />
+            ))}
       </div>
       <div className="w-full py-2 px-5">
-        <Link to="profiles">
-          <div className="py-5 text-center font-semibold text-lg">Profiles</div>
+        <Link to="/settings">
+          <div className="py-5 text-center font-semibold text-lg">Settings</div>
         </Link>
-        <Link to="profiles/wallet">
+        <Link to="/wallet">
           <div className="py-5 text-center font-semibold text-lg">Wallet</div>
         </Link>
         <div className="py-5 text-center font-semibold text-lg">

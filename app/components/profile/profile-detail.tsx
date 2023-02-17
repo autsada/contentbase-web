@@ -4,12 +4,13 @@ import { MdArrowBackIosNew, MdPerson, MdEdit } from "react-icons/md"
 
 import { UpdateProfileImageModal } from "./update-image"
 import { clientAuth } from "~/client/firebase.client"
-import type { ProfileContext } from "~/routes/profiles"
+
 import type { EstimateGasUpdateProfileImageAction } from "~/routes/gas/profile/update-image"
 import type { Profile } from "~/types"
+import type { AppContext } from "~/root"
 
 interface Props {
-  context: ProfileContext
+  context: AppContext
   profile: Profile
   closeModal: () => void
 }
@@ -115,7 +116,7 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
         </h6>
         <div className="w-full mt-1 flex justify-center items-center gap-x-3">
           {isSameProfile ? (
-            <Link to={`/profiles/${profile.originalHandle}/followers`}>
+            <Link to={`/${profile.originalHandle}/followers`}>
               <p className="font-light text-textLight">
                 {profile.followersCount} followers
               </p>
@@ -127,7 +128,7 @@ export function ProfileDetail({ context, profile, closeModal }: Props) {
           )}
           {/* Show following if logged in and displayed profile is the same profile */}
           {isSameProfile && (
-            <Link to={`/profiles/${profile.originalHandle}/following`}>
+            <Link to={`/${profile.originalHandle}/following`}>
               <p className="font-light text-textLight">
                 {profile.followingCount} following
               </p>

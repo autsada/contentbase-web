@@ -42,7 +42,7 @@ import styles from "./styles/app.css"
 import carouselStyles from "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Welcome } from "./components/welcome"
 import { getBalance } from "./graphql/server"
-import type { LoaderData, Profile } from "./types"
+import type { Account, LoaderData, Profile } from "./types"
 
 export const meta: MetaFunction = () => {
   const description = `Share you awesome content and get like/paid`
@@ -96,8 +96,8 @@ export async function loader({ request }: LoaderArgs) {
       balance,
       hasProfile,
       ENV: {
-        // NODE_ENV: process.env.NODE_ENV,
-        NODE_ENV: "test",
+        NODE_ENV: process.env.NODE_ENV,
+        // NODE_ENV: "test",
       },
     },
     { headers: { "Set-Cookie": await commitSession(session) } }
@@ -272,6 +272,9 @@ export default function App() {
                 setWelcomeModalVisible,
                 loggedInProfile: loggedInProfile,
                 switchProfile,
+                account: loaderData?.account,
+                balance: loaderData?.balance,
+                hasProfile: loaderData?.hasProfile,
               }}
             />
             <ScrollRestoration />
@@ -309,7 +312,7 @@ export default function App() {
                     <RightDrawer
                       openDrawer={openRightDrawer}
                       className={
-                        !isRightDrawerOpen ? "-right-[200%]" : "right-0"
+                        !isRightDrawerOpen ? "-right-[100%]" : "right-0"
                       }
                       profile={loggedInProfile}
                       profiles={loaderData?.account?.profiles as Profile[]}
@@ -350,11 +353,14 @@ export function ErrorBoundary({ error }: { error: Error }) {
   )
 }
 
-type AppContext = {
+export type AppContext = {
   welcomeModalVisible: boolean
   setWelcomeModalVisible: (open: boolean) => void
   loggedInProfile: Profile
   switchProfile: (p: Profile) => void
+  account: Account
+  balance: string | undefined
+  hasProfile: boolean | undefined
 }
 
 export function useAppContext() {

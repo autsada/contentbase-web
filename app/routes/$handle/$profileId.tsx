@@ -1,7 +1,5 @@
-import { useEffect } from "react"
-import { json } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import {
-  Link,
   useCatch,
   useParams,
   useNavigate,
@@ -11,10 +9,11 @@ import { MdError, MdArrowBackIosNew } from "react-icons/md"
 import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 
 import ErrorComponent from "~/components/error"
-import { ProfileDetail } from "~/components/profiles/profile-detail"
+import { ProfileDetail } from "~/components/profile/profile-detail"
 import { getProfile } from "~/graphql/public-apis"
-import { useProfileContext } from "~/routes/profiles"
 import { updateProfileImage } from "~/graphql/server"
+import { useAppContext } from "~/root"
+import { requireAuth } from "~/server/auth.server"
 import type { Profile } from "~/types"
 
 /**
@@ -22,6 +21,12 @@ import type { Profile } from "~/types"
  */
 export async function loader({ request, params }: LoaderArgs) {
   try {
+    const { user, headers } = await requireAuth(request)
+
+    if (!user) {
+      return redirect("/auth", { headers })
+    }
+
     const handle = params.handle
     const profileId = params.profileId
 
@@ -69,25 +74,14 @@ export async function action({ request }: ActionArgs) {
 export type UpdateProfileImageAction = typeof action
 
 export default function MyProfile() {
-  const context = useProfileContext()
+  const context = useAppContext()
 
-  const params = useParams()
-  const isLoggedInProfile =
-    params?.profileId?.toString() === context?.loggedInProfile?.id?.toString()
   const data = useLoaderData<typeof loader>()
-
   const navigate = useNavigate()
 
   function closeModal() {
-    navigate("/profiles")
+    navigate(-1)
   }
-
-  useEffect(() => {
-    if (isLoggedInProfile && data?.profile) {
-      context?.switchProfile(data.profile as Profile)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedInProfile, data?.profile])
 
   return (
     <div className="page">
@@ -103,15 +97,18 @@ export default function MyProfile() {
 export function CatchBoundary() {
   const caught = useCatch()
   const params = useParams()
+  const navigate = useNavigate()
+
+  function closeModal() {
+    navigate(-1)
+  }
 
   return (
     <ErrorComponent error={caught.statusText}>
       <div className="page absolute inset-0">
         <div className="w-full py-[20px] h-[100px] bg-blueBase">
-          <div className="absolute left-5 h-[60px] flex items-center">
-            <Link to="/profiles">
-              <MdArrowBackIosNew size={30} color="white" />
-            </Link>
+          <div className="absolute left-5 h-[60px] flex items-center cursor-pointer">
+            <MdArrowBackIosNew size={30} color="white" onClick={closeModal} />
           </div>
           <div className="w-max mx-auto rounded-full px-0 bg-white overflow-hidden">
             <MdError size={140} className="error" />
@@ -134,15 +131,18 @@ export function CatchBoundary() {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   const params = useParams()
+  const navigate = useNavigate()
+
+  function closeModal() {
+    navigate(-1)
+  }
 
   return (
     <ErrorComponent error={error.message}>
       <div className="page absolute inset-0">
         <div className="w-full py-[20px] h-[100px] bg-blueBase">
-          <div className="absolute left-5 h-[60px] flex items-center">
-            <Link to="/profiles">
-              <MdArrowBackIosNew size={30} color="white" />
-            </Link>
+          <div className="absolute left-5 h-[60px] flex items-center cursor-pointer">
+            <MdArrowBackIosNew size={30} color="white" onClick={closeModal} />
           </div>
           <div className="w-max mx-auto rounded-full px-0 bg-white overflow-hidden">
             <MdError size={140} className="error" />
@@ -158,9 +158,9 @@ export function ErrorBoundary({ error }: { error: Error }) {
         </div>
 
         <div className="mt-5">
-          <Link to="/profiles">
-            <h6 className="cusor-pointer">Close</h6>
-          </Link>
+          <h6 className="cusor-pointer" onClick={closeModal}>
+            Close
+          </h6>
         </div>
       </div>
     </ErrorComponent>

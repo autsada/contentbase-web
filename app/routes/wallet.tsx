@@ -1,8 +1,7 @@
 import { Outlet } from "@remix-run/react"
-import { useProfileContext } from "../profiles"
+import { useAppContext } from "~/root"
 
 export default function Wallet() {
-  const context = useProfileContext()
-
+  const context = useAppContext()
   return <Outlet context={context} />
 }

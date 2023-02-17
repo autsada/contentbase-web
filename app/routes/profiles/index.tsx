@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react"
 
 import { BackdropWithInfo } from "~/components/backdrop-info"
-import { ProfileItem } from "~/components/profiles/profile-item"
+import { ProfileItem } from "~/components/profile/profile-item"
 import { useProfileContext } from "../profiles"
 import type { Profile } from "~/types"
 

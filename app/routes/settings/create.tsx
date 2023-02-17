@@ -10,13 +10,13 @@ import type { ChangeEvent } from "react"
 
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
-import { useProfileContext } from "../profiles"
 import { useCreateProfile } from "~/hooks/profile-contract"
 import { clientAuth } from "~/client/firebase.client"
 import { createFirstProfile, createProfile } from "~/graphql/server"
 import { uploadImage, wait } from "~/utils"
 import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
 import type { validateActionType } from "../validate-handle"
+import { useAppContext } from "~/root"
 
 export type SelectedFile = File & {
   path: string
@@ -77,7 +77,7 @@ export default function CreateProfile() {
   const loaderFetcher = useFetcher()
   const revalidator = useRevalidator()
   const hydrated = useHydrated()
-  const context = useProfileContext()
+  const context = useAppContext()
   const accountType = context?.account?.type
   // Check if it is the first profile of the user or not
   const isFirstProfile = context?.account?.profiles?.length === 0
@@ -177,7 +177,7 @@ export default function CreateProfile() {
       if (actionStatus === "Ok") {
         revalidator.revalidate()
         // Refetch the profile
-        loaderFetcher.submit(null, { method: "get", action: "/profiles" })
+        loaderFetcher.submit(null, { method: "get", action: "/" })
         setConnectServerError(false)
         setIsCreateProfileSuccess(true)
       }
@@ -298,7 +298,7 @@ export default function CreateProfile() {
     if (isWaitSuccess) {
       revalidator.revalidate()
       // Refetch the profile
-      loaderFetcher.submit(null, { method: "get", action: "/profiles" })
+      loaderFetcher.submit(null, { method: "get", action: "/" })
       setIsCreateProfileSuccess(true)
       clearForm()
     }
@@ -551,17 +551,6 @@ export default function CreateProfile() {
             <span className="text-blueBase">{handle}</span> Profile NFT Minted
           </h6>
           <div className="mt-6 text-center">
-            <Link to="/profiles">
-              <h6 className="btn-light w-max mx-auto px-5 py-2 rounded-full font-light text-center text-base cursor-pointer">
-                Go to profiles dashboard
-              </h6>
-            </Link>
-            <h6
-              className="btn-orange w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
-              onClick={clearForm}
-            >
-              Create a new profile
-            </h6>
             <Link to="/upload">
               <h6
                 className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
@@ -570,6 +559,12 @@ export default function CreateProfile() {
                 Start sharing videos
               </h6>
             </Link>
+            <h6
+              className="btn-orange w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
+              onClick={clearForm}
+            >
+              Create a new profile
+            </h6>
           </div>
         </BackdropWithInfo>
       )}

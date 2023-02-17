@@ -4,7 +4,7 @@ import type { ActionArgs } from "@remix-run/node"
 import { validateHandle } from "~/graphql/server"
 
 export function loader() {
-  return redirect("/profiles/create")
+  return redirect("/")
 }
 
 export async function action({ request }: ActionArgs) {
