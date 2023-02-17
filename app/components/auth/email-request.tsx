@@ -58,6 +58,8 @@ export function EmailRequest() {
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     setEmail(e.target.value)
+    if (success) setSuccess(false)
+    if (error) setError(false)
   }
 
   return (

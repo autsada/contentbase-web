@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { useNavigate } from "@remix-run/react"
+import { useNavigate, useRevalidator } from "@remix-run/react"
 import { useAccount, useDisconnect } from "wagmi"
 import { redirect, json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
@@ -21,6 +21,7 @@ export function loader({ request }: LoaderArgs) {
 
 export default function CleanUp() {
   const navigate = useNavigate()
+  const revalidator = useRevalidator()
   const { isConnected } = useAccount()
   const { disconnect } = useDisconnect()
 
@@ -38,8 +39,13 @@ export default function CleanUp() {
       }
     }
 
+    // Revalidate states
+    revalidator.revalidate()
+
     // Navigate to homepage
     navigate("/")
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, isConnected, disconnect])
 
   // Show spinner on the screen

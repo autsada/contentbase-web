@@ -23,6 +23,7 @@ export const UPLOAD_SERVICE_URL =
     ? ""
     : "https://contentbase-upload-qyh5hhru7q-uc.a.run.app"
 export const INITIAL_VISIT_ID = "ctb-initial-1675651642366"
+export const FIRST_PROFILE_ID = "ctb-first-profile-1675652652340"
 export const dummyImageURI =
   "https://www.some_service.com/adam-b1665169-3f10-47ae-8af0-26db145ae157.jpg"
 export const MIN_HANDLE_LENGTH = 3

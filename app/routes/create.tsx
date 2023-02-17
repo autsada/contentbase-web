@@ -1,26 +1,51 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import { useDropzone } from "react-dropzone"
 import debounce from "lodash/debounce"
-import { useFetcher, Link, useRevalidator } from "@remix-run/react"
+import {
+  useFetcher,
+  Link,
+  useRevalidator,
+  useLoaderData,
+  useCatch,
+} from "@remix-run/react"
 import { MdOutlineCheck } from "react-icons/md"
 import { useHydrated } from "remix-utils"
-import { json } from "@remix-run/node"
-import type { ActionArgs } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
+import type { ActionArgs, LoaderArgs } from "@remix-run/node"
 import type { ChangeEvent } from "react"
 
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
+import ErrorComponent from "~/components/error"
 import { useCreateProfile } from "~/hooks/profile-contract"
 import { clientAuth } from "~/client/firebase.client"
+import { requireAuth } from "~/server/auth.server"
+import { queryAccountByUid } from "~/graphql/public-apis"
 import { createFirstProfile, createProfile } from "~/graphql/server"
 import { uploadImage, wait } from "~/utils"
-import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
-import type { validateActionType } from "../validate-handle"
-import { useAppContext } from "~/root"
+import {
+  FIRST_PROFILE_ID,
+  MAX_HANDLE_LENGTH,
+  MIN_HANDLE_LENGTH,
+} from "~/constants"
+import type { validateActionType } from "./validate-handle"
+import FirstprofileNotification from "~/components/firstprofile-notification"
 
 export type SelectedFile = File & {
   path: string
   preview: string
+}
+
+export async function loader({ request }: LoaderArgs) {
+  const { user, headers } = await requireAuth(request)
+
+  if (!user) {
+    return redirect("/auth", { headers })
+  }
+  const account = await queryAccountByUid(user.uid)
+  let hasProfile = account?.profiles?.length > 0
+
+  return json({ user, account, hasProfile }, { headers })
 }
 
 export async function action({ request }: ActionArgs) {
@@ -54,9 +79,10 @@ export async function action({ request }: ActionArgs) {
 
 export default function CreateProfile() {
   const [handle, setHandle] = useState("")
-  const [isHandleLenValid, setIsHandleLenValid] = useState<
-    boolean | undefined
-  >()
+  const isHandleLenValid =
+    handle &&
+    handle.length >= MIN_HANDLE_LENGTH &&
+    handle.length <= MAX_HANDLE_LENGTH
   const [file, setFile] = useState<SelectedFile | null>(null)
   const [imageSizeError, setImageSizeError] = useState("")
   const [uploadingImage, setUploadingImage] = useState<boolean>()
@@ -70,6 +96,7 @@ export default function CreateProfile() {
   const [retryCount, setRetryCount] = useState(0)
   const [noWriteError, setNoWriteError] = useState<boolean>() // If, for some reason, there is no `write` transaction after magmi prepare transaction done, use this state to inform user.
 
+  const data = useLoaderData<typeof loader>()
   const validateFetcher = useFetcher<validateActionType>()
   const isHandleUnique = validateFetcher?.data?.isUnique
   const actionFetcher = useFetcher<typeof action>()
@@ -77,10 +104,14 @@ export default function CreateProfile() {
   const loaderFetcher = useFetcher()
   const revalidator = useRevalidator()
   const hydrated = useHydrated()
-  const context = useAppContext()
-  const accountType = context?.account?.type
+  // const context = useAppContext()
+  const accountType = data?.account?.type
   // Check if it is the first profile of the user or not
-  const isFirstProfile = context?.account?.profiles?.length === 0
+  const isFirstProfile =
+    typeof data?.hasProfile === "boolean" && !data?.hasProfile
+
+  const [firstProfileModalVisible, setFirstProfileModalVisible] =
+    useState<boolean>()
 
   // When the button should be disabled
   const disabled =
@@ -141,19 +172,39 @@ export default function CreateProfile() {
     },
   })
 
+  /**
+   * Check whether we have already notified user to create their first profile or not.
+   */
+  useEffect(() => {
+    if (typeof document === "undefined") return
+
+    const isNotified = window.localStorage.getItem(FIRST_PROFILE_ID)
+
+    if (isFirstProfile && !isNotified) {
+      setFirstProfileModalVisible(true)
+    } else {
+      setFirstProfileModalVisible(false)
+    }
+  }, [isFirstProfile])
+
+  const closeFirstProfileNotificationModal = useCallback(() => {
+    setFirstProfileModalVisible(false)
+    if (typeof document !== "undefined") {
+      window.localStorage.setItem(FIRST_PROFILE_ID, `${Date.now()}`)
+    }
+  }, [])
+
   const handleValidateHandle = useCallback((handle: string) => {
     if (
       handle &&
       (handle.length < MIN_HANDLE_LENGTH || handle.length > MAX_HANDLE_LENGTH)
     ) {
-      setIsHandleLenValid(false)
       return
     }
 
-    setIsHandleLenValid(true)
     validateFetcher.submit(
       { handle },
-      { method: "post", action: "profiles/validate-handle" }
+      { method: "post", action: "/validate-handle" }
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -190,14 +241,14 @@ export default function CreateProfile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionStatus])
 
-  // Create profile logc
+  // Create profile logic
   // TODO: Find a way to prevent reupload an image when `WALLET` account rejects the transaction.
   async function handleCreateProfile() {
     try {
-      if (!clientAuth || !context?.account) {
+      if (!clientAuth || !data?.account) {
         actionFetcher.submit(null, {
           method: "post",
-          action: "/reauthenticate",
+          action: "/auth/reauthenticate",
         })
         return
       }
@@ -220,7 +271,7 @@ export default function CreateProfile() {
       // If first profile or a traditional account, call the server.
       if (isFirstProfile || accountType === "TRADITIONAL") {
         // The owner address
-        const address = context?.account.address
+        const address = data?.account.address
 
         setConnectServerLoading(true)
         setUploadingImage(false)
@@ -229,11 +280,11 @@ export default function CreateProfile() {
         const user = clientAuth.currentUser
         const idToken = await user?.getIdToken()
         // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
-        if (!idToken || context?.account.uid !== user?.uid) {
+        if (!idToken || data?.account.uid !== user?.uid) {
           setConnectServerLoading(false)
           actionFetcher.submit(null, {
             method: "post",
-            action: "/reauthenticate",
+            action: "/auth/reauthenticate",
           })
           return
         }
@@ -336,7 +387,6 @@ export default function CreateProfile() {
   function clearForm() {
     setHandle("")
     setFile(null)
-    if (isHandleLenValid) setIsHandleLenValid(false)
     if (uploadingImage) setUploadingImage(false)
     if (uploadImageError) setUploadImageError(false)
     if (connectServerLoading) setConnectServerLoading(false)
@@ -347,7 +397,9 @@ export default function CreateProfile() {
   return (
     <div className="page p-4 text-start">
       <actionFetcher.Form className="px-5" onSubmit={handleCreateProfile}>
-        <p className="mb-5 text-lg">Please provide below information.</p>
+        <h5 className="mb-5 text-center">
+          {isFirstProfile ? "Create First Profile" : "Create Profile"}
+        </h5>
         <div className="mb-5">
           <fieldset
             className={`relative border ${
@@ -367,7 +419,7 @@ export default function CreateProfile() {
               <input
                 type="text"
                 name="handle"
-                placeholder="Your handle (at least 3 characters)"
+                placeholder="What do you want to be called?"
                 className="block w-full h-10 font-semibold text-blueDark text-lg outline-none pl-1 placeholder:font-light placeholder:text-blue-400 placeholder:text-sm"
                 minLength={3}
                 onChange={handleChange}
@@ -385,7 +437,9 @@ export default function CreateProfile() {
               )}
           </fieldset>
           <p className="error text-end">
-            {typeof isHandleUnique === "boolean" && !isHandleUnique ? (
+            {typeof isHandleLenValid === "boolean" && !isHandleLenValid ? (
+              "At least 3 characters."
+            ) : typeof isHandleUnique === "boolean" && !isHandleUnique ? (
               "This handle is taken or invalid."
             ) : (
               <>&nbsp;</>
@@ -415,7 +469,7 @@ export default function CreateProfile() {
                 )}
               </div>
             </div>
-            {context?.account?.profiles?.length === 0 ? (
+            {isFirstProfile ? (
               <p className="font-light text-blueBase italic text-sm mt-4">
                 Tip: Upload your profile image now to enjoy{" "}
                 <span className="text-orange-600">GAS FREE</span>.
@@ -445,6 +499,15 @@ export default function CreateProfile() {
       <button ref={executeTxnBtnRef} className="hidden" onClick={execute}>
         Execute
       </button>
+
+      {/* Show first profile notification modal for the first time user logged in */}
+      {typeof firstProfileModalVisible === "boolean" &&
+        firstProfileModalVisible && (
+          <FirstprofileNotification
+            title="Welcome to ContentBase"
+            onIntentToCreateProfile={closeFirstProfileNotificationModal}
+          />
+        )}
 
       {/* `first profile` || `TRADITIONAL` Account: Info/Spiner and Error message */}
       {(isFirstProfile || accountType === "TRADITIONAL") && (
@@ -570,4 +633,16 @@ export default function CreateProfile() {
       )}
     </div>
   )
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return <ErrorComponent error={caught.statusText} />
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return <ErrorComponent error={error.message} />
 }

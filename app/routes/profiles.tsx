@@ -93,7 +93,7 @@ export default function ProfileDashboard() {
               </span>
             </h6>
             <div className="mt-6">
-              <form action="/logout" method="post">
+              <form action="/auth/logout" method="post">
                 <button className="btn-orange text-sm rounded-3xl w-max h-8 px-5">
                   Log out
                 </button>

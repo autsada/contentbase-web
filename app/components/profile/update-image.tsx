@@ -7,7 +7,7 @@ import { Spinner } from "../spinner"
 import { clientAuth } from "~/client/firebase.client"
 import { useUpdateProfileImage } from "~/hooks/profile-contract"
 import { uploadImage, wait } from "~/utils"
-import type { SelectedFile } from "~/routes/settings/create"
+import type { SelectedFile } from "~/routes/create"
 import type { AccountType } from "~/types"
 import type { UpdateProfileImageAction } from "~/routes/$handle/$profileId"
 
@@ -144,7 +144,7 @@ export function UpdateProfileImageModal({
       if (!idToken) {
         reauthenticateFetcher.submit(null, {
           method: "post",
-          action: "/reauthenticate",
+          action: "/auth/reauthenticate",
         })
         return
       }

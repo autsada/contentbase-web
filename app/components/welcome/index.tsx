@@ -29,8 +29,8 @@ export function Welcome() {
             <Carousel showThumbs={false} showArrows={false} showStatus={false}>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Welcome to video NFTs sharing platform you have full control
-                  over your content.
+                  Welcome to profile-based NFTs sharing platform that you have
+                  full control over your content.
                 </p>
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
@@ -47,20 +47,19 @@ export function Welcome() {
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Upload your videos and receive video NFTs, share them to the
-                  world and receive tip from the likes.
+                  Upload your content and receive an NFT, share it to the world
+                  and receive tip from the likes.
                 </p>
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Give likes to your favorite videos and tip the creators with
-                  ETH (0.1 USD per like) and receive Like NFTs.
+                  Give likes to your favorite content and tip the creators with
+                  ETH (0.1 USD per like), and receive Like NFTs.
                 </p>
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Earn advertisement revenue sharing with your Video, Follow,
-                  and Like NFTs.
+                  Earn platform advertisement revenue sharing with your NFTs.
                 </p>
               </div>
             </Carousel>

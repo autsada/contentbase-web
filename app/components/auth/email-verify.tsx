@@ -9,7 +9,7 @@ import { Backdrop } from "../backdrop"
 import { InfoWithSpinner } from "../info-spinner"
 import { verifyEmailAddress } from "~/client/auth.client"
 import { useAuthenticityToken } from "remix-utils"
-import type { LoginActionType } from "~/routes/login"
+import type { LoginActionType } from "~/routes/auth/login"
 import type { AccountType } from "~/types"
 
 export default function EmailVerify() {
@@ -44,7 +44,7 @@ export default function EmailVerify() {
         // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
         fetcher.submit(
           { idToken, accountType, csrf },
-          { method: "post", action: "/login" }
+          { method: "post", action: "/auth/login" }
         )
         setFinished(true)
       }

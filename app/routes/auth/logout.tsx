@@ -15,7 +15,7 @@ export async function action({ request }: ActionArgs) {
   await logOut(session)
 
   // Redirect to `/cleanup` to remove `loggedIn` key in localStorage (client side)
-  return redirect(`/cleanup?${CLEAN_UP_ID}=${CLEAN_UP_CODE}`, {
+  return redirect(`/auth/cleanup?${CLEAN_UP_ID}=${CLEAN_UP_CODE}`, {
     headers: { "Set-Cookie": await destroySession(session) },
   })
 }

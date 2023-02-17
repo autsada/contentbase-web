@@ -1,6 +1,8 @@
+import { useCatch } from "@remix-run/react"
 import { ClientOnly } from "remix-utils"
 
 import { EmailRequest } from "~/components/auth/email-request"
+import ErrorComponent from "~/components/error"
 
 /**
  * The route for the 1 step: Request a link
@@ -14,4 +16,16 @@ export default function Email() {
       </ClientOnly>
     </div>
   )
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return <ErrorComponent error={caught.statusText} />
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return <ErrorComponent error={error.message} />
 }

@@ -58,7 +58,7 @@ export default function RightDrawer({
           <div className="py-5 text-center font-semibold text-lg">Wallet</div>
         </Link>
         <div className="py-5 text-center font-semibold text-lg">
-          <form action="/logout" method="post">
+          <form action="/auth/logout" method="post">
             <button className="text-lg text-orange-500 rounded-3xl w-max h-8 px-5">
               Logout
             </button>

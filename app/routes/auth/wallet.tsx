@@ -73,7 +73,7 @@ export default function Wallet() {
           // Send the `idToken`, `accountType` and `csrf` token to the `login` action on the server.
           logInFetcher.submit(
             { idToken, accountType, csrf },
-            { method: "post", action: "/login" }
+            { method: "post", action: "login" }
           )
         } catch (error) {
           setError(

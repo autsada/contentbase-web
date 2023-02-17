@@ -56,13 +56,13 @@ export async function action({ request }: ActionArgs) {
       }
 
       // Redirect the user to create their first profile
-      return redirect("/settings/create", { headers })
+      return redirect("/create", { headers })
     } else {
       const hasProfile = account.profiles.length > 0
 
       if (!hasProfile) {
         // Redirect the user to create their first profile
-        return redirect("/settings/create", { headers })
+        return redirect("/create", { headers })
       }
 
       return redirect("/", { headers })
