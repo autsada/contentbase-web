@@ -34,7 +34,7 @@ export async function loader({ request }: LoaderArgs) {
   if (account) {
     address = account.address
     balance = address ? await getBalance(address) : ""
-    hasProfile = account.profiles.length > 0
+    hasProfile = !!account?.profile
   }
 
   return json({ user, account, balance, hasProfile }, { headers })
@@ -77,7 +77,6 @@ export default function ProfileDashboard() {
           hasProfile: loaderData?.hasProfile,
           // For logged in profile, use context as it will be handled client side
           loggedInProfile: context?.loggedInProfile,
-          switchProfile: context?.switchProfile,
         }}
       />
 

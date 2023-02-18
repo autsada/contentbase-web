@@ -23,8 +23,7 @@ export default function Profiles() {
             <ProfileItem
               key={profile.id}
               profile={profile}
-              isInUsed={profile.id === context?.loggedInProfile?.id}
-              switchProfile={context?.switchProfile}
+              loggedInProfile={profile}
             />
           ))
         )}

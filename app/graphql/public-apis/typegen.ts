@@ -3,11 +3,33 @@
  * Do not make changes to this file directly
  */
 
-// declare global {
-//   interface NexusGen extends NexusGenTypes {}
-// }
+declare global {
+  interface NexusGenCustomInputMethods<TypeName extends string> {
+    /**
+     * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+     */
+    // date<FieldName extends string>(fieldName: FieldName, opts?: core.CommonInputFieldConfig<TypeName, FieldName>): void // "DateTime";
+  }
+}
+declare global {
+  interface NexusGenCustomOutputMethods<TypeName extends string> {
+    /**
+     * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+     */
+    // date<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void // "DateTime";
+  }
+}
+
+declare global {
+  // interface NexusGen extends NexusGenTypes {}
+}
 
 export interface NexusGenInputs {
+  CacheProfileInput: {
+    // input type
+    address: string // String!
+    tokenId: string // String!
+  }
   GetProfileByIdInput: {
     // input type
     profileId: number // Int!
@@ -68,6 +90,7 @@ export interface NexusGenObjects {
     address: string // String!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     id: number // Int!
+    profile?: NexusGenRootTypes["Profile"] | null // Profile
     type?: NexusGenEnums["AccountType"] | null // AccountType
     uid?: string | null // String
     updatedAt?: NexusGenScalars["DateTime"] | null // DateTime
@@ -100,6 +123,7 @@ export interface NexusGenObjects {
     likeFeeId: string // String!
     tokenId: string // String!
   }
+  Mutation: {}
   PageInfo: {
     // root type
     endCursor?: string | null // String
@@ -142,6 +166,7 @@ export interface NexusGenObjects {
   }
   Profile: {
     // root type
+    accountId: number // Int!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     default: boolean // Boolean!
     handle: string // String!
@@ -174,6 +199,10 @@ export interface NexusGenObjects {
     edges: Array<NexusGenRootTypes["Edge"] | null> // [Edge]!
     pageInfo: NexusGenRootTypes["PageInfo"] // PageInfo!
   }
+  WriteResult: {
+    // root type
+    status: string // String!
+  }
 }
 
 export interface NexusGenInterfaces {}
@@ -192,6 +221,7 @@ export interface NexusGenFieldTypes {
     address: string // String!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     id: number // Int!
+    profile: NexusGenRootTypes["Profile"] | null // Profile
     profiles: Array<NexusGenRootTypes["Profile"] | null> // [Profile]!
     type: NexusGenEnums["AccountType"] | null // AccountType
     uid: string | null // String
@@ -235,6 +265,10 @@ export interface NexusGenFieldTypes {
     likeFeeId: string // String!
     profile: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
     tokenId: string // String!
+  }
+  Mutation: {
+    // field return type
+    cacheProfileId: NexusGenRootTypes["WriteResult"] // WriteResult!
   }
   PageInfo: {
     // field return type
@@ -281,6 +315,7 @@ export interface NexusGenFieldTypes {
   }
   Profile: {
     // field return type
+    accountId: number // Int!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     default: boolean // Boolean!
     followers: Array<NexusGenRootTypes["PreviewProfile"] | null> // [PreviewProfile]!
@@ -345,6 +380,10 @@ export interface NexusGenFieldTypes {
     edges: Array<NexusGenRootTypes["Edge"] | null> // [Edge]!
     pageInfo: NexusGenRootTypes["PageInfo"] // PageInfo!
   }
+  WriteResult: {
+    // field return type
+    status: string // String!
+  }
 }
 
 export interface NexusGenFieldTypeNames {
@@ -353,6 +392,7 @@ export interface NexusGenFieldTypeNames {
     address: "String"
     createdAt: "DateTime"
     id: "Int"
+    profile: "Profile"
     profiles: "Profile"
     type: "AccountType"
     uid: "String"
@@ -396,6 +436,10 @@ export interface NexusGenFieldTypeNames {
     likeFeeId: "String"
     profile: "PreviewProfile"
     tokenId: "String"
+  }
+  Mutation: {
+    // field return type name
+    cacheProfileId: "WriteResult"
   }
   PageInfo: {
     // field return type name
@@ -442,6 +486,7 @@ export interface NexusGenFieldTypeNames {
   }
   Profile: {
     // field return type name
+    accountId: "Int"
     createdAt: "DateTime"
     default: "Boolean"
     followers: "PreviewProfile"
@@ -504,9 +549,19 @@ export interface NexusGenFieldTypeNames {
     edges: "Edge"
     pageInfo: "PageInfo"
   }
+  WriteResult: {
+    // field return type name
+    status: "String"
+  }
 }
 
 export interface NexusGenArgTypes {
+  Mutation: {
+    cacheProfileId: {
+      // args
+      input: NexusGenInputs["CacheProfileInput"] // CacheProfileInput!
+    }
+  }
   Query: {
     getAccount: {
       // args

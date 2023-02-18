@@ -1,3 +1,6 @@
+/**
+ * An API route for log out
+ */
 import type { ActionArgs, LoaderArgs } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { redirectBack } from "remix-utils"

@@ -771,8 +771,8 @@ button {
   left: 0px;
 }
 
-.-right-\[100\%\] {
-  right: -100%;
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .right-0 {
@@ -799,6 +799,10 @@ button {
   top: -2.75rem;
 }
 
+.-right-\[100\%\] {
+  right: -100%;
+}
+
 .top-0 {
   top: 0px;
 }
@@ -815,16 +819,20 @@ button {
   right: 0.75rem;
 }
 
-.-top-2 {
-  top: -0.5rem;
-}
-
-.left-5 {
-  left: 1.25rem;
+.-top-1 {
+  top: -0.25rem;
 }
 
 .top-2 {
   top: 0.5rem;
+}
+
+.right-5 {
+  right: 1.25rem;
+}
+
+.left-5 {
+  left: 1.25rem;
 }
 
 .top-4 {
@@ -833,18 +841,6 @@ button {
 
 .right-8 {
   right: 2rem;
-}
-
-.-top-1 {
-  top: -0.25rem;
-}
-
-.-right-\[200\%\] {
-  right: -200%;
-}
-
-.right-5 {
-  right: 1.25rem;
 }
 
 .z-50 {
@@ -859,16 +855,12 @@ button {
   z-index: 10000;
 }
 
-.z-\[100000\] {
-  z-index: 100000;
-}
-
-.z-auto {
-  z-index: auto;
-}
-
 .z-\[100\] {
   z-index: 100;
+}
+
+.z-\[100000\] {
+  z-index: 100000;
 }
 
 .m-0 {
@@ -895,11 +887,6 @@ button {
   margin-bottom: 0.5rem;
 }
 
-.mx-0 {
-  margin-left: 0px;
-  margin-right: 0px;
-}
-
 .my-10 {
   margin-top: 2.5rem;
   margin-bottom: 2.5rem;
@@ -910,6 +897,11 @@ button {
   margin-right: 1.25rem;
 }
 
+.mx-0 {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
 .my-0 {
   margin-top: 0px;
   margin-bottom: 0px;
@@ -918,11 +910,6 @@ button {
 .mx-2 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
-}
-
-.my-4 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
 }
 
 .mt-2 {
@@ -973,8 +960,8 @@ button {
   margin-left: 0.75rem;
 }
 
-.mt-\[20px\] {
-  margin-top: 20px;
+.ml-4 {
+  margin-left: 1rem;
 }
 
 .mr-5 {
@@ -997,6 +984,10 @@ button {
   margin-top: 2.5rem;
 }
 
+.mt-\[20px\] {
+  margin-top: 20px;
+}
+
 .mb-8 {
   margin-bottom: 2rem;
 }
@@ -1011,10 +1002,6 @@ button {
 
 .mb-10 {
   margin-bottom: 2.5rem;
-}
-
-.ml-4 {
-  margin-left: 1rem;
 }
 
 .block {
@@ -1093,14 +1080,6 @@ button {
   height: 60px;
 }
 
-.h-\[100px\] {
-  height: 100px;
-}
-
-.h-\[140px\] {
-  height: 140px;
-}
-
 .h-max {
   height: -moz-max-content;
   height: max-content;
@@ -1116,6 +1095,18 @@ button {
 
 .h-40 {
   height: 10rem;
+}
+
+.h-\[100px\] {
+  height: 100px;
+}
+
+.h-\[140px\] {
+  height: 140px;
+}
+
+.h-5 {
+  height: 1.25rem;
 }
 
 .h-\[1px\] {
@@ -1187,6 +1178,14 @@ button {
   width: 60px;
 }
 
+.w-4\/5 {
+  width: 80%;
+}
+
+.w-28 {
+  width: 7rem;
+}
+
 .w-\[140px\] {
   width: 140px;
 }
@@ -1195,16 +1194,12 @@ button {
   width: 50%;
 }
 
+.w-5 {
+  width: 1.25rem;
+}
+
 .w-3\/5 {
   width: 60%;
-}
-
-.w-4\/5 {
-  width: 80%;
-}
-
-.w-28 {
-  width: 7rem;
 }
 
 .w-72 {
@@ -1221,18 +1216,6 @@ button {
 
 .w-44 {
   width: 11rem;
-}
-
-.w-\[98\%\] {
-  width: 98%;
-}
-
-.w-\[95\%\] {
-  width: 95%;
-}
-
-.w-\[96\%\] {
-  width: 96%;
 }
 
 .max-w-\[360px\] {
@@ -1589,14 +1572,14 @@ button {
   padding-bottom: 0.5rem;
 }
 
-.py-\[20px\] {
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
-
 .py-1 {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
+}
+
+.py-\[20px\] {
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .px-0 {
@@ -1630,10 +1613,6 @@ button {
   padding-top: 0.5rem;
 }
 
-.pl-8 {
-  padding-left: 2rem;
-}
-
 .pt-5 {
   padding-top: 1.25rem;
 }
@@ -1644,6 +1623,10 @@ button {
 
 .pb-8 {
   padding-bottom: 2rem;
+}
+
+.pl-8 {
+  padding-left: 2rem;
 }
 
 .pt-\[80px\] {
@@ -1736,12 +1719,12 @@ button {
   line-height: 1px;
 }
 
-.leading-\[140px\] {
-  line-height: 140px;
-}
-
 .leading-\[60px\] {
   line-height: 60px;
+}
+
+.leading-\[140px\] {
+  line-height: 140px;
 }
 
 .text-textRegular {

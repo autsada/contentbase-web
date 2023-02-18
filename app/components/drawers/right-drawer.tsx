@@ -11,7 +11,6 @@ interface Props {
   className?: string
   profile: Profile | null
   profiles: Profile[]
-  switchProfile: (p: Profile) => void
 }
 
 export default function RightDrawer({
@@ -19,18 +18,12 @@ export default function RightDrawer({
   className = "-right-[100%]",
   profile,
   profiles,
-  switchProfile,
 }: Props) {
-  const loggedInProfile =
-    profile ||
-    (profiles &&
-      profiles.length > 0 &&
-      (profiles.find((p) => p.default) || profiles[0]))
   const otherProfiles =
     profiles &&
     profiles.length > 1 &&
-    loggedInProfile &&
-    profiles.filter((p) => p.id !== loggedInProfile.id)
+    profile &&
+    profiles.filter((p) => !!p && p.id !== profile?.id)
 
   const [isShowOtherProfiles, setIsShowOtherProfiles] = useState(false)
 
@@ -56,14 +49,10 @@ export default function RightDrawer({
         />
       </div>
       <div className="w-full border-b border-borderGray">
-        {loggedInProfile ? (
+        {profile ? (
           <>
             <h6 className="text-base px-4 text-textLight">Logged in as</h6>
-            <ProfileItem
-              profile={loggedInProfile}
-              isInUsed={true}
-              switchProfile={switchProfile}
-            />
+            <ProfileItem profile={profile} loggedInProfile={profile} />
           </>
         ) : (
           <div className="px-4">
@@ -84,7 +73,7 @@ export default function RightDrawer({
         )}
         <Link to="/create">
           <button className="btn-dark px-5 rounded-full my-2">
-            Create {!loggedInProfile ? "first" : ""} Profile
+            Create {!profile ? "first" : ""} Profile
           </button>
         </Link>
       </div>
@@ -93,16 +82,17 @@ export default function RightDrawer({
           <h6 className="text-base px-4 mt-4 text-textLight">Other profiles</h6>
           {otherProfiles && otherProfiles.length > 0 && (
             <>
-              <MdExpandMore
-                size={30}
-                className="absolute right-3 -top-1"
-                onClick={showOtherProfiles.bind(undefined, true)}
-              />
+              {otherProfiles.length > 1 && (
+                <MdExpandMore
+                  size={30}
+                  className="absolute right-3 -top-1"
+                  onClick={showOtherProfiles.bind(undefined, true)}
+                />
+              )}
               <ProfileItem
-                key={otherProfiles[0].id}
+                key={otherProfiles[0]!.id}
                 profile={otherProfiles[0]}
-                isInUsed={otherProfiles[0].id === profile?.id}
-                switchProfile={switchProfile}
+                loggedInProfile={profile}
               />
             </>
           )}
@@ -140,10 +130,9 @@ export default function RightDrawer({
                 otherProfiles.length > 0 &&
                 otherProfiles.map((p) => (
                   <ProfileItem
-                    key={p.id}
+                    key={p?.id}
                     profile={p}
-                    isInUsed={p.id === profile?.id}
-                    switchProfile={switchProfile}
+                    loggedInProfile={profile}
                   />
                 ))}
             </div>

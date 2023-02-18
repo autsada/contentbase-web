@@ -17,7 +17,7 @@ export async function loader({ request }: LoaderArgs) {
     return redirect("/auth", { headers })
   }
   const account = await queryAccountByUid(user.uid)
-  let hasProfile = account?.profiles?.length > 0
+  let hasProfile = !!account?.profile
 
   return json({ user, account, hasProfile }, { headers })
 }

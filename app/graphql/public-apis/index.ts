@@ -5,9 +5,19 @@
 
 import { GraphQLClient } from "graphql-request"
 
-import { GET_ACCOUNT_BY_ID_QUERY, GET_MY_PROFILE_QUERY } from "./queries"
+import {
+  GET_ACCOUNT_BY_ID_QUERY,
+  GET_MY_PROFILE_QUERY,
+  GET_PROFILE_QUERY,
+} from "./queries"
 import type { AccountType } from "~/types"
-import type { QueryReturnType, QueryArgsType } from "./types"
+import type {
+  QueryReturnType,
+  QueryArgsType,
+  MutationReturnType,
+  MutationArgsType,
+} from "./types"
+import { CACHE_PROFILE_MUTATION } from "./mutation"
 
 const {
   PUBLIC_API_URL_DEV,
@@ -20,7 +30,7 @@ const {
   ALCHEMY_WEBHOOK_ID,
 } = process.env
 // const url =
-// NODE_ENV === "production" ? PUBLIC_API_URL_PROD! : PUBLIC_API_URL_TEST!
+//   NODE_ENV === "production" ? PUBLIC_API_URL_PROD! : PUBLIC_API_URL_TEST!
 
 const url =
   NODE_ENV === "production"
@@ -80,6 +90,22 @@ export async function createAccount(data: {
 }
 
 /**
+ * @dev Use this function the logged in profile and the to-be-queried profile is the same as it will have followers and following detail.
+ * @param profileId {number} - an id of the profile to be queried
+ * @param userId {number} - an id of the profile who performs the query
+ * @returns
+ */
+export async function getMyProfile(profileId: number, userId?: number) {
+  const data = await client.request<
+    QueryReturnType<"getProfileById">,
+    QueryArgsType<"getProfileById">
+  >(GET_MY_PROFILE_QUERY, { input: { profileId, userId } })
+
+  return data.getProfileById
+}
+
+/**
+ * @dev Use this function the logged in profile and the to-be-queried profile is NOT same as we DO NOT need to know the followers and following detail.
  * @param profileId {number} - an id of the profile to be queried
  * @param userId {number} - an id of the profile who performs the query
  * @returns
@@ -88,7 +114,22 @@ export async function getProfile(profileId: number, userId?: number) {
   const data = await client.request<
     QueryReturnType<"getProfileById">,
     QueryArgsType<"getProfileById">
-  >(GET_MY_PROFILE_QUERY, { input: { profileId, userId } })
+  >(GET_PROFILE_QUERY, { input: { profileId, userId } })
 
   return data.getProfileById
+}
+
+/**
+ *
+ * @param address - an address of the account
+ * @param tokenId - a profile token id to be cached
+ * @returns
+ */
+export async function cacheLoggedInProfile(address: string, tokenId: string) {
+  const data = await client.request<
+    MutationReturnType<"cacheProfileId">,
+    MutationArgsType<"cacheProfileId">
+  >(CACHE_PROFILE_MUTATION, { input: { address, tokenId } })
+
+  return data.cacheProfileId
 }

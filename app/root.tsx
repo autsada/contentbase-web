@@ -33,7 +33,6 @@ import { ethereumClient, wagmiClient } from "./ethereum/client"
 import { queryAccountByUid } from "./graphql/public-apis"
 import { firestore } from "./client/firebase.client"
 import {
-  CURRENT_PROFILE,
   INITIAL_VISIT_ID,
   LOGGED_IN_KEY,
   WALLET_CONNECT_PROJECT_ID,
@@ -72,19 +71,12 @@ export async function loader({ request }: LoaderArgs) {
   const session = await getSession(request.headers.get("cookie"))
   const token = createAuthenticityToken(session)
   const account = user ? await queryAccountByUid(user.uid) : null
-  const profile =
-    account && account.profiles.length > 0
-      ? ((account.profiles.find((ac) => ac?.default) ||
-          account.profiles[0]) as Profile)
-      : null
   let address = ""
   let balance = ""
-  let hasProfile: boolean | undefined = undefined
 
   if (account) {
     address = account.address
     balance = address ? await getBalance(address) : ""
-    hasProfile = !!profile
   }
 
   return json<LoaderData>(
@@ -92,9 +84,9 @@ export async function loader({ request }: LoaderArgs) {
       user,
       csrf: token,
       account,
-      profile,
+      profile: account?.profile, // This is the loggedIn profile
       balance,
-      hasProfile,
+      hasProfile: !!account?.profile,
       ENV: {
         NODE_ENV: process.env.NODE_ENV,
         // NODE_ENV: "test",
@@ -133,9 +125,6 @@ export default function App() {
 
   const [welcomeModalVisible, setWelcomeModalVisible] = useState(() => !address)
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
-  const [loggedInProfile, setLoggedInProfile] = useState<Profile | null>(
-    () => profile
-  )
 
   const revalidator = useRevalidator()
   const transition = useTransition()
@@ -242,18 +231,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address])
 
-  /**
-   * When a profile that fetched from the server changes, set the logged in profile in the state.
-   */
-  useEffect(() => {
-    setLoggedInProfile(profile)
-  }, [profile])
-
-  const switchProfile = useCallback((p: Profile) => {
-    window.localStorage.setItem(CURRENT_PROFILE, `${p.id}`)
-    setLoggedInProfile(p)
-  }, [])
-
   return (
     <AuthenticityTokenProvider token={csrf || ""}>
       <WagmiConfig client={wagmiClient}>
@@ -264,15 +241,14 @@ export default function App() {
             <Nav
               user={user}
               openDrawer={openRightDrawer}
-              profile={loggedInProfile}
+              profile={profile}
               isDrawerOpen={isRightDrawerOpen}
             />
             <Outlet
               context={{
                 welcomeModalVisible,
                 setWelcomeModalVisible,
-                loggedInProfile: loggedInProfile,
-                switchProfile,
+                loggedInProfile: profile,
                 account: loaderData?.account,
                 balance: loaderData?.balance,
                 hasProfile: loaderData?.hasProfile,
@@ -313,11 +289,10 @@ export default function App() {
                     <RightDrawer
                       openDrawer={openRightDrawer}
                       className={
-                        !isRightDrawerOpen ? "-right-[200%]" : "right-0"
+                        !isRightDrawerOpen ? "-right-[100%]" : "right-0"
                       }
-                      profile={loggedInProfile}
+                      profile={profile}
                       profiles={loaderData?.account?.profiles as Profile[]}
-                      switchProfile={switchProfile}
                     />
                   </>
                 </>
@@ -358,7 +333,6 @@ export type AppContext = {
   welcomeModalVisible: boolean
   setWelcomeModalVisible: (open: boolean) => void
   loggedInProfile: Profile
-  switchProfile: (p: Profile) => void
   account: Account
   balance: string | undefined
   hasProfile: boolean | undefined

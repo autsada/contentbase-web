@@ -17,7 +17,7 @@ export interface LoaderData {
   csrf: string
   user: UserRecord | null
   account: Account | null
-  profile: Profile | null
+  profile: Account["profile"] | null | undefined
   balance: string | undefined
   hasProfile: boolean | undefined
   ENV: {

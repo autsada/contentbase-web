@@ -15,6 +15,18 @@ export const GET_ACCOUNT_BY_ID_QUERY = gql`
         default
         originalHandle
         imageURI
+        owner
+      }
+      profile {
+        id
+        handle
+        tokenId
+        followingCount
+        followersCount
+        default
+        originalHandle
+        imageURI
+        owner
       }
       uid
       type
@@ -33,6 +45,37 @@ export const GET_MY_PROFILE_QUERY = gql`
       default
       followersCount
       followingCount
+      owner
+      createdAt
+      publishesCount
+      followers {
+        id
+        imageURI
+        originalHandle
+        tokenId
+      }
+      following {
+        id
+        imageURI
+        originalHandle
+        tokenId
+      }
+    }
+  }
+`
+
+export const GET_PROFILE_QUERY = gql`
+  query GetProfileById($input: GetProfileByIdInput!) {
+    getProfileById(input: $input) {
+      id
+      tokenId
+      handle
+      originalHandle
+      imageURI
+      default
+      followersCount
+      followingCount
+      isFollowing
       owner
       createdAt
       publishesCount
