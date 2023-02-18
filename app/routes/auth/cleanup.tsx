@@ -4,7 +4,6 @@ import { useAccount, useDisconnect } from "wagmi"
 import { redirect, json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 
-import { Spinner } from "~/components/spinner"
 import { CLEAN_UP_CODE, CLEAN_UP_ID, LOGGED_IN_KEY } from "~/constants"
 
 export function loader({ request }: LoaderArgs) {
@@ -48,10 +47,5 @@ export default function CleanUp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, isConnected, disconnect])
 
-  // Show spinner on the screen
-  return (
-    <div className="page h-screen flex flex-col justify-center items-center">
-      <Spinner />
-    </div>
-  )
+  return <div className="page h-screen"></div>
 }
