@@ -1,22 +1,65 @@
-import { Link } from "@remix-run/react"
+import { useEffect } from "react"
+import { Link, useFetcher } from "@remix-run/react"
 import { MdPerson, MdCheck } from "react-icons/md"
+import { IoIosRadioButtonOff } from "react-icons/io"
 
+import { Spinner } from "../spinner"
 import type { Profile } from "~/types"
+import type { SwitchProfileActionType } from "~/routes/auth/switch-profile"
 
 interface Props {
   profile: Profile // The profile to be displayed
   loggedInProfile: Profile // The current logged in profile
+  openDrawer: (o: boolean) => void
 }
 
-export function ProfileItem({ profile, loggedInProfile }: Props) {
-  if (!profile) return null
+export function ProfileItem({ profile, loggedInProfile, openDrawer }: Props) {
+  const isSameProfile = profile?.id === loggedInProfile?.id
+  const isOwner =
+    profile?.owner?.toLowerCase() === loggedInProfile?.owner?.toLowerCase()
+
+  const switchProfileFetcher = useFetcher<SwitchProfileActionType>()
+  const switchProfileLoading =
+    switchProfileFetcher?.state === "submitting" ||
+    switchProfileFetcher?.state === "loading"
+
+  // When switch profile done.
+  useEffect(() => {
+    if (switchProfileFetcher?.data?.status === "Ok") {
+      openDrawer(false)
+    }
+  }, [switchProfileFetcher?.data, openDrawer])
+
+  function switchProfile() {
+    // Recheck to ensure the logged in profile and the profile has the same owner.
+    if (!isOwner || !switchProfile) return
+
+    switchProfileFetcher.submit(
+      {
+        address: loggedInProfile?.owner,
+        tokenId: profile?.tokenId,
+      },
+      // Call the action in the logged in profile route
+      {
+        method: "post",
+        action: `/auth/switch-profile`,
+      }
+    )
+  }
+
+  if (!profile || !isOwner) return null
 
   return (
     <div className="relative">
       <Link to={`/${profile?.originalHandle}/${profile?.id}`}>
-        <div className="w-full py-2 px-4 cursor-pointer hover:bg-gray-50">
-          <div className="w-[60px] text-center">
+        <div className="w-full py-2 px-4 cursor-pointer hover:bg-gray-50 border-b border-gray-50">
+          <div className="relative w-full text-start">
             <h6 className="text-base">{profile?.originalHandle}</h6>
+            {switchProfileLoading && (
+              <p className="absolute top-0 right-0 font-thin text-sm text-orange-500">
+                Switching to @{profile?.handle}...
+              </p>
+            )}
           </div>
           <div key={profile?.id} className="h-[60px]  mt-1 flex items-center">
             <div className="mr-5 h-[60px]">
@@ -57,17 +100,26 @@ export function ProfileItem({ profile, loggedInProfile }: Props) {
                 </button>
               </div>
             </div>
-
-            <div className="h-full flex items-center justify-center">
-              {profile?.id === loggedInProfile?.id && (
-                <button className="w-4/5 h-3/5 flex items-center justify-center ml-2">
-                  <MdCheck size={26} className="text-orange-500" />
-                </button>
-              )}
-            </div>
           </div>
         </div>
       </Link>
+
+      <div className="absolute top-0 right-3 h-full flex items-center justify-center">
+        <button
+          className="w-10 h-full flex items-center justify-center ml-2 outline-none"
+          disabled={switchProfileLoading || isSameProfile || !isOwner}
+          onClick={switchProfile}
+        >
+          {isSameProfile ? (
+            <MdCheck size={26} className="text-orange-500" />
+          ) : typeof switchProfileLoading === "boolean" &&
+            switchProfileLoading ? (
+            <Spinner size={{ w: "w-5", h: "h-5" }} color="orange" />
+          ) : (
+            <IoIosRadioButtonOff size={26} className="text-textExtraLight" />
+          )}
+        </button>
+      </div>
     </div>
   )
 }

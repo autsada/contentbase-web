@@ -225,7 +225,7 @@ export function UpdateProfileImageModal({
       <div className="relative">
         <button
           className={
-            "absolute top-2 right-6 font-thin text-textExtraLight cursor-pointer"
+            "absolute top-0 right-4 font-thin text-textExtraLight cursor-pointer"
           }
           disabled={
             isTraditionalLoading ||
@@ -239,10 +239,10 @@ export function UpdateProfileImageModal({
         </button>
         <actionFetcher.Form onSubmit={updateProfileImage}>
           {Number(balance) > 0 ? (
-            <div className="pt-5">
+            <div className="pt-3">
               <h6 className="mb-4">Edit Profile Image</h6>
 
-              <div className="flex flex-col justify-center min-h-[120px]">
+              <div className="flex flex-col justify-center min-h-[60px]">
                 {isTraditionalSuccess || isWaitSuccess ? (
                   <h6 className="text-blueBase text-base">
                     Your profile image has been updated.

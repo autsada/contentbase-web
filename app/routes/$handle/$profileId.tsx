@@ -24,8 +24,6 @@ import { requireAuth } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
 import type { AccountType, Profile } from "~/types"
 import type { EstimateGasUpdateProfileImageAction } from "../gas/profile/update-image"
-import type { SwitchProfileActionType } from "./switch-profile"
-import { Spinner } from "~/components/spinner"
 
 /**
  * Query a specific profile by its id
@@ -125,7 +123,6 @@ export default function MyProfile() {
   const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
 
   const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImageAction>()
-  const switchProfileFetcher = useFetcher<SwitchProfileActionType>()
   const revalidator = useRevalidator()
 
   /**
@@ -165,18 +162,6 @@ export default function MyProfile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function switchProfile() {
-    if (!data?.address || !profile?.tokenId) return
-
-    switchProfileFetcher.submit(
-      {
-        address: data?.address,
-        tokenId: profile?.tokenId,
-      },
-      { method: "post", action: `/${profile?.originalHandle}/switch-profile` }
-    )
-  }
-
   /**
    * TODO: Add logic to follow and unFollow
    */
@@ -208,29 +193,15 @@ export default function MyProfile() {
       <div className="w-full mt-[20px] h-[50px] flex justify-end">
         {/* Allow the user to change their profile image if the displayed and the logged in is the same profile. */}
         <div className="w-1/2 pl-8 flex flex-col justify-end">
-          {data?.isOwner &&
-            (isSameProfile ? (
-              <button
-                className="mx-0 w-max p-4 flex justify-start"
-                disabled={!isSameProfile}
-                onClick={openImageModal}
-              >
-                <MdEdit size={30} className="text-orange-500" />
-              </button>
-            ) : (
-              <button
-                className="btn-orange w-20 h-8 rounded-full"
-                disabled={isSameProfile || !data?.isOwner}
-                onClick={switchProfile}
-              >
-                {switchProfileFetcher?.state === "submitting" ||
-                switchProfileFetcher?.state === "loading" ? (
-                  <Spinner size={{ w: "w-5", h: "h-5" }} />
-                ) : (
-                  "Switch"
-                )}
-              </button>
-            ))}
+          {data?.isOwner && isSameProfile && (
+            <button
+              className="mx-0 w-max p-4 flex justify-start"
+              disabled={!isSameProfile}
+              onClick={openImageModal}
+            >
+              <MdEdit size={30} className="text-orange-500" />
+            </button>
+          )}
         </div>
       </div>
       <div className="mt-4">
@@ -238,7 +209,7 @@ export default function MyProfile() {
         <h6 className="font-normal text-base text-textDark">
           @{profile?.handle}{" "}
           {/* Display `DEFAULT` if the user is the owner of the profile */}
-          {data?.isOwner && (
+          {data?.isOwner && data?.profile?.default && (
             <span className="font-light italic text-textExtraLight">
               [DEFAULT]
             </span>
@@ -248,24 +219,36 @@ export default function MyProfile() {
           {isSameProfile ? (
             <Link to={`/${profile.originalHandle}/followers`}>
               <p className="font-light text-textLight">
-                {profile?.followersCount} followers
+                <span className="font-normal text-textDark">
+                  {profile?.followersCount}
+                </span>{" "}
+                followers
               </p>
             </Link>
           ) : (
             <p className="font-light text-textLight">
-              {profile?.followersCount} followers
+              <span className="font-normal text-textDark">
+                {profile?.followersCount}
+              </span>{" "}
+              followers
             </p>
           )}
           {/* Show following if logged in and displayed profile is the same profile */}
           {isSameProfile && (
             <Link to={`/${profile?.originalHandle}/following`}>
               <p className="font-light text-textLight">
-                {profile.followingCount} following
+                <span className="font-normal text-textDark">
+                  {profile.followingCount}
+                </span>{" "}
+                following
               </p>
             </Link>
           )}
           <p className="font-light text-textLight">
-            {profile?.publishesCount} videos
+            <span className="font-normal text-textDark">
+              {profile?.publishesCount}
+            </span>{" "}
+            videos
           </p>
         </div>
         {/* Add the ability to follow/unfollow if the logged in and displayed is NOT the same profile. */}
@@ -282,7 +265,7 @@ export default function MyProfile() {
         )}
       </div>
       {/* TODO: Display Videos */}
-      <div>Videos</div>
+      <div className="mt-2">Videos</div>
 
       {updateImageModalVisible && (
         <UpdateProfileImageModal
