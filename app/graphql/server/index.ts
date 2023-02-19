@@ -11,6 +11,7 @@ import {
   CREATE_PROFILE_MUTATION,
   CREATE_WALLET_MUTATION,
   ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION,
+  FOLLOW_MUTATION,
   UPDATE_PROFILE_IMAGE_MUTATION,
   VALIDATE_HANDLE_MUTATION,
 } from "./mutations"
@@ -127,6 +128,23 @@ export async function estimateGaseUpdateProfileImage({
   return data.estimateGasUpdateProfileImage
 }
 
+export async function createProfile(
+  input: MutationArgsType<"createProfile">["input"],
+  idToken: string
+) {
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"createProfile">,
+      MutationArgsType<"createProfile">
+    >(CREATE_PROFILE_MUTATION, { input })
+
+  return data.createProfile
+}
+
 export async function updateProfileImage({
   idToken,
   tokenId,
@@ -151,19 +169,26 @@ export async function updateProfileImage({
   return data.updateProfileImage
 }
 
-export async function createProfile(
-  input: MutationArgsType<"createProfile">["input"],
+export async function follow({
+  followerId,
+  followeeId,
+  idToken,
+}: {
+  followerId: number
+  followeeId: number
   idToken: string
-) {
+}) {
   const data = await client
     .setHeaders({
       "Content-Type": "application/json",
       Authorization: `Bearer ${idToken}`,
     })
-    .request<
-      MutationReturnType<"createProfile">,
-      MutationArgsType<"createProfile">
-    >(CREATE_PROFILE_MUTATION, { input })
+    .request<MutationReturnType<"follow">, MutationArgsType<"follow">>(
+      FOLLOW_MUTATION,
+      {
+        input: { followerId, followeeId },
+      }
+    )
 
-  return data.createProfile
+  return data.follow
 }

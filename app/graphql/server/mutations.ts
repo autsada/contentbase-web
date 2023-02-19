@@ -30,6 +30,14 @@ export const ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION = gql`
   }
 `
 
+export const CREATE_PROFILE_MUTATION = gql`
+  mutation CreateProfile($input: CreateProfileInput!) {
+    createProfile(input: $input) {
+      status
+    }
+  }
+`
+
 export const UPDATE_PROFILE_IMAGE_MUTATION = gql`
   mutation UpdateProfileImage($input: UpdateProfileImageInput!) {
     updateProfileImage(input: $input) {
@@ -38,9 +46,9 @@ export const UPDATE_PROFILE_IMAGE_MUTATION = gql`
   }
 `
 
-export const CREATE_PROFILE_MUTATION = gql`
-  mutation CreateProfile($input: CreateProfileInput!) {
-    createProfile(input: $input) {
+export const FOLLOW_MUTATION = gql`
+  mutation Follow($input: FollowInput!) {
+    follow(input: $input) {
       status
     }
   }

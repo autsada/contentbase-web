@@ -24,6 +24,8 @@ import { requireAuth } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
 import type { AccountType, Profile } from "~/types"
 import type { EstimateGasUpdateProfileImageAction } from "../contracts/profile/update-image"
+import type { FollowAction } from "../contracts/follow"
+import { Spinner } from "~/components/spinner"
 
 /**
  * Query a specific profile by its id
@@ -47,6 +49,11 @@ export async function loader({ request, params }: LoaderArgs) {
     // Get user' account and the current logged in profile
     const account = user ? await queryAccountByUid(user.uid) : null
     const loggedInProfile = account?.profile
+
+    if (!loggedInProfile) {
+      return redirect("/auth/reauthenticate", { headers })
+    }
+
     let address = ""
     let balance = ""
     if (account) {
@@ -55,12 +62,12 @@ export async function loader({ request, params }: LoaderArgs) {
     }
 
     // Check if the logged in profile and the displayed profile is the same so we can use the right query to fetch the displayed profile detail.
-    const isSameProfile = `${loggedInProfile?.id || ""}` === profileId
+    const isSameProfile = `${loggedInProfile.id || ""}` === profileId
 
     // Query the profile
     const profile = isSameProfile
-      ? await getMyProfile(Number(profileId), loggedInProfile?.id)
-      : await getProfile(Number(profileId), loggedInProfile?.id)
+      ? await getMyProfile(Number(profileId), loggedInProfile.id)
+      : await getProfile(Number(profileId), loggedInProfile.id)
 
     // Check if the user owns the displayed profile or not
     const isOwner = address.toLowerCase() === profile?.owner?.toLowerCase()
@@ -109,9 +116,10 @@ export async function action({ request }: ActionArgs) {
 }
 export type UpdateProfileImageAction = typeof action
 
-export default function MyProfile() {
+export default function ProfileDetail() {
   const data = useLoaderData<typeof loader>()
   const profile = data?.profile as Profile
+  const loggedInProfile = data?.loggedInProfile as Profile
   const accountType = data?.accountType as AccountType
   const isSameProfile = data?.isSameProfile
   const navigate = useNavigate()
@@ -123,6 +131,10 @@ export default function MyProfile() {
   const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
 
   const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImageAction>()
+  const reauthenticateFetcher = useFetcher()
+  const followFetcher = useFetcher<FollowAction>()
+  const followLoading =
+    followFetcher?.state === "submitting" || followFetcher?.state === "loading"
   const revalidator = useRevalidator()
 
   /**
@@ -165,6 +177,35 @@ export default function MyProfile() {
   /**
    * TODO: Add logic to follow and unFollow
    */
+
+  // `TRADITIONAL` Account
+  async function handleFollowTraditional() {
+    try {
+      if (!loggedInProfile || !profile) return
+
+      const user = clientAuth.currentUser
+      const idToken = await user?.getIdToken()
+      // For some reason, if no idToken, we need to log user out and have them to sign in again
+      if (!idToken) {
+        reauthenticateFetcher.submit(null, {
+          method: "post",
+          action: "/auth/reauthenticate",
+        })
+        return
+      }
+
+      followFetcher.submit(
+        {
+          followerId: loggedInProfile.tokenId,
+          followeeId: profile.tokenId,
+          idToken,
+        },
+        { method: "post", action: "/contracts/follow" }
+      )
+    } catch (error) {
+      console.log("error: ", error)
+    }
+  }
 
   /**
    * TODO: Add logic to fetch uploaded videos of the profile
@@ -253,20 +294,40 @@ export default function MyProfile() {
         </div>
         {/* Add the ability to follow/unfollow if the logged in and displayed is NOT the same profile. */}
         {!isSameProfile && (
-          <form className="w-full my-2">
+          <followFetcher.Form
+            className="w-full my-2"
+            onSubmit={handleFollowTraditional}
+          >
             {!profile?.isFollowing ? (
               <button
+                type="submit"
                 className="btn-dark w-3/5 rounded-full"
-                disabled={isSameProfile}
+                disabled={
+                  !profile || !loggedInProfile || isSameProfile || followLoading
+                }
               >
-                Follow
+                {followLoading ? (
+                  <Spinner size={{ w: "w-5", h: "h-5" }} />
+                ) : (
+                  "Follow"
+                )}
               </button>
             ) : (
-              <button className="btn-light w-3/5 rounded-full text-error">
-                Unfollow
+              <button
+                type="submit"
+                className="btn-light w-3/5 rounded-full text-error"
+                disabled={
+                  !profile || !loggedInProfile || isSameProfile || followLoading
+                }
+              >
+                {followLoading ? (
+                  <Spinner size={{ w: "w-5", h: "h-5" }} color="orange" />
+                ) : (
+                  "Unfollow"
+                )}
               </button>
             )}
-          </form>
+          </followFetcher.Form>
         )}
       </div>
       {/* TODO: Display Videos */}
