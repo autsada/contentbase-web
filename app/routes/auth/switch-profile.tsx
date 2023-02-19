@@ -21,7 +21,7 @@ export async function action({ request }: ActionArgs) {
 
     return json({ status: data.status })
   } catch (error) {
-    return json(null)
+    return json({ status: "Error" })
   }
 }
 

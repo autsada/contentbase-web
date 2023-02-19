@@ -1,5 +1,5 @@
-import { json, redirect } from "@remix-run/node"
 import { useState, useEffect, useCallback } from "react"
+import { json, redirect } from "@remix-run/node"
 import {
   useCatch,
   useParams,
@@ -10,6 +10,7 @@ import {
   useRevalidator,
 } from "@remix-run/react"
 import { MdError, MdArrowBackIosNew, MdEdit, MdPerson } from "react-icons/md"
+import { toast } from "react-toastify"
 import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 
 import ErrorComponent from "~/components/error"
@@ -203,7 +204,9 @@ export default function ProfileDetail() {
         { method: "post", action: "/contracts/follow" }
       )
     } catch (error) {
-      console.log("error: ", error)
+      toast.error("Something not right, please try again.", {
+        theme: "colored",
+      })
     }
   }
 

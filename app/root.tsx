@@ -22,6 +22,7 @@ import { WagmiConfig } from "wagmi"
 import { Web3Modal } from "@web3modal/react"
 import NProgress from "nprogress"
 import { onSnapshot, doc } from "firebase/firestore"
+import { ToastContainer } from "react-toastify"
 
 import ErrorComponent from "./components/error"
 import { Nav } from "./components/nav"
@@ -39,6 +40,7 @@ import {
 } from "./constants"
 import styles from "./styles/app.css"
 import carouselStyles from "react-responsive-carousel/lib/styles/carousel.min.css"
+import toastStyles from "react-toastify/dist/ReactToastify.css"
 import { Welcome } from "./components/welcome"
 import { getBalance } from "./graphql/server"
 import type { Account, LoaderData, Profile } from "./types"
@@ -63,6 +65,7 @@ export function links() {
   return [
     { rel: "stylesheet", href: styles },
     { rel: "stylesheet", href: carouselStyles },
+    { rel: "stylesheet", href: toastStyles },
   ]
 }
 
@@ -295,6 +298,20 @@ export default function App() {
                       profiles={loaderData?.account?.profiles as Profile[]}
                     />
                   </>
+
+                  {/* Toast */}
+                  <ToastContainer
+                    position="bottom-center"
+                    autoClose={1000}
+                    hideProgressBar={true}
+                    newestOnTop={false}
+                    closeOnClick={false}
+                    rtl={false}
+                    pauseOnFocusLoss={false}
+                    draggable={false}
+                    pauseOnHover={false}
+                    icon={false}
+                  />
                 </>
               )}
             </ClientOnly>

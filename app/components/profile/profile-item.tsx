@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { Link, useFetcher } from "@remix-run/react"
 import { MdPerson, MdCheck } from "react-icons/md"
 import { IoIosRadioButtonOff } from "react-icons/io"
+import { toast } from "react-toastify"
 
 import { Spinner } from "../spinner"
 import type { Profile } from "~/types"
@@ -27,8 +28,14 @@ export function ProfileItem({ profile, loggedInProfile, openDrawer }: Props) {
   useEffect(() => {
     if (switchProfileFetcher?.data?.status === "Ok") {
       openDrawer(false)
+      toast.success(`Logged in as @${profile?.handle}`, { theme: "dark" })
     }
-  }, [switchProfileFetcher?.data, openDrawer])
+
+    if (switchProfileFetcher?.data?.status === "Error") {
+      toast.error("Switch profile failed", { theme: "colored" })
+      openDrawer(false)
+    }
+  }, [switchProfileFetcher?.data, openDrawer, profile?.handle])
 
   function switchProfile() {
     // Recheck to ensure the logged in profile and the profile has the same owner.
