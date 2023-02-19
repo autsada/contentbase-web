@@ -16,7 +16,7 @@ import { clientAuth } from "~/client/firebase.client"
 import { createFirstProfile, createProfile } from "~/graphql/server"
 import { uploadImage, wait } from "~/utils"
 import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
-import type { validateActionType } from "../validate-handle"
+import type { validateActionType } from "../contracts/profile/validate-handle"
 
 export type SelectedFile = File & {
   path: string

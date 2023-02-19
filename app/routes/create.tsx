@@ -28,7 +28,7 @@ import {
   MAX_HANDLE_LENGTH,
   MIN_HANDLE_LENGTH,
 } from "~/constants"
-import type { validateActionType } from "./validate-handle"
+import type { validateActionType } from "./contracts/profile/validate-handle"
 import FirstprofileNotification from "~/components/firstprofile-notification"
 
 export type SelectedFile = File & {
@@ -204,7 +204,7 @@ export default function CreateProfile() {
 
     validateFetcher.submit(
       { handle },
-      { method: "post", action: "/validate-handle" }
+      { method: "post", action: "/contracts/profile/validate-handle" }
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

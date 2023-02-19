@@ -1,3 +1,7 @@
+/**
+ * An API route to validate handle
+ */
+
 import { redirect, json } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
 

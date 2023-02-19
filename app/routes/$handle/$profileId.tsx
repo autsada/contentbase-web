@@ -23,7 +23,7 @@ import { getBalance, updateProfileImage } from "~/graphql/server"
 import { requireAuth } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
 import type { AccountType, Profile } from "~/types"
-import type { EstimateGasUpdateProfileImageAction } from "../gas/profile/update-image"
+import type { EstimateGasUpdateProfileImageAction } from "../contracts/profile/update-image"
 
 /**
  * Query a specific profile by its id
@@ -140,7 +140,7 @@ export default function MyProfile() {
             { idToken, tokenId: profile.tokenId },
             {
               method: "post",
-              action: `/gas/profile/update-image`,
+              action: `/contracts/profile/update-image`,
             }
           )
         }
@@ -253,15 +253,20 @@ export default function MyProfile() {
         </div>
         {/* Add the ability to follow/unfollow if the logged in and displayed is NOT the same profile. */}
         {!isSameProfile && (
-          <div className="w-full my-2">
+          <form className="w-full my-2">
             {!profile?.isFollowing ? (
-              <button className="btn-dark w-3/5 rounded-full">Follow</button>
+              <button
+                className="btn-dark w-3/5 rounded-full"
+                disabled={isSameProfile}
+              >
+                Follow
+              </button>
             ) : (
               <button className="btn-light w-3/5 rounded-full text-error">
                 Unfollow
               </button>
             )}
-          </div>
+          </form>
         )}
       </div>
       {/* TODO: Display Videos */}

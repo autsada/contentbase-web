@@ -1,10 +1,14 @@
 /**
  * An API route to get estimated gas used to update a profile image.
  */
-import { json } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 
 import { estimateGaseUpdateProfileImage } from "~/graphql/server"
+
+export function loader() {
+  return redirect("/")
+}
 
 export async function action({ request }: LoaderArgs) {
   try {
