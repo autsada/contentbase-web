@@ -127,10 +127,6 @@ export default function ProfileDetail() {
   const isSameProfile = data?.isSameProfile
   const navigate = useNavigate()
 
-  function closeModal() {
-    navigate(-1)
-  }
-
   const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
   // Use this state to display spinner for `WALLET` account
   const [walletFollowLoading, setWalletFollowLoading] = useState<boolean>()
@@ -154,6 +150,13 @@ export default function ProfileDetail() {
     Number(profile?.tokenId),
     accountType
   )
+
+  /**
+   * A function to go back to the previous page
+   */
+  function closeModal() {
+    navigate(-1)
+  }
 
   /**
    * On first render when the profile is available and the logged in profile and the displayed profile are the same, check gas fee for updating an image.
@@ -191,10 +194,6 @@ export default function ProfileDetail() {
     revalidator.revalidate()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  /**
-   * TODO: Add logic to follow and unFollow
-   */
 
   // `TRADITIONAL` Account: follow logic
   async function handleFollowTraditional() {
@@ -276,7 +275,13 @@ export default function ProfileDetail() {
     <div className="page absolute inset-0">
       <div className="w-full py-[20px] h-[100px] bg-blueBase">
         <div className="absolute left-5 h-[60px] flex items-center cursor-pointer">
-          <MdArrowBackIosNew size={30} color="white" onClick={closeModal} />
+          <button
+            className="p-2"
+            disabled={traditionalFollowLoading || walletFollowLoading}
+            onClick={closeModal}
+          >
+            <MdArrowBackIosNew size={30} color="white" />
+          </button>
         </div>
         <div className="w-[140px] h-[140px] mx-auto bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
           <div className="w-full h-full flex items-center justify-center">
@@ -306,7 +311,7 @@ export default function ProfileDetail() {
           )}
         </div>
       </div>
-      <div className="mt-4">
+      <div className="mt-1">
         <h6>{profile?.originalHandle}</h6>
         <h6 className="font-normal text-base text-textDark">
           @{profile?.handle}{" "}
@@ -359,9 +364,8 @@ export default function ProfileDetail() {
             {accountType === "TRADITIONAL" ? (
               <followFetcher.Form onSubmit={handleFollowTraditional}>
                 {!profile?.isFollowing ? (
-                  <button
+                  <ActionButton
                     type="submit"
-                    className="btn-dark w-4/5 rounded-full"
                     disabled={
                       accountType !== "TRADITIONAL" ||
                       !profile ||
@@ -371,11 +375,11 @@ export default function ProfileDetail() {
                     }
                   >
                     Follow
-                  </button>
+                  </ActionButton>
                 ) : (
-                  <button
+                  <ActionButton
                     type="submit"
-                    className="btn-light w-4/5 rounded-full text-error"
+                    isError={true}
                     disabled={
                       accountType !== "TRADITIONAL" ||
                       !profile ||
@@ -385,14 +389,14 @@ export default function ProfileDetail() {
                     }
                   >
                     UnFollow
-                  </button>
+                  </ActionButton>
                 )}
               </followFetcher.Form>
             ) : accountType === "WALLET" ? (
               <>
                 {!profile?.isFollowing ? (
-                  <button
-                    className="btn-dark w-4/5 rounded-full"
+                  <ActionButton
+                    type="button"
                     disabled={
                       accountType !== "WALLET" ||
                       !profile ||
@@ -402,16 +406,16 @@ export default function ProfileDetail() {
                       !write ||
                       isWriteLoading ||
                       isWaitLoading ||
-                      walletFollowLoading
+                      !!walletFollowLoading
                     }
                     onClick={handleFollowWallet}
                   >
                     Follow
-                  </button>
+                  </ActionButton>
                 ) : (
-                  <button
-                    type="submit"
-                    className="btn-light w-4/5 rounded-full text-error"
+                  <ActionButton
+                    type="button"
+                    isError={true}
                     disabled={
                       accountType !== "WALLET" ||
                       !profile ||
@@ -421,12 +425,12 @@ export default function ProfileDetail() {
                       !write ||
                       isWriteLoading ||
                       isWaitLoading ||
-                      walletFollowLoading
+                      !!walletFollowLoading
                     }
                     onClick={handleFollowWallet}
                   >
                     UnFollow
-                  </button>
+                  </ActionButton>
                 )}
               </>
             ) : null}
@@ -472,6 +476,36 @@ export default function ProfileDetail() {
         />
       )}
     </div>
+  )
+}
+
+/**
+ * Custom button
+ */
+function ActionButton({
+  type,
+  children,
+  disabled,
+  onClick,
+  isError = false,
+}: {
+  type: "button" | "reset" | "submit" | undefined
+  children: React.ReactNode
+  disabled: boolean
+  onClick?: () => void
+  isError?: boolean
+}) {
+  return (
+    <button
+      type={type}
+      className={`${
+        isError ? "btn-light text-error" : "btn-dark"
+      } w-4/5 h-12 rounded-full text-lg`}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </button>
   )
 }
 
