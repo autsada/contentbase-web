@@ -1210,6 +1210,14 @@ button {
   width: 11rem;
 }
 
+.w-\[100px\] {
+  width: 100px;
+}
+
+.w-\[80px\] {
+  width: 80px;
+}
+
 .max-w-\[360px\] {
   max-width: 360px;
 }
@@ -1636,6 +1644,10 @@ button {
 
 .pt-\[80px\] {
   padding-top: 80px;
+}
+
+.pl-10 {
+  padding-left: 2.5rem;
 }
 
 .text-left {

@@ -17,7 +17,7 @@ export function Nav({ user, openDrawer, profile, isDrawerOpen }: Props) {
 
   return (
     <div className="w-full h-[70px] px-4 flex items-center justify-between gap-x-3 border-b border-borderExtraLightGray shadow-neutral-300">
-      <div className="w-[120px] h-full flex items-center justify-start">
+      <div className="w-[80px] h-full flex items-center justify-start">
         {!isDrawerOpen && (
           <Link to="/">
             <img
@@ -33,7 +33,7 @@ export function Nav({ user, openDrawer, profile, isDrawerOpen }: Props) {
         {!pathname.startsWith("/auth") ? (
           <>
             <IoSearchOutline size={25} className="absolute" />
-            <div className="pl-6 h-full">
+            <div className="pl-8 h-full">
               <input
                 type="text"
                 className="text-textLight text-lg h-full w-full outline-none focus:outline-none"
