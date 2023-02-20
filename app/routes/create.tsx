@@ -100,8 +100,6 @@ export default function CreateProfile() {
   const validateFetcher = useFetcher<validateActionType>()
   const isHandleUnique = validateFetcher?.data?.isUnique
   const actionFetcher = useFetcher<typeof action>()
-  const actionStatus = actionFetcher?.data?.status
-  const loaderFetcher = useFetcher()
   const revalidator = useRevalidator()
   const hydrated = useHydrated()
   // const context = useAppContext()
@@ -222,24 +220,22 @@ export default function CreateProfile() {
 
   // First profile or `TRADITIONAL` Account: When the action returns
   useEffect(() => {
-    if (actionStatus) {
+    if (actionFetcher?.data?.status) {
       setConnectServerLoading(false)
 
-      if (actionStatus === "Ok") {
+      if (actionFetcher?.data.status === "Ok") {
         revalidator.revalidate()
-        // Refetch the profile in the root component to update `nav` and `drawer` UIs
-        loaderFetcher.submit(null, { method: "get", action: "/" })
         setConnectServerError(false)
         setIsCreateProfileSuccess(true)
       }
 
-      if (actionStatus === "Error") {
+      if (actionFetcher?.data.status === "Error") {
         setIsCreateProfileError(true)
       }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actionStatus])
+  }, [actionFetcher?.data])
 
   // Create profile logic
   // TODO: Find a way to prevent reupload an image when `WALLET` account rejects the transaction.
@@ -348,8 +344,6 @@ export default function CreateProfile() {
   useEffect(() => {
     if (isWaitSuccess) {
       revalidator.revalidate()
-      // Refetch the profile in the root component to update `nav` and `drawer` UIs
-      loaderFetcher.submit(null, { method: "get", action: "/" })
       setIsCreateProfileSuccess(true)
       clearForm()
     }
@@ -385,6 +379,8 @@ export default function CreateProfile() {
    * Reset states so user can create a new profile
    */
   function clearForm() {
+    // Revalidate once again to make sure the UIs get the latest data.
+    revalidator.revalidate()
     setHandle("")
     setFile(null)
     if (uploadingImage) setUploadingImage(false)
