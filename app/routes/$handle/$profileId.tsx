@@ -15,6 +15,7 @@ import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 
 import ErrorComponent from "~/components/error"
 import { UpdateProfileImageModal } from "~/components/profile/update-image"
+import { Spinner } from "~/components/spinner"
 import {
   getMyProfile,
   getProfile,
@@ -23,10 +24,11 @@ import {
 import { getBalance, updateProfileImage } from "~/graphql/server"
 import { requireAuth } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
+import { useFollowProfile } from "~/hooks/follow-contract"
 import type { AccountType, Profile } from "~/types"
 import type { EstimateGasUpdateProfileImageAction } from "../contracts/profile/update-image"
 import type { FollowAction } from "../contracts/follow"
-import { Spinner } from "~/components/spinner"
+import { wait } from "~/utils"
 
 /**
  * Query a specific profile by its id
@@ -130,13 +132,28 @@ export default function ProfileDetail() {
   }
 
   const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
+  // Use this state to display spinner for `WALLET` account
+  const [walletFollowLoading, setWalletFollowLoading] = useState<boolean>()
 
   const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImageAction>()
   const reauthenticateFetcher = useFetcher()
   const followFetcher = useFetcher<FollowAction>()
-  const followLoading =
+  const traditionalFollowLoading =
     followFetcher?.state === "submitting" || followFetcher?.state === "loading"
   const revalidator = useRevalidator()
+  const {
+    write,
+    isPrepareLoading,
+    isWriteLoading,
+    writeError,
+    isWaitLoading,
+    waitError,
+    isWaitSuccess,
+  } = useFollowProfile(
+    Number(loggedInProfile?.tokenId),
+    Number(profile?.tokenId),
+    accountType
+  )
 
   /**
    * On first render when the profile is available and the logged in profile and the displayed profile are the same, check gas fee for updating an image.
@@ -179,7 +196,7 @@ export default function ProfileDetail() {
    * TODO: Add logic to follow and unFollow
    */
 
-  // `TRADITIONAL` Account
+  // `TRADITIONAL` Account: follow logic
   async function handleFollowTraditional() {
     try {
       if (!loggedInProfile || !profile) return
@@ -209,6 +226,47 @@ export default function ProfileDetail() {
       })
     }
   }
+
+  // `WALLET` Account: the follow logic
+  async function handleFollowWallet() {
+    if (!write) return
+    setWalletFollowLoading(true)
+    write()
+  }
+
+  // `WALLET` Account: when transaction done.
+  useEffect(() => {
+    let mounted = true
+    if (isWaitSuccess) {
+      revalidator.revalidate()
+      // Wait for states to be updated before turn off the spinner
+      wait(600).then(() => {
+        if (mounted) {
+          setWalletFollowLoading(false)
+        }
+      })
+    }
+
+    return () => {
+      mounted = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWaitSuccess])
+
+  // `WALLET` Account: when transaction error.
+  useEffect(() => {
+    if (writeError?.message || waitError?.message) {
+      setWalletFollowLoading(false)
+      toast.error(
+        writeError?.message ||
+          waitError?.message ||
+          "Something not right, please try again.",
+        {
+          theme: "colored",
+        }
+      )
+    }
+  }, [writeError?.message, waitError?.message])
 
   /**
    * TODO: Add logic to fetch uploaded videos of the profile
@@ -297,40 +355,106 @@ export default function ProfileDetail() {
         </div>
         {/* Add the ability to follow/unfollow if the logged in and displayed is NOT the same profile. */}
         {!isSameProfile && (
-          <followFetcher.Form
-            className="w-full my-2"
-            onSubmit={handleFollowTraditional}
-          >
-            {!profile?.isFollowing ? (
-              <button
-                type="submit"
-                className="btn-dark w-3/5 rounded-full"
-                disabled={
-                  !profile || !loggedInProfile || isSameProfile || followLoading
-                }
-              >
-                {followLoading ? (
-                  <Spinner size={{ w: "w-5", h: "h-5" }} />
+          <div className="w-full my-2 relative">
+            {accountType === "TRADITIONAL" ? (
+              <followFetcher.Form onSubmit={handleFollowTraditional}>
+                {!profile?.isFollowing ? (
+                  <button
+                    type="submit"
+                    className="btn-dark w-4/5 rounded-full"
+                    disabled={
+                      accountType !== "TRADITIONAL" ||
+                      !profile ||
+                      !loggedInProfile ||
+                      isSameProfile ||
+                      traditionalFollowLoading
+                    }
+                  >
+                    Follow
+                  </button>
                 ) : (
-                  "Follow"
+                  <button
+                    type="submit"
+                    className="btn-light w-4/5 rounded-full text-error"
+                    disabled={
+                      accountType !== "TRADITIONAL" ||
+                      !profile ||
+                      !loggedInProfile ||
+                      isSameProfile ||
+                      traditionalFollowLoading
+                    }
+                  >
+                    UnFollow
+                  </button>
                 )}
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="btn-light w-3/5 rounded-full text-error"
-                disabled={
-                  !profile || !loggedInProfile || isSameProfile || followLoading
-                }
-              >
-                {followLoading ? (
-                  <Spinner size={{ w: "w-5", h: "h-5" }} color="orange" />
+              </followFetcher.Form>
+            ) : accountType === "WALLET" ? (
+              <>
+                {!profile?.isFollowing ? (
+                  <button
+                    className="btn-dark w-4/5 rounded-full"
+                    disabled={
+                      accountType !== "WALLET" ||
+                      !profile ||
+                      !loggedInProfile ||
+                      isSameProfile ||
+                      isPrepareLoading ||
+                      !write ||
+                      isWriteLoading ||
+                      isWaitLoading ||
+                      walletFollowLoading
+                    }
+                    onClick={handleFollowWallet}
+                  >
+                    Follow
+                  </button>
                 ) : (
-                  "Unfollow"
+                  <button
+                    type="submit"
+                    className="btn-light w-4/5 rounded-full text-error"
+                    disabled={
+                      accountType !== "WALLET" ||
+                      !profile ||
+                      !loggedInProfile ||
+                      isSameProfile ||
+                      isPrepareLoading ||
+                      !write ||
+                      isWriteLoading ||
+                      isWaitLoading ||
+                      walletFollowLoading
+                    }
+                    onClick={handleFollowWallet}
+                  >
+                    UnFollow
+                  </button>
                 )}
-              </button>
+              </>
+            ) : null}
+
+            {/* `TRADITIONAL` Account spinner */}
+            {accountType === "TRADITIONAL" && traditionalFollowLoading && (
+              <div
+                className={`absolute inset-0 flex items-center justify-center bg-white opacity-60`}
+              >
+                <Spinner
+                  size={{ w: "w-5", h: "h-5" }}
+                  color={profile?.isFollowing ? "orange" : "default"}
+                />
+              </div>
             )}
-          </followFetcher.Form>
+
+            {/* `WALLET` Account spinner */}
+            {accountType === "WALLET" && walletFollowLoading && (
+              <div
+                className={`absolute inset-0 flex items-center justify-center bg-white opacity-60`}
+              >
+                <Spinner
+                  size={{ w: "w-5", h: "h-5" }}
+                  color={profile?.isFollowing ? "orange" : "default"}
+                />
+              </div>
+            )}
+          </div>
         )}
       </div>
       {/* TODO: Display Videos */}
