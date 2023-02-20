@@ -207,7 +207,7 @@ export function PhoneAuth({ country: defaultCountry, hydrated }: Props) {
             </select>
             <IoCaretDownOutline
               color="#525252"
-              className="absolute -z-10 right-4"
+              className="absolute z-10 right-4"
             />
           </div>
           {country && (
