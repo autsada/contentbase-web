@@ -70,9 +70,14 @@ export function EmailRequest() {
           value={email}
           disabled={loading}
         />
+
+        <p className="my-10 self-center font-extralight text-textExtraLight mb-2 px-2">
+          We will send a sign-in link to your email
+        </p>
+
         <button
           type="submit"
-          className={`btn-orange w-full mt-14 h-12 rounded-full text-lg ${
+          className={`btn-orange w-full mt-10 h-12 rounded-full text-lg ${
             !email || loading || success ? "opacity-20" : "opacity-100"
           }`}
           disabled={!email || loading || success}
