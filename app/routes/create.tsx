@@ -8,7 +8,8 @@ import {
   useLoaderData,
   useCatch,
 } from "@remix-run/react"
-import { MdOutlineCheck } from "react-icons/md"
+import { MdOutlineCheck, MdOutlineFileUpload } from "react-icons/md"
+import { IoTrashOutline } from "react-icons/io5"
 import { useHydrated } from "remix-utils"
 import { json, redirect } from "@remix-run/node"
 import type { ActionArgs, LoaderArgs } from "@remix-run/node"
@@ -217,6 +218,10 @@ export default function CreateProfile() {
     setHandle(value)
     validateHandleDebounce(value)
   }
+
+  const removeImage = useCallback(() => {
+    setFile(null)
+  }, [])
 
   // First profile or `TRADITIONAL` Account: When the action returns
   useEffect(() => {
@@ -446,9 +451,9 @@ export default function CreateProfile() {
         <div className="mb-5">
           <fieldset className="border border-borderDarkGray px-4 py-4 rounded-md bg-white">
             <legend className="text-textExtraLight px-1">Profile Image</legend>
-            <div className="w-[150px] h-[150px] mx-auto border border-borderLightGray">
+            <div className="relative w-[150px] h-[150px] mx-auto border border-borderLightGray">
               <div
-                className="w-full h-full rounded-full bg-gray-100 overflow-hidden"
+                className="w-full h-full rounded-full bg-gray-100 flex justify-center items-center overflow-hidden"
                 {...getRootProps({
                   isDragActive,
                   isDragReject,
@@ -456,14 +461,29 @@ export default function CreateProfile() {
                 })}
               >
                 <input {...getInputProps({ multiple: false })} />
-                {file && (
+                {file ? (
                   <img
                     src={file.preview}
                     alt={file.name}
                     className="w-full h-full object-cover"
                   />
+                ) : (
+                  <MdOutlineFileUpload
+                    size={30}
+                    className="text-textExtraLight"
+                  />
                 )}
               </div>
+
+              {file && (
+                <button
+                  className="absolute bottom-0 right-0 h-max text-error cursor-pointer"
+                  disabled={uploadingImage}
+                  onClick={removeImage}
+                >
+                  <IoTrashOutline size={25} />
+                </button>
+              )}
             </div>
             {isFirstProfile ? (
               <p className="font-light text-blueBase italic text-sm mt-4">
