@@ -59,7 +59,7 @@ export function ProfileItem({ profile, loggedInProfile, openDrawer }: Props) {
   return (
     <div className="relative">
       <Link to={`/${profile?.originalHandle}/${profile?.id}`}>
-        <div className="w-full py-2 px-4 cursor-pointer hover:bg-gray-50 border-b border-gray-50">
+        <div className="w-full py-2 cursor-pointer hover:bg-gray-50 border-b border-gray-50">
           <div className="relative w-full text-start">
             <h6 className="text-base">{profile?.originalHandle}</h6>
             {switchProfileLoading && (
@@ -111,7 +111,7 @@ export function ProfileItem({ profile, loggedInProfile, openDrawer }: Props) {
         </div>
       </Link>
 
-      <div className="absolute top-0 right-3 h-full flex items-center justify-center">
+      <div className="absolute top-0 right-0 h-full flex items-center justify-center">
         <button
           className="w-10 h-full flex items-center justify-center ml-2 outline-none"
           disabled={switchProfileLoading || isSameProfile || !isOwner}

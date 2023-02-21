@@ -41,10 +41,10 @@ export default function RightDrawer({
           className="w-full h-full rounded-full object-cover"
         />
       </div>
-      <div className="w-full border-b border-borderGray">
+      <div className="w-full pl-5 pr-3 border-b border-borderGray">
         {profile ? (
           <>
-            <h6 className="text-base px-4 text-textLight">Logged in as</h6>
+            <h6 className="text-base text-textLight">Logged in as</h6>
             <ProfileItem
               profile={profile}
               loggedInProfile={profile}
@@ -52,14 +52,16 @@ export default function RightDrawer({
             />
           </>
         ) : (
-          <div className="px-4">
+          <div className="mt-2 mb-4">
             <div className="px-5 py-2 bg-gray-100 rounded-2xl">
               <p className="font-light text-left text-lg text-blueBase">
                 You are almost there!, now you only need to{" "}
-                <strong className="text-orange-500">
-                  create your first profile
-                </strong>{" "}
-                so you can upload, share, like, and comment on{" "}
+                <Link to="/create">
+                  <strong className="font-semibold text-orange-500">
+                    create your first profile
+                  </strong>
+                </Link>{" "}
+                so you can start follow, share, like, and comment on{" "}
                 <strong className="font-semibold text-blueDark text-lg">
                   ContentBase
                 </strong>
