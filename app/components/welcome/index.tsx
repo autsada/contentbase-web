@@ -29,8 +29,8 @@ export function Welcome() {
             <Carousel showThumbs={false} showArrows={false} showStatus={false}>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Welcome to profile-based NFTs sharing platform that you have
-                  full control over your content.
+                  Welcome to content as NFTs sharing platform that you have full
+                  control over your content.
                 </p>
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
@@ -47,7 +47,7 @@ export function Welcome() {
               </div>
               <div className="my-10 mx-5 p-5 rounded-2xl h-40">
                 <p className="text-xl text-blue-50">
-                  Upload your content and receive an NFT, share it to the world
+                  Upload your content and receive NFTs, share them to the world
                   and receive tip from the likes.
                 </p>
               </div>
