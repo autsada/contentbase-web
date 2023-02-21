@@ -12,7 +12,7 @@ interface Props {
   isDrawerOpen: boolean
 }
 
-export function Nav({ user, openDrawer, profile, isDrawerOpen }: Props) {
+export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
   const { pathname } = useLocation()
 
   return (

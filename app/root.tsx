@@ -25,8 +25,8 @@ import { onSnapshot, doc } from "firebase/firestore"
 import { ToastContainer } from "react-toastify"
 
 import ErrorComponent from "./components/error"
-import { Nav } from "./components/nav"
-import RightDrawer from "./components/drawers/right-drawer"
+import { MainNav } from "./components/navs/mainnav"
+import RightDrawer from "./components/navs/right-drawer"
 import { Backdrop } from "./components/backdrop"
 import { getSession, commitSession } from "./server/session.server"
 import { getUser } from "./server/auth.server"
@@ -241,7 +241,7 @@ export default function App() {
           <body
             className={isRightDrawerOpen ? "overflow-hidden" : "overflow-auto"}
           >
-            <Nav
+            <MainNav
               user={user}
               openDrawer={openRightDrawer}
               profile={profile}
