@@ -3,6 +3,7 @@ import type { UserRecord } from "firebase-admin/auth"
 
 import { auth } from "./firebase.server"
 import { commitSession, getSession } from "./session.server"
+import { queryAccountByUid } from "~/graphql/public-apis"
 
 export async function checkSessionCookie(session: Session) {
   try {
@@ -87,4 +88,17 @@ export async function logOut(session: Session) {
   if (!decodedClaims) return
 
   return auth.revokeRefreshTokens(decodedClaims.sub)
+}
+
+/**
+ * A function to check if user is authenticated and has an account
+ */
+export async function checkAuthenticatedAndReady(request: Request) {
+  const { user, headers } = await requireAuth(request)
+  // Get user' account and the current logged in profile
+  const account = user ? await queryAccountByUid(user.uid) : null
+
+  const loggedInProfile = account ? account.profile : null
+
+  return { user, account, loggedInProfile, headers }
 }

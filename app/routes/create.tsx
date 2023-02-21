@@ -21,8 +21,7 @@ import ErrorComponent from "~/components/error"
 import FirstprofileNotification from "~/components/firstprofile-notification"
 import { useCreateProfile } from "~/hooks/profile-contract"
 import { clientAuth } from "~/client/firebase.client"
-import { requireAuth } from "~/server/auth.server"
-import { queryAccountByUid } from "~/graphql/public-apis"
+import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { createFirstProfile, createProfile } from "~/graphql/server"
 import { uploadImage, wait } from "~/utils"
 import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
@@ -35,22 +34,24 @@ export type SelectedFile = File & {
 }
 
 export async function loader({ request }: LoaderArgs) {
-  const { user, headers } = await requireAuth(request)
+  try {
+    const { user, account, loggedInProfile, headers } =
+      await checkAuthenticatedAndReady(request)
 
-  if (!user) {
-    return redirect("/auth", { headers })
+    // Push user to auth page if they are not logged in
+    if (!user) {
+      return redirect("/auth", { headers })
+    }
+
+    // Reaauthenticate user if they still doesn't have an account
+    if (!account) {
+      return redirect("/auth/reauthenticate", { headers })
+    }
+
+    return json({ user, account, loggedInProfile }, { headers })
+  } catch (error) {
+    throw new Response("Something not right")
   }
-
-  // Get user' account and the current logged in profile
-  const account = user ? await queryAccountByUid(user.uid) : null
-  // Reaauthenticate user if they still doesn't have an account
-  if (!account) {
-    return redirect("/auth/reauthenticate", { headers })
-  }
-
-  const loggedInProfile = account.profile
-
-  return json({ user, account, loggedInProfile }, { headers })
 }
 
 export async function action({ request }: ActionArgs) {

@@ -4,32 +4,29 @@ import {
   useLoaderData,
   useOutletContext,
 } from "@remix-run/react"
-import { redirect, json } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import type { UserRecord } from "firebase-admin/auth"
 
 import ErrorComponent from "~/components/error"
-import { queryAccountByUid } from "~/graphql/public-apis"
-import { requireAuth } from "~/server/auth.server"
+import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { getBalance } from "~/graphql/server"
 import type { Profile, Account } from "~/types"
 
 export async function loader({ request, params }: LoaderArgs) {
   try {
-    const { user, headers } = await requireAuth(request)
+    const { user, account, loggedInProfile, headers } =
+      await checkAuthenticatedAndReady(request)
 
+    // Push user to auth page if they are not logged in
     if (!user) {
       return redirect("/auth", { headers })
     }
 
-    // Get user' account and the current logged in profile
-    const account = user ? await queryAccountByUid(user.uid) : null
     // Reaauthenticate user if they still doesn't have an account
     if (!account) {
       return redirect("/auth/reauthenticate", { headers })
     }
-
-    const loggedInProfile = account.profile
 
     const address = account.address
     const balance = address ? await getBalance(address) : ""

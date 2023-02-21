@@ -1,29 +1,26 @@
-import { redirect, json } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import { useCatch, useLoaderData } from "@remix-run/react"
 
 import ErrorComponent from "~/components/error"
-import { requireAuth } from "~/server/auth.server"
-import { queryAccountByUid } from "~/graphql/public-apis"
+import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { useFirstProfile } from "~/hooks/useFirstProfile"
 import FirstprofileNotification from "~/components/firstprofile-notification"
 
 export async function loader({ request }: LoaderArgs) {
   try {
-    const { user, headers } = await requireAuth(request)
+    const { user, account, loggedInProfile, headers } =
+      await checkAuthenticatedAndReady(request)
 
+    // Push user to auth page if they are not logged in
     if (!user) {
       return redirect("/auth", { headers })
     }
 
-    // Get user' account and the current logged in profile
-    const account = user ? await queryAccountByUid(user.uid) : null
     // Reaauthenticate user if they still doesn't have an account
     if (!account) {
       return redirect("/auth/reauthenticate", { headers })
     }
-
-    const loggedInProfile = account.profile
 
     return json({ user, account, loggedInProfile }, { headers })
   } catch (error) {
@@ -38,6 +35,7 @@ export default function Upload() {
   const { modalVisible, onIntentToCreateProfile, onNotToCreateProfile } =
     useFirstProfile(isNoProfile, false)
 
+  console.log("data: ", data)
   return (
     <div className="page">
       <h6>Upload</h6>

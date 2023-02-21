@@ -16,37 +16,31 @@ import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 import ErrorComponent from "~/components/error"
 import { UpdateProfileImageModal } from "~/components/profile/update-image"
 import { Spinner } from "~/components/spinner"
-import {
-  getMyProfile,
-  getProfile,
-  queryAccountByUid,
-} from "~/graphql/public-apis"
+import { getMyProfile, getProfile } from "~/graphql/public-apis"
 import { getBalance, updateProfileImage } from "~/graphql/server"
-import { requireAuth } from "~/server/auth.server"
+import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
 import { useFollowProfile } from "~/hooks/follow-contract"
+import { wait } from "~/utils"
 import type { AccountType, Profile } from "~/types"
 import type { EstimateGasUpdateProfileImageAction } from "../contracts/profile/update-image"
 import type { FollowAction } from "../contracts/follow"
-import { wait } from "~/utils"
 
 /**
  * Query a specific profile by its id
  */
 export async function loader({ request, params }: LoaderArgs) {
   try {
-    const { user, headers } = await requireAuth(request)
+    const { user, account, loggedInProfile, headers } =
+      await checkAuthenticatedAndReady(request)
 
+    // Push user to auth page if they are not logged in
     if (!user) {
       return redirect("/auth", { headers })
     }
 
-    // Get user' account and the current logged in profile
-    const account = user ? await queryAccountByUid(user.uid) : null
-    const loggedInProfile = account?.profile
-
-    // Reaauthenticate user if they still doesn't have an account and a profile
-    if (!account || !loggedInProfile) {
+    // Reaauthenticate user if they still doesn't have an account
+    if (!account) {
       return redirect("/auth/reauthenticate", { headers })
     }
 
@@ -66,12 +60,12 @@ export async function loader({ request, params }: LoaderArgs) {
     }
 
     // Check if the logged in profile and the displayed profile is the same so we can use the right query to fetch the displayed profile detail.
-    const isSameProfile = `${loggedInProfile.id || ""}` === profileId
+    const isSameProfile = `${loggedInProfile?.id || ""}` === profileId
 
     // Query the profile
     const profile = isSameProfile
-      ? await getMyProfile(Number(profileId), loggedInProfile.id)
-      : await getProfile(Number(profileId), loggedInProfile.id)
+      ? await getMyProfile(Number(profileId), loggedInProfile?.id)
+      : await getProfile(Number(profileId), loggedInProfile?.id)
 
     // Check if the user owns the displayed profile or not
     const isOwner = address.toLowerCase() === profile?.owner?.toLowerCase()
@@ -80,15 +74,19 @@ export async function loader({ request, params }: LoaderArgs) {
       throw new Response("Profile Not Found")
     }
 
-    return json({
-      profile,
-      loggedInProfile,
-      balance,
-      address,
-      accountType: account?.type,
-      isSameProfile,
-      isOwner,
-    })
+    return json(
+      {
+        user,
+        profile,
+        loggedInProfile,
+        balance,
+        address,
+        accountType: account?.type,
+        isSameProfile,
+        isOwner,
+      },
+      { headers }
+    )
   } catch (error) {
     throw new Response("Profile Not Found")
   }
