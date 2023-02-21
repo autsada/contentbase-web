@@ -3,7 +3,7 @@
  */
 
 import { Outlet } from "@remix-run/react"
-import PublicTabs from "~/components/public-tabs"
+import { ContentTabs } from "~/components/navs/content-tabs"
 import { useAppContext } from "~/root"
 
 export default function ContentLayOut() {
@@ -11,8 +11,8 @@ export default function ContentLayOut() {
 
   return (
     <>
-      <div className="mb-2 px-4 border-y-[2px] border-borderLightGray">
-        <PublicTabs />
+      <div className="mb-2 border-y border-borderExtraLightGray">
+        <ContentTabs />
       </div>
 
       <Outlet context={context} />

@@ -8,6 +8,7 @@ interface Props {
   opacity?: 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 96 | 100
   bgWhite?: boolean
   className?: string
+  zIndex?: string
 }
 
 export function Backdrop({
@@ -18,10 +19,11 @@ export function Backdrop({
   opacity = 30,
   bgWhite = false,
   className,
+  zIndex = "z-50",
 }: Props) {
   return (
     <div
-      className={`fixed z-50 inset-0 h-screen flex flex-col justify-center items-center px-5 overflow-hidden ${
+      className={`fixed ${zIndex} inset-0 h-screen flex flex-col justify-center items-center px-5 overflow-hidden ${
         bgWhite ? "bg-white" : "bg-black"
       } ${className ? className : ""}`}
       style={{ opacity: `${opacity}%` }}

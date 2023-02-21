@@ -1,15 +1,15 @@
 import { Link, useLocation } from "@remix-run/react"
 
-export default function PublicTabs() {
+export function ContentTabs() {
   const { pathname } = useLocation()
 
   return (
-    <div className="py-4 px-2 flex items-center gap-x-4">
+    <div className="py-4 flex max-w-full w-full items-center overflow-x-auto scrollbar-hide">
       <Link to="/">
         <div
           className={`${
             pathname === "/" ? "border-b-2" : "border-none"
-          } border-borderExtraDarkGray`}
+          } mx-4 border-borderExtraDarkGray w-max`}
         >
           <h6
             className={`text-base ${
@@ -24,7 +24,7 @@ export default function PublicTabs() {
         <div
           className={`${
             pathname === "/blogs" ? "border-b-2" : "border-none"
-          } border-borderExtraDarkGray`}
+          } mx-4 border-borderExtraDarkGray w-max`}
         >
           <h6
             className={`text-base ${
@@ -35,33 +35,33 @@ export default function PublicTabs() {
           </h6>
         </div>
       </Link>
-      <Link to="audio">
+      <Link to="history">
         <div
           className={`${
-            pathname === "/audio" ? "border-b-2" : "border-none"
-          } border-borderExtraDarkGray`}
+            pathname === "/history" ? "border-b-2" : "border-none"
+          } mx-4 border-borderExtraDarkGray w-max`}
         >
           <h6
             className={`text-base ${
-              pathname === "/audio" ? "text-textDark" : "text-textExtraLight"
+              pathname === "/history" ? "text-textDark" : "text-textExtraLight"
             }`}
           >
-            Audio
+            Watch History
           </h6>
         </div>
       </Link>
-      <Link to="premium">
+      <Link to="liked">
         <div
           className={`${
-            pathname === "/premium" ? "border-b-2" : "border-none"
-          } border-borderExtraDarkGray`}
+            pathname === "/liked" ? "border-b-2" : "border-none"
+          } mx-4 border-borderExtraDarkGray w-max`}
         >
           <h6
             className={`text-base ${
-              pathname === "/premium" ? "text-textDark" : "text-textExtraLight"
+              pathname === "/liked" ? "text-textDark" : "text-textExtraLight"
             }`}
           >
-            Premium
+            Liked
           </h6>
         </div>
       </Link>
@@ -69,7 +69,7 @@ export default function PublicTabs() {
         <div
           className={`${
             pathname === "/headers" ? "border-b-2" : "border-none"
-          } border-borderExtraDarkGray`}
+          } mx-4 border-borderExtraDarkGray w-max`}
         >
           <h6
             className={`text-base ${

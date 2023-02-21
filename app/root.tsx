@@ -11,7 +11,6 @@ import {
   useCatch,
   useLoaderData,
   useTransition,
-  // useFetchers,
   useRevalidator,
   useOutletContext,
 } from "@remix-run/react"
@@ -28,6 +27,8 @@ import ErrorComponent from "./components/error"
 import { MainNav } from "./components/navs/mainnav"
 import RightDrawer from "./components/navs/right-drawer"
 import { Backdrop } from "./components/backdrop"
+import { Welcome } from "./components/welcome"
+import BottomTab from "./components/navs/bottom-tab"
 import { getSession, commitSession } from "./server/session.server"
 import { getUser } from "./server/auth.server"
 import { ethereumClient, wagmiClient } from "./ethereum/client"
@@ -41,7 +42,6 @@ import {
 import styles from "./styles/app.css"
 import carouselStyles from "react-responsive-carousel/lib/styles/carousel.min.css"
 import toastStyles from "react-toastify/dist/ReactToastify.css"
-import { Welcome } from "./components/welcome"
 import type { Account, LoaderData, Profile } from "./types"
 
 export const meta: MetaFunction = () => {
@@ -237,6 +237,24 @@ export default function App() {
               profile={profile}
               isDrawerOpen={isRightDrawerOpen}
             />
+            {/* Right Drawer */}
+            <>
+              <Backdrop
+                className={`${
+                  !isRightDrawerOpen
+                    ? "transition-all duration-300 hidden"
+                    : "transition-all duration-300 block"
+                }`}
+                opacity={!isRightDrawerOpen ? 0 : 30}
+                zIndex="z-[10000]"
+              />
+              <RightDrawer
+                openDrawer={openRightDrawer}
+                className={!isRightDrawerOpen ? "-right-[200%]" : "right-0"}
+                profile={profile}
+                profiles={loaderData?.account?.profiles as Profile[]}
+              />
+            </>
             <Outlet
               context={{
                 welcomeModalVisible,
@@ -246,6 +264,7 @@ export default function App() {
                 profile: loaderData?.profile,
               }}
             />
+            <BottomTab />
             <ScrollRestoration />
             <script
               // Add `ENV` to the window object
@@ -267,26 +286,6 @@ export default function App() {
                     projectId={WALLET_CONNECT_PROJECT_ID}
                     ethereumClient={ethereumClient}
                   />
-
-                  {/* Right Drawer */}
-                  <>
-                    <Backdrop
-                      className={`${
-                        !isRightDrawerOpen
-                          ? "transition-all duration-300 hidden"
-                          : "transition-all duration-300 block"
-                      }`}
-                      opacity={!isRightDrawerOpen ? 0 : 30}
-                    />
-                    <RightDrawer
-                      openDrawer={openRightDrawer}
-                      className={
-                        !isRightDrawerOpen ? "-right-[100%]" : "right-0"
-                      }
-                      profile={profile}
-                      profiles={loaderData?.account?.profiles as Profile[]}
-                    />
-                  </>
 
                   {/* Toast */}
                   <ToastContainer

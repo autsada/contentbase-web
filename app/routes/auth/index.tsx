@@ -5,7 +5,7 @@ export default function Connect() {
   const navigate = useNavigate()
 
   return (
-    <div className="absolute inset-0 bg-gray-100 text-center py-6 px-5 opacity-[98%]">
+    <div className="fixed z-[10001] inset-0 max-h-full overflow-y-scroll bg-gray-100 text-center pt-6 pb-10 px-5 opacity-[98%]">
       {/* <Form method="post" className="absolute top-4 right-8 px-4"> */}
       <button
         type="submit"
