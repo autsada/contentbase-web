@@ -18,19 +18,15 @@ import type { ChangeEvent } from "react"
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
 import ErrorComponent from "~/components/error"
+import FirstprofileNotification from "~/components/firstprofile-notification"
 import { useCreateProfile } from "~/hooks/profile-contract"
 import { clientAuth } from "~/client/firebase.client"
 import { requireAuth } from "~/server/auth.server"
 import { queryAccountByUid } from "~/graphql/public-apis"
 import { createFirstProfile, createProfile } from "~/graphql/server"
 import { uploadImage, wait } from "~/utils"
-import {
-  FIRST_PROFILE_ID,
-  MAX_HANDLE_LENGTH,
-  MIN_HANDLE_LENGTH,
-} from "~/constants"
+import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
 import type { validateActionType } from "./contracts/profile/validate-handle"
-import FirstprofileNotification from "~/components/firstprofile-notification"
 
 export type SelectedFile = File & {
   path: string
@@ -43,10 +39,17 @@ export async function loader({ request }: LoaderArgs) {
   if (!user) {
     return redirect("/auth", { headers })
   }
-  const account = await queryAccountByUid(user.uid)
-  let hasProfile = !!account?.profile
 
-  return json({ user, account, hasProfile }, { headers })
+  // Get user' account and the current logged in profile
+  const account = user ? await queryAccountByUid(user.uid) : null
+  // Reaauthenticate user if they still doesn't have an account
+  if (!account) {
+    return redirect("/auth/reauthenticate", { headers })
+  }
+
+  const loggedInProfile = account.profile
+
+  return json({ user, account, loggedInProfile }, { headers })
 }
 
 export async function action({ request }: ActionArgs) {
@@ -103,14 +106,9 @@ export default function CreateProfile() {
   const actionFetcher = useFetcher<typeof action>()
   const revalidator = useRevalidator()
   const hydrated = useHydrated()
-  // const context = useAppContext()
   const accountType = data?.account?.type
   // Check if it is the first profile of the user or not
-  const isFirstProfile =
-    typeof data?.hasProfile === "boolean" && !data?.hasProfile
-
-  const [firstProfileModalVisible, setFirstProfileModalVisible] =
-    useState<boolean>()
+  const isFirstProfile = !data?.loggedInProfile
 
   // When the button should be disabled
   const disabled =
@@ -171,27 +169,27 @@ export default function CreateProfile() {
     },
   })
 
-  /**
-   * Check whether we have already notified user to create their first profile or not.
-   */
-  useEffect(() => {
-    if (typeof document === "undefined") return
+  // /**
+  //  * Check whether we have already notified user to create their first profile or not.
+  //  */
+  // useEffect(() => {
+  //   if (typeof document === "undefined") return
 
-    const isNotified = window.localStorage.getItem(FIRST_PROFILE_ID)
+  //   const isNotified = window.localStorage.getItem(FIRST_PROFILE_ID)
 
-    if (isFirstProfile && !isNotified) {
-      setFirstProfileModalVisible(true)
-    } else {
-      setFirstProfileModalVisible(false)
-    }
-  }, [isFirstProfile])
+  //   if (isFirstProfile && !isNotified) {
+  //     setFirstProfileModalVisible(true)
+  //   } else {
+  //     setFirstProfileModalVisible(false)
+  //   }
+  // }, [isFirstProfile])
 
-  const closeFirstProfileNotificationModal = useCallback(() => {
-    setFirstProfileModalVisible(false)
-    if (typeof document !== "undefined") {
-      window.localStorage.setItem(FIRST_PROFILE_ID, `${Date.now()}`)
-    }
-  }, [])
+  // const closeFirstProfileNotificationModal = useCallback(() => {
+  //   setFirstProfileModalVisible(false)
+  //   if (typeof document !== "undefined") {
+  //     window.localStorage.setItem(FIRST_PROFILE_ID, `${Date.now()}`)
+  //   }
+  // }, [])
 
   const handleValidateHandle = useCallback((handle: string) => {
     if (
@@ -517,13 +515,10 @@ export default function CreateProfile() {
       </button>
 
       {/* Show first profile notification modal for the first time user logged in */}
-      {typeof firstProfileModalVisible === "boolean" &&
-        firstProfileModalVisible && (
-          <FirstprofileNotification
-            title="Welcome to ContentBase"
-            onIntentToCreateProfile={closeFirstProfileNotificationModal}
-          />
-        )}
+      <FirstprofileNotification
+        title="Welcome to ContentBase"
+        isFirstProfile={isFirstProfile}
+      />
 
       {/* `first profile` || `TRADITIONAL` Account: Info/Spiner and Error message */}
       {(isFirstProfile || accountType === "TRADITIONAL") && (

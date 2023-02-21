@@ -851,6 +851,10 @@ button {
   z-index: 100000;
 }
 
+.z-\[9999\] {
+  z-index: 9999;
+}
+
 .m-0 {
   margin: 0px;
 }

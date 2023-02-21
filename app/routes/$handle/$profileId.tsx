@@ -41,20 +41,21 @@ export async function loader({ request, params }: LoaderArgs) {
       return redirect("/auth", { headers })
     }
 
+    // Get user' account and the current logged in profile
+    const account = user ? await queryAccountByUid(user.uid) : null
+    const loggedInProfile = account?.profile
+
+    // Reaauthenticate user if they still doesn't have an account and a profile
+    if (!account || !loggedInProfile) {
+      return redirect("/auth/reauthenticate", { headers })
+    }
+
     // Get data from params
     const handle = params.handle
     const profileId = params.profileId
 
     if (!handle || !profileId) {
       throw new Response("Profile Not Found")
-    }
-
-    // Get user' account and the current logged in profile
-    const account = user ? await queryAccountByUid(user.uid) : null
-    const loggedInProfile = account?.profile
-
-    if (!loggedInProfile) {
-      return redirect("/auth/reauthenticate", { headers })
     }
 
     let address = ""

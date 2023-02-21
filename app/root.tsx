@@ -42,7 +42,6 @@ import styles from "./styles/app.css"
 import carouselStyles from "react-responsive-carousel/lib/styles/carousel.min.css"
 import toastStyles from "react-toastify/dist/ReactToastify.css"
 import { Welcome } from "./components/welcome"
-import { getBalance } from "./graphql/server"
 import type { Account, LoaderData, Profile } from "./types"
 
 export const meta: MetaFunction = () => {
@@ -74,13 +73,6 @@ export async function loader({ request }: LoaderArgs) {
   const session = await getSession(request.headers.get("cookie"))
   const token = createAuthenticityToken(session)
   const account = user ? await queryAccountByUid(user.uid) : null
-  let address = ""
-  let balance = ""
-
-  if (account) {
-    address = account.address
-    balance = address ? await getBalance(address) : ""
-  }
 
   return json<LoaderData>(
     {
@@ -88,8 +80,6 @@ export async function loader({ request }: LoaderArgs) {
       csrf: token,
       account,
       profile: account?.profile, // This is the loggedIn profile
-      balance,
-      hasProfile: !!account?.profile,
       ENV: {
         NODE_ENV: process.env.NODE_ENV,
         // NODE_ENV: "test",
@@ -251,10 +241,9 @@ export default function App() {
               context={{
                 welcomeModalVisible,
                 setWelcomeModalVisible,
-                loggedInProfile: profile,
+                user: loaderData?.user,
                 account: loaderData?.account,
-                balance: loaderData?.balance,
-                hasProfile: loaderData?.hasProfile,
+                profile: loaderData?.profile,
               }}
             />
             <ScrollRestoration />
@@ -349,10 +338,9 @@ export function ErrorBoundary({ error }: { error: Error }) {
 export type AppContext = {
   welcomeModalVisible: boolean
   setWelcomeModalVisible: (open: boolean) => void
-  loggedInProfile: Profile
-  account: Account
-  balance: string | undefined
-  hasProfile: boolean | undefined
+  user: UserRecord | null
+  account: Account | null
+  profile: Profile | null
 }
 
 export function useAppContext() {

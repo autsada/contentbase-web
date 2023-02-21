@@ -1,7 +1,7 @@
-import { useAppContext } from "~/root"
+import { useWalletContext } from "../wallet"
 
 export default function Wallet() {
-  const context = useAppContext()
+  const context = useWalletContext()
 
   return (
     <div className="page py-5">
