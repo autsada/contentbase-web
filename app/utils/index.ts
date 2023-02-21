@@ -1,8 +1,8 @@
 import { getCountries } from "react-phone-number-input/input"
 import en from "react-phone-number-input/locale/en.json"
 
-import { avatarsStorageFolder } from "~/client/firebase.client"
 import { UPLOAD_SERVICE_URL } from "~/constants"
+import type { UploadType } from "~/types"
 
 export function getCountryNames() {
   return getCountries()
@@ -56,18 +56,23 @@ export function getPageTitle(pathname: string) {
 }
 
 export async function uploadImage({
+  uid,
   file,
   handle,
+  uploadType,
   oldImageURI,
 }: {
+  uid: string
   file: File
   handle: string
+  uploadType: UploadType
   oldImageURI: string | null
 }) {
   const formData = new FormData()
+  formData.append("uid", uid)
   formData.append("file", file!)
   formData.append("handle", handle)
-  formData.append("storageFolder", avatarsStorageFolder)
+  formData.append("uploadType", uploadType)
   if (oldImageURI) {
     formData.append("oldURI", oldImageURI)
   }

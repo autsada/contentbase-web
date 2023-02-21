@@ -12,6 +12,7 @@ import {
 import { MdError, MdArrowBackIosNew, MdEdit, MdPerson } from "react-icons/md"
 import { toast } from "react-toastify"
 import type { LoaderArgs, ActionArgs } from "@remix-run/node"
+import type { UserRecord } from "firebase-admin/auth"
 
 import ErrorComponent from "~/components/error"
 import { UpdateProfileImageModal } from "~/components/profile/update-image"
@@ -120,6 +121,7 @@ export type UpdateProfileImageAction = typeof action
 
 export default function ProfileDetail() {
   const data = useLoaderData<typeof loader>()
+  const user = data?.user as UserRecord
   const profile = data?.profile as Profile
   const loggedInProfile = data?.loggedInProfile as Profile
   const accountType = data?.accountType as AccountType
@@ -465,6 +467,7 @@ export default function ProfileDetail() {
 
       {updateImageModalVisible && (
         <UpdateProfileImageModal
+          userId={user?.uid}
           accountType={accountType}
           gas={estimateGasFetcher?.data?.gas}
           handle={profile?.handle}

@@ -12,6 +12,7 @@ import type { AccountType } from "~/types"
 import type { UpdateProfileImageAction } from "~/routes/$handle/$profileId"
 
 interface Props {
+  userId: string
   accountType: AccountType | null
   gas?: string | null
   handle: string
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export function UpdateProfileImageModal({
+  userId,
   accountType,
   gas,
   handle,
@@ -98,12 +100,25 @@ export function UpdateProfileImageModal({
   // TODO: Find a way to prevent reupload an image when `WALLET` account rejects the transaction.
   async function updateProfileImage() {
     try {
-      if (!accountType || !tokenId || !handle || !file || !!imageSizeError)
+      if (
+        !userId ||
+        !accountType ||
+        !tokenId ||
+        !handle ||
+        !file ||
+        !!imageSizeError
+      )
         return
 
       setUploadingImage(true)
 
-      const imageURI = await uploadImage({ file, handle, oldImageURI })
+      const imageURI = await uploadImage({
+        uid: userId,
+        file,
+        handle,
+        uploadType: "avatar",
+        oldImageURI,
+      })
       if (!imageURI) {
         setUploadImageError(true)
         setUploadingImage(false)

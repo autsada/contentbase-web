@@ -14,6 +14,7 @@ import { useHydrated } from "remix-utils"
 import { json, redirect } from "@remix-run/node"
 import type { ActionArgs, LoaderArgs } from "@remix-run/node"
 import type { ChangeEvent } from "react"
+import type { UserRecord } from "firebase-admin/auth"
 
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
@@ -103,6 +104,7 @@ export default function CreateProfile() {
   const [noWriteError, setNoWriteError] = useState<boolean>() // If, for some reason, there is no `write` transaction after magmi prepare transaction done, use this state to inform user.
 
   const data = useLoaderData<typeof loader>()
+  const user = data?.user as UserRecord
   const validateFetcher = useFetcher<validateActionType>()
   const isHandleUnique = validateFetcher?.data?.isUnique
   const actionFetcher = useFetcher<typeof action>()
@@ -240,7 +242,13 @@ export default function CreateProfile() {
       // If user upload an image
       if (file) {
         setUploadingImage(true)
-        imageURI = await uploadImage({ file, handle, oldImageURI: null })
+        imageURI = await uploadImage({
+          uid: user?.uid || "",
+          file,
+          handle,
+          uploadType: "avatar",
+          oldImageURI: null,
+        })
         if (!imageURI) {
           setUploadImageError(true)
           setUploadingImage(false)
