@@ -27,6 +27,7 @@ import { createFirstProfile, createProfile } from "~/graphql/server"
 import { uploadImage, wait } from "~/utils"
 import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
 import type { validateActionType } from "./contracts/profile/validate-handle"
+import { useFirstProfile } from "~/hooks/useFirstProfile"
 
 export type SelectedFile = File & {
   path: string
@@ -110,6 +111,9 @@ export default function CreateProfile() {
   // Check if it is the first profile of the user or not
   const isFirstProfile = !data?.loggedInProfile
 
+  const { modalVisible, onIntentToCreateProfile, onNotToCreateProfile } =
+    useFirstProfile(isFirstProfile, true) // We only need the modal only the first vist
+
   // When the button should be disabled
   const disabled =
     !hydrated ||
@@ -168,28 +172,6 @@ export default function CreateProfile() {
       "image/*": [],
     },
   })
-
-  // /**
-  //  * Check whether we have already notified user to create their first profile or not.
-  //  */
-  // useEffect(() => {
-  //   if (typeof document === "undefined") return
-
-  //   const isNotified = window.localStorage.getItem(FIRST_PROFILE_ID)
-
-  //   if (isFirstProfile && !isNotified) {
-  //     setFirstProfileModalVisible(true)
-  //   } else {
-  //     setFirstProfileModalVisible(false)
-  //   }
-  // }, [isFirstProfile])
-
-  // const closeFirstProfileNotificationModal = useCallback(() => {
-  //   setFirstProfileModalVisible(false)
-  //   if (typeof document !== "undefined") {
-  //     window.localStorage.setItem(FIRST_PROFILE_ID, `${Date.now()}`)
-  //   }
-  // }, [])
 
   const handleValidateHandle = useCallback((handle: string) => {
     if (
@@ -517,7 +499,9 @@ export default function CreateProfile() {
       {/* Show first profile notification modal for the first time user logged in */}
       <FirstprofileNotification
         title="Welcome to ContentBase"
-        isFirstProfile={isFirstProfile}
+        modalVisible={modalVisible}
+        onOk={onIntentToCreateProfile}
+        onCancel={onNotToCreateProfile}
       />
 
       {/* `first profile` || `TRADITIONAL` Account: Info/Spiner and Error message */}
