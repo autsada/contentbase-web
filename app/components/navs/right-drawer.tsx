@@ -73,8 +73,8 @@ export default function RightDrawer({
       </div>
 
       {otherProfiles && otherProfiles.length > 0 && (
-        <div className="relative w-full border-b border-borderGray">
-          <h6 className="text-base px-4 mt-4 text-textLight">Other profiles</h6>
+        <div className="relative w-full pl-5 pr-3 border-b border-borderGray">
+          <h6 className="text-base mt-4 text-textLight">Other profiles</h6>
           {otherProfiles &&
             otherProfiles.length > 0 &&
             otherProfiles.map((p) => (
