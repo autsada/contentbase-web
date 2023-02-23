@@ -179,7 +179,7 @@
 
 @layer components {
   .page {
-    @apply w-screen h-full text-center bg-white;
+    @apply w-screen h-full text-center bg-white pb-80;
   }
 
   .btn-light {

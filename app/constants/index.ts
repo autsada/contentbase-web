@@ -13,9 +13,8 @@ export const VERIFY_CODE = "68eiv6739eirpt6eortptbiw3854vik"
 export const LOGGED_IN_KEY = "loggedIn"
 export const CLEAN_UP_ID = "ctb"
 export const CLEAN_UP_CODE = "eiro33746581ei88447224d64cife3"
-export const WEB_URL = "http://localhost:3000"
-// export const WEB_URL =
-//   "https://e39b-2405-9800-b961-39d-c997-ba19-1a4a-c25c.ap.ngrok.io"
+// export const WEB_URL = "http://localhost:3000"
+export const WEB_URL = "https://3292-27-55-93-193.ap.ngrok.io"
 export const WALLET_CONNECT_PROJECT_ID = "f9f68f7b9b67a2dbb6cc74007927090b"
 export const UPLOAD_SERVICE_URL =
   NODE_ENV === "production"
@@ -27,3 +26,24 @@ export const dummyImageURI =
   "https://www.some_service.com/adam-b1665169-3f10-47ae-8af0-26db145ae157.jpg"
 export const MIN_HANDLE_LENGTH = 3
 export const MAX_HANDLE_LENGTH = 31
+export const contentCategories = [
+  "Music",
+  "Movies",
+  "Entertainment",
+  "Sports",
+  "Food",
+  "Travel",
+  "Gaming",
+  "News",
+  "Animals",
+  "Education",
+  "Science",
+  "Technology",
+  "Programming",
+  "LifeStyle",
+  "Vehicles",
+  "Children",
+  "Women",
+  "Men",
+  "Other",
+] as const

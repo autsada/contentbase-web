@@ -26,4 +26,7 @@ export interface LoaderData {
 export type Account = NexusGenFieldTypes["Account"]
 export type AccountType = "TRADITIONAL" | "WALLET"
 export type Profile = NexusGenFieldTypes["Profile"]
-export type UploadType = "avatar" | "publish"
+export type SelectedFile = File & {
+  path: string
+  preview: string
+}

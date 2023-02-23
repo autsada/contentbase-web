@@ -8,7 +8,7 @@ import {
   useLoaderData,
   useCatch,
 } from "@remix-run/react"
-import { MdOutlineCheck, MdOutlineFileUpload } from "react-icons/md"
+import { MdOutlineCheck, MdFileUpload } from "react-icons/md"
 import { IoTrashOutline } from "react-icons/io5"
 import { useHydrated } from "remix-utils"
 import { json, redirect } from "@remix-run/node"
@@ -21,18 +21,14 @@ import { Spinner } from "~/components/spinner"
 import ErrorComponent from "~/components/error"
 import FirstprofileNotification from "~/components/firstprofile-notification"
 import { useCreateProfile } from "~/hooks/profile-contract"
+import { useFirstProfile } from "~/hooks/useFirstProfile"
 import { clientAuth } from "~/client/firebase.client"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { createFirstProfile, createProfile } from "~/graphql/server"
 import { uploadImage, wait } from "~/utils"
 import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
 import type { validateActionType } from "./contracts/profile/validate-handle"
-import { useFirstProfile } from "~/hooks/useFirstProfile"
-
-export type SelectedFile = File & {
-  path: string
-  preview: string
-}
+import type { SelectedFile } from "~/types"
 
 export async function loader({ request }: LoaderArgs) {
   try {
@@ -246,7 +242,6 @@ export default function CreateProfile() {
           uid: user?.uid || "",
           file,
           handle,
-          uploadType: "avatar",
           oldImageURI: null,
         })
         if (!imageURI) {
@@ -442,7 +437,7 @@ export default function CreateProfile() {
             <legend className="text-textExtraLight px-1">Profile Image</legend>
             <div className="relative w-[150px] h-[150px] mx-auto border border-borderLightGray">
               <div
-                className="w-full h-full rounded-full bg-gray-100 flex justify-center items-center overflow-hidden"
+                className="w-full h-full rounded-full bg-gray-100 flex flex-col justify-center items-center overflow-hidden"
                 {...getRootProps({
                   isDragActive,
                   isDragReject,
@@ -457,10 +452,12 @@ export default function CreateProfile() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <MdOutlineFileUpload
-                    size={30}
-                    className="text-textExtraLight"
-                  />
+                  <>
+                    <MdFileUpload size={30} className="text-textExtraLight" />
+                    <p className="mt-1 font-light text-textExtraLight text-sm">
+                      (4MB or less)
+                    </p>
+                  </>
                 )}
               </div>
 

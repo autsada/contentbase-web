@@ -2,7 +2,6 @@ import { getCountries } from "react-phone-number-input/input"
 import en from "react-phone-number-input/locale/en.json"
 
 import { UPLOAD_SERVICE_URL } from "~/constants"
-import type { UploadType } from "~/types"
 
 export function getCountryNames() {
   return getCountries()
@@ -18,38 +17,20 @@ export function getCountryNames() {
 export function getPageTitle(pathname: string) {
   let title: string = ""
 
-  // if (pathname.startsWith("/auth")) {
-  //   const routeNames = pathname.split("/")
-  //   const name = routeNames[routeNames.length - 1]
-  //   if (name === "auth") {
-  //     title = "Connect"
-  //   }
-  //   if (name === "phone") {
-  //     title = "Log in with Phone"
-  //   }
-  //   if (name === "email") {
-  //     title = "Log in with Email"
-  //   }
-  //   if (name === "wallet") {
-  //     title = "Log in with Wallet"
-  //   }
-  // }
-
-  if (pathname.startsWith("/profiles")) {
-    const routeNames = pathname.split("/").filter((name) => !!name)
-    const name = routeNames[routeNames.length - 1]
-    if (name === "profiles") {
-      title = "Your Profiles"
-    }
-    if (name === "create") {
-      title = "Create Profile"
-    }
-    if (name === "wallet") {
-      title = "Wallet"
-    }
-    if (name === "followers" || name === "following") {
-      title = routeNames[routeNames.length - 2]
-    }
+  if (pathname === "/upload") {
+    title = "Share Your Content"
+  }
+  if (pathname === "/upload/video") {
+    title = "Share Video"
+  }
+  if (pathname === "/upload/post") {
+    title = "Share Post"
+  }
+  if (pathname === "/wallet") {
+    title = "Wallet"
+  }
+  if (pathname === "/settings") {
+    title = "Settings"
   }
 
   return title
@@ -59,25 +40,23 @@ export async function uploadImage({
   uid,
   file,
   handle,
-  uploadType,
   oldImageURI,
 }: {
   uid: string
   file: File
   handle: string
-  uploadType: UploadType
   oldImageURI: string | null
 }) {
   const formData = new FormData()
   formData.append("uid", uid)
   formData.append("file", file!)
   formData.append("handle", handle)
-  formData.append("uploadType", uploadType)
   if (oldImageURI) {
     formData.append("oldURI", oldImageURI)
   }
 
-  const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
+  // const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
+  const res = await fetch(`http://localhost:4444/profile/avatar`, {
     method: "POST",
     body: formData,
   })

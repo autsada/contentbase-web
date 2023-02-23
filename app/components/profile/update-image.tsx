@@ -7,9 +7,9 @@ import { Spinner } from "../spinner"
 import { clientAuth } from "~/client/firebase.client"
 import { useUpdateProfileImage } from "~/hooks/profile-contract"
 import { uploadImage, wait } from "~/utils"
-import type { SelectedFile } from "~/routes/create"
-import type { AccountType } from "~/types"
+import type { AccountType, SelectedFile } from "~/types"
 import type { UpdateProfileImageAction } from "~/routes/$handle/$profileId"
+import { MdFileUpload } from "react-icons/md"
 
 interface Props {
   userId: string
@@ -116,7 +116,6 @@ export function UpdateProfileImageModal({
         uid: userId,
         file,
         handle,
-        uploadType: "avatar",
         oldImageURI,
       })
       if (!imageURI) {
@@ -278,7 +277,7 @@ export function UpdateProfileImageModal({
 
                     <div className="w-[150px] h-[150px] mx-auto border border-borderLightGray">
                       <div
-                        className="w-full h-full rounded-full bg-gray-100 overflow-hidden"
+                        className="w-full h-full rounded-full bg-gray-100 flex flex-col justify-center items-center overflow-hidden"
                         {...getRootProps({
                           isDragActive,
                           isDragReject,
@@ -286,12 +285,22 @@ export function UpdateProfileImageModal({
                         })}
                       >
                         <input {...getInputProps({ multiple: false })} />
-                        {file && (
+                        {file ? (
                           <img
                             src={file.preview}
                             alt={file.name}
                             className="w-full h-full object-cover"
                           />
+                        ) : (
+                          <>
+                            <MdFileUpload
+                              size={30}
+                              className="text-textExtraLight"
+                            />
+                            <p className="mt-1 font-light text-textExtraLight text-sm">
+                              (4MB or less)
+                            </p>
+                          </>
                         )}
                       </div>
                     </div>

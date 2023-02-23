@@ -4,6 +4,7 @@ import type { UserRecord } from "firebase-admin/auth"
 
 import type { Profile } from "~/types"
 import { IoSearchOutline } from "react-icons/io5"
+import { getPageTitle } from "~/utils"
 
 interface Props {
   user: UserRecord | null
@@ -17,7 +18,7 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
 
   return (
     <div className="w-full h-[70px] px-4 flex items-center justify-between gap-x-3 border-b border-borderExtraLightGray shadow-neutral-300">
-      <div className="w-[80px] h-full flex items-center justify-start">
+      <div className="w-[60px] h-full flex items-center justify-start">
         {!isDrawerOpen && (
           <Link to="/">
             <img
@@ -29,23 +30,29 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
         )}
       </div>
 
-      <div className="relative h-[50px] flex items-center justify-between rounded-full overflow-hidden">
-        {!pathname.startsWith("/auth") ? (
-          <>
-            <IoSearchOutline size={25} className="absolute" />
-            <div className="pl-8 h-full">
-              <input
-                type="text"
-                className="text-textLight text-lg h-full w-full outline-none focus:outline-none"
-              />
-            </div>
-          </>
-        ) : (
+      <div className="h-full flex items-center justify-center">
+        {pathname.startsWith("/auth") ? (
           <p>&nbsp;</p>
+        ) : pathname.startsWith("/upload") ||
+          pathname.startsWith("/wallet") ||
+          pathname.startsWith("/settings") ? (
+          <h6>{getPageTitle(pathname)}</h6>
+        ) : (
+          <div className="relative h-[50px] flex items-center justify-between rounded-full overflow-hidden">
+            <>
+              <IoSearchOutline size={25} className="absolute" />
+              <div className="pl-8 h-full">
+                <input
+                  type="text"
+                  className="text-textLight text-lg h-full w-full outline-none focus:outline-none"
+                />
+              </div>
+            </>
+          </div>
         )}
       </div>
 
-      <div className="w-[120px] h-full flex items-center justify-end">
+      <div className="w-[60px] h-full flex items-center justify-end">
         {pathname.startsWith("/auth") ? (
           <Link to="auth" replace={true} className="px-4">
             &#10005;

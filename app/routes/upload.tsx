@@ -1,11 +1,11 @@
 import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { useCatch, useLoaderData } from "@remix-run/react"
+import { Outlet, useCatch, useLoaderData } from "@remix-run/react"
 
 import ErrorComponent from "~/components/error"
+import FirstprofileNotification from "~/components/firstprofile-notification"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { useFirstProfile } from "~/hooks/useFirstProfile"
-import FirstprofileNotification from "~/components/firstprofile-notification"
 
 export async function loader({ request }: LoaderArgs) {
   try {
@@ -35,10 +35,9 @@ export default function Upload() {
   const { modalVisible, onIntentToCreateProfile, onNotToCreateProfile } =
     useFirstProfile(isNoProfile, false)
 
-  console.log("data: ", data)
   return (
-    <div className="page">
-      <h6>Upload</h6>
+    <>
+      <Outlet />
 
       <FirstprofileNotification
         title="You need a first profile to upload"
@@ -46,7 +45,7 @@ export default function Upload() {
         onOk={onIntentToCreateProfile}
         onCancel={onNotToCreateProfile}
       />
-    </div>
+    </>
   )
 }
 
