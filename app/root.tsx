@@ -250,10 +250,6 @@ export default function App() {
               />
               <RightDrawer
                 openDrawer={openRightDrawer}
-                className={!isRightDrawerOpen ? "-right-[100%]" : "right-0"}
-              />
-              <RightDrawer
-                openDrawer={openRightDrawer}
                 className={!isRightDrawerOpen ? "-right-[200%]" : "right-0"}
                 profile={profile}
                 profiles={loaderData?.account?.profiles as Profile[]}

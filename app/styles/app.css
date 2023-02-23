@@ -795,12 +795,16 @@ button {
   left: 0px;
 }
 
-.-right-\[200\%\] {
-  right: -200%;
+.-right-\[100\%\] {
+  right: -100%;
 }
 
 .right-0 {
   right: 0px;
+}
+
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .top-1 {
@@ -825,10 +829,6 @@ button {
 
 .-top-11 {
   top: -2.75rem;
-}
-
-.-right-\[100\%\] {
-  right: -100%;
 }
 
 .top-0 {
