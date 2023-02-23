@@ -9,6 +9,7 @@ interface Props {
   bgWhite?: boolean
   className?: string
   zIndex?: string
+  onClickBackdrop?: () => void
 }
 
 export function Backdrop({
@@ -20,6 +21,7 @@ export function Backdrop({
   bgWhite = false,
   className,
   zIndex = "z-50",
+  onClickBackdrop,
 }: Props) {
   return (
     <div
@@ -27,6 +29,7 @@ export function Backdrop({
         bgWhite ? "bg-white" : "bg-black"
       } ${className ? className : ""}`}
       style={{ opacity: `${opacity}%` }}
+      onClick={onClickBackdrop}
     >
       {children && children}
       {withSpinner && <Spinner size={spinnerSize} color={spinnerColor} />}

@@ -247,6 +247,7 @@ export default function App() {
                 }`}
                 opacity={!isRightDrawerOpen ? 0 : 30}
                 zIndex="z-[10000]"
+                onClickBackdrop={openRightDrawer.bind(undefined, false)}
               />
               <RightDrawer
                 openDrawer={openRightDrawer}
