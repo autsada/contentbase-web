@@ -33,7 +33,7 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
       <div className="h-full flex items-center justify-center">
         {pathname.startsWith("/auth") ? (
           <p>&nbsp;</p>
-        ) : pathname.startsWith("/upload") ||
+        ) : pathname.startsWith("/content") ||
           pathname.startsWith("/wallet") ||
           pathname.startsWith("/settings") ? (
           <h6>{getPageTitle(pathname)}</h6>

@@ -17,14 +17,8 @@ export function getCountryNames() {
 export function getPageTitle(pathname: string) {
   let title: string = ""
 
-  if (pathname === "/upload") {
-    title = "Share Your Content"
-  }
-  if (pathname === "/upload/video") {
-    title = "Share Video"
-  }
-  if (pathname === "/upload/post") {
-    title = "Share Post"
+  if (pathname === "/content") {
+    title = "Dashboard"
   }
   if (pathname === "/wallet") {
     title = "Wallet"

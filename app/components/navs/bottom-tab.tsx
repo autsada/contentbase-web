@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@remix-run/react"
-import { BsPlusCircle, BsPlusCircleFill } from "react-icons/bs"
+import { BsPlusCircle } from "react-icons/bs"
 import { AiOutlineHome, AiTwotoneHome } from "react-icons/ai"
 import { IoWalletOutline, IoWallet } from "react-icons/io5"
 
@@ -18,15 +18,8 @@ export default function BottomTab() {
           <AiOutlineHome size={34} className="text-textLight cursor-pointer" />
         )}
       </Link>
-      <Link to="/upload">
-        {pathname === "/upload" ? (
-          <BsPlusCircleFill
-            size={34}
-            className="text-textLight cursor-pointer"
-          />
-        ) : (
-          <BsPlusCircle size={34} className="text-textLight cursor-pointer" />
-        )}
+      <Link to="/content?start=true">
+        <BsPlusCircle size={34} className="text-textLight cursor-pointer" />
       </Link>
       <Link to="/wallet">
         {pathname === "/wallet" ? (

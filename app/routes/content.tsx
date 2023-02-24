@@ -1,9 +1,10 @@
-import React from "react"
-import { redirect, json } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Outlet } from "@remix-run/react"
+import { Outlet, useCatch, useLoaderData } from "@remix-run/react"
 
+import ErrorComponent from "~/components/error"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
+import { getBalance } from "~/graphql/server"
 
 export async function loader({ request }: LoaderArgs) {
   try {
@@ -20,12 +21,43 @@ export async function loader({ request }: LoaderArgs) {
       return redirect("/auth/reauthenticate", { headers })
     }
 
-    return json({ user, account, loggedInProfile }, { headers })
+    // Redirect user to create their first profile if they don't already have
+    if (!loggedInProfile) {
+      return redirect("/create", { headers })
+    }
+
+    const address = account.address
+    const balance = address ? await getBalance(address) : ""
+
+    return json({ user, account, loggedInProfile, balance }, { headers })
   } catch (error) {
     throw new Response("Something not right")
   }
 }
 
 export default function Content() {
-  return <Outlet />
+  const data = useLoaderData<typeof loader>()
+
+  return (
+    <Outlet
+      context={{
+        user: data?.user,
+        account: data?.account,
+        profile: data?.loggedInProfile,
+        balance: data?.balance,
+      }}
+    />
+  )
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return <ErrorComponent error={caught.statusText} />
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return <ErrorComponent error={error.message} />
 }

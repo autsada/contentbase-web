@@ -795,16 +795,12 @@ button {
   left: 0px;
 }
 
-.-right-\[100\%\] {
-  right: -100%;
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .right-0 {
   right: 0px;
-}
-
-.-right-\[200\%\] {
-  right: -200%;
 }
 
 .top-1 {
@@ -831,6 +827,10 @@ button {
   top: -2.75rem;
 }
 
+.-right-\[100\%\] {
+  right: -100%;
+}
+
 .top-0 {
   top: 0px;
 }
@@ -843,6 +843,10 @@ button {
   right: 1.5rem;
 }
 
+.right-2 {
+  right: 0.5rem;
+}
+
 .left-5 {
   left: 1.25rem;
 }
@@ -853,10 +857,6 @@ button {
 
 .right-8 {
   right: 2rem;
-}
-
-.right-2 {
-  right: 0.5rem;
 }
 
 .z-\[10000\] {
@@ -875,16 +875,20 @@ button {
   z-index: 9999;
 }
 
+.z-\[10010\] {
+  z-index: 10010;
+}
+
+.z-0 {
+  z-index: 0;
+}
+
 .z-\[100000\] {
   z-index: 100000;
 }
 
 .z-\[10001\] {
   z-index: 10001;
-}
-
-.z-0 {
-  z-index: 0;
 }
 
 .m-0 {
@@ -1013,6 +1017,10 @@ button {
   margin-bottom: 0.25rem;
 }
 
+.mt-3 {
+  margin-top: 0.75rem;
+}
+
 .mt-\[20px\] {
   margin-top: 20px;
 }
@@ -1031,10 +1039,6 @@ button {
 
 .mb-10 {
   margin-bottom: 2.5rem;
-}
-
-.mt-3 {
-  margin-top: 0.75rem;
 }
 
 .block {
@@ -1126,6 +1130,10 @@ button {
   height: 1.25rem;
 }
 
+.h-\[200px\] {
+  height: 200px;
+}
+
 .h-\[120px\] {
   height: 120px;
 }
@@ -1144,10 +1152,6 @@ button {
 
 .h-\[1px\] {
   height: 1px;
-}
-
-.h-\[200px\] {
-  height: 200px;
 }
 
 .max-h-full {
@@ -1227,6 +1231,10 @@ button {
   width: 7rem;
 }
 
+.w-44 {
+  width: 11rem;
+}
+
 .w-\[120px\] {
   width: 120px;
 }
@@ -1253,10 +1261,6 @@ button {
 
 .w-56 {
   width: 14rem;
-}
-
-.w-44 {
-  width: 11rem;
 }
 
 .max-w-\[360px\] {
@@ -1346,6 +1350,14 @@ button {
 
 .overflow-x-auto {
   overflow-x: auto;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
+.overflow-y-hidden {
+  overflow-y: hidden;
 }
 
 .overflow-y-scroll {
@@ -1534,14 +1546,14 @@ button {
   background-color: rgb(252 165 165 / var(--tw-bg-opacity));
 }
 
-.bg-blueBase {
-  --tw-bg-opacity: 1;
-  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
-}
-
 .bg-gray-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity));
+}
+
+.bg-blueBase {
+  --tw-bg-opacity: 1;
+  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
 }
 
 .bg-gradient-to-b {
@@ -1708,8 +1720,12 @@ button {
   padding-bottom: 2rem;
 }
 
-.pt-\[80px\] {
-  padding-top: 80px;
+.pt-8 {
+  padding-top: 2rem;
+}
+
+.pb-5 {
+  padding-bottom: 1.25rem;
 }
 
 .pt-6 {
@@ -1718,6 +1734,10 @@ button {
 
 .pb-10 {
   padding-bottom: 2.5rem;
+}
+
+.pt-\[80px\] {
+  padding-top: 80px;
 }
 
 .pt-5 {
