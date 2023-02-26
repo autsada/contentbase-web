@@ -17,7 +17,7 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
   const { pathname } = useLocation()
 
   return (
-    <div className="w-full h-[70px] px-4 flex items-center justify-between gap-x-3 border-b border-borderExtraLightGray shadow-neutral-300">
+    <div className="w-full h-[100px] px-4 flex items-center justify-between gap-x-2 border-b border-borderExtraLightGray shadow-neutral-300">
       <div className="w-[60px] h-full flex items-center justify-start">
         {!isDrawerOpen && (
           <Link to="/">
@@ -30,7 +30,7 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
         )}
       </div>
 
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex-grow flex items-center">
         {pathname.startsWith("/auth") ? (
           <p>&nbsp;</p>
         ) : pathname.startsWith("/content") ||
@@ -38,21 +38,19 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
           pathname.startsWith("/settings") ? (
           <h6>{getPageTitle(pathname)}</h6>
         ) : (
-          <div className="relative h-[50px] flex items-center justify-between rounded-full overflow-hidden">
-            <>
-              <IoSearchOutline size={25} className="absolute" />
-              <div className="pl-8 h-full">
-                <input
-                  type="text"
-                  className="text-textLight text-lg h-full w-full outline-none focus:outline-none"
-                />
-              </div>
-            </>
+          <div className="relative h-[50px] w-full flex items-center justify-start rounded-full overflow-hidden">
+            <IoSearchOutline size={25} />
+            <div className="relative w-full h-full ml-2">
+              <input
+                type="text"
+                className="absolute inset-0 text-lg outline-none focus:outline-none"
+              />
+            </div>
           </div>
         )}
       </div>
 
-      <div className="w-[60px] h-full flex items-center justify-end">
+      <div className="w-[80px] h-full flex items-center justify-end">
         {pathname.startsWith("/auth") ? (
           <Link to="auth" replace={true} className="px-4">
             &#10005;
