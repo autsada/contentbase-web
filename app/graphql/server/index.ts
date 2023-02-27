@@ -120,30 +120,6 @@ export async function createProfile(
   return data.createProfile
 }
 
-// export async function updateProfileImage({
-//   idToken,
-//   tokenId,
-//   imageURI,
-// }: {
-//   idToken: string
-//   tokenId: number
-//   imageURI: string
-// }) {
-//   const data = await client
-//     .setHeaders({
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${idToken}`,
-//     })
-//     .request<
-//       MutationReturnType<"updateProfileImage">,
-//       MutationArgsType<"updateProfileImage">
-//     >(UPDATE_PROFILE_IMAGE_MUTATION, {
-//       input: { tokenId, imageURI },
-//     })
-
-//   return data.updateProfileImage
-// }
-
 export async function follow({
   followerId,
   followeeId,

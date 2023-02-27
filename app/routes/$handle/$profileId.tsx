@@ -11,20 +11,16 @@ import {
 } from "@remix-run/react"
 import { MdError, MdArrowBackIosNew, MdEdit, MdPerson } from "react-icons/md"
 import { toast } from "react-toastify"
-import type { LoaderArgs } from "@remix-run/node"
+import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 import type { UserRecord } from "firebase-admin/auth"
 
 import ErrorComponent from "~/components/error"
 import { UpdateProfileImageModal } from "~/components/profile/update-image"
-import { Spinner } from "~/components/spinner"
 import { getMyProfile, getProfile } from "~/graphql/public-apis"
-import { getBalance } from "~/graphql/server"
+import { follow, getBalance } from "~/graphql/server"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
-import { useFollowProfile } from "~/hooks/follow-contract"
-import { wait } from "~/utils"
 import type { AccountType, Profile } from "~/types"
-import type { FollowAction } from "../contracts/follow"
 
 /**
  * Query a specific profile by its id
@@ -91,7 +87,31 @@ export async function loader({ request, params }: LoaderArgs) {
     throw new Response("Profile Not Found")
   }
 }
-export type LoadProfileLoader = typeof loader
+
+/**
+ * An action to follow a profile
+ */
+export async function action({ request }: ActionArgs) {
+  try {
+    // Get the `idToken` from the request
+    const form = await request.formData()
+    const { idToken, followerId, followeeId } = Object.fromEntries(form) as {
+      idToken: string
+      followerId: string
+      followeeId: string
+    }
+
+    const result = await follow({
+      idToken,
+      followerId: Number(followerId),
+      followeeId: Number(followeeId),
+    })
+
+    return json(result)
+  } catch (error) {
+    return json({ status: "Error" })
+  }
+}
 
 export default function ProfileDetail() {
   const data = useLoaderData<typeof loader>()
@@ -103,27 +123,13 @@ export default function ProfileDetail() {
   const navigate = useNavigate()
 
   const [updateImageModalVisible, setUpdateImageModalVisible] = useState(false)
-  // Use this state to display spinner for `WALLET` account
-  const [walletFollowLoading, setWalletFollowLoading] = useState<boolean>()
 
   const reauthenticateFetcher = useFetcher()
-  const followFetcher = useFetcher<FollowAction>()
-  const traditionalFollowLoading =
+  const followFetcher = useFetcher<typeof action>()
+  const followLoading =
     followFetcher?.state === "submitting" || followFetcher?.state === "loading"
+  const followResult = followFetcher?.data
   const revalidator = useRevalidator()
-  const {
-    write,
-    isPrepareLoading,
-    isWriteLoading,
-    writeError,
-    isWaitLoading,
-    waitError,
-    isWaitSuccess,
-  } = useFollowProfile(
-    Number(loggedInProfile?.tokenId),
-    Number(profile?.tokenId),
-    accountType
-  )
 
   /**
    * A function to go back to the previous page
@@ -143,8 +149,20 @@ export default function ProfileDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // `TRADITIONAL` Account: follow logic
-  async function handleFollowTraditional() {
+  // When the action function finished
+  useEffect(() => {
+    if (followResult?.status === "Ok") {
+      revalidator.revalidate()
+    } else if (followResult?.status === "Error") {
+      toast.error("Follow failed, you can try again.", {
+        theme: "colored",
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [followResult])
+
+  // A follow/unFollow function
+  async function handleFollow() {
     try {
       if (!loggedInProfile || !profile) return
 
@@ -165,7 +183,7 @@ export default function ProfileDetail() {
           followeeId: profile.tokenId,
           idToken,
         },
-        { method: "post", action: "/contracts/follow" }
+        { method: "post" }
       )
     } catch (error) {
       toast.error("Something not right, please try again.", {
@@ -173,47 +191,6 @@ export default function ProfileDetail() {
       })
     }
   }
-
-  // `WALLET` Account: the follow logic
-  async function handleFollowWallet() {
-    if (!write) return
-    setWalletFollowLoading(true)
-    write()
-  }
-
-  // `WALLET` Account: when transaction done.
-  useEffect(() => {
-    let mounted = true
-    if (isWaitSuccess) {
-      revalidator.revalidate()
-      // Wait for states to be updated before turn off the spinner
-      wait(600).then(() => {
-        if (mounted) {
-          setWalletFollowLoading(false)
-        }
-      })
-    }
-
-    return () => {
-      mounted = false
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWaitSuccess])
-
-  // `WALLET` Account: when transaction error.
-  useEffect(() => {
-    if (writeError?.message || waitError?.message) {
-      setWalletFollowLoading(false)
-      toast.error(
-        writeError?.message ||
-          waitError?.message ||
-          "Something not right, please try again.",
-        {
-          theme: "colored",
-        }
-      )
-    }
-  }, [writeError?.message, waitError?.message])
 
   /**
    * TODO: Add logic to fetch uploaded videos of the profile
@@ -223,11 +200,7 @@ export default function ProfileDetail() {
     <div className="page absolute inset-0">
       <div className="w-full py-[20px] h-[100px] bg-blueBase">
         <div className="absolute left-5 h-[60px] flex items-center cursor-pointer">
-          <button
-            className="p-2"
-            disabled={traditionalFollowLoading || walletFollowLoading}
-            onClick={closeModal}
-          >
+          <button className="p-2" disabled={followLoading} onClick={closeModal}>
             <MdArrowBackIosNew size={30} color="white" />
           </button>
         </div>
@@ -283,7 +256,11 @@ export default function ProfileDetail() {
           ) : (
             <p className="font-light text-textLight">
               <span className="font-normal text-textDark">
-                {profile?.followersCount}
+                {followLoading
+                  ? profile?.isFollowing
+                    ? profile?.followersCount - 1
+                    : profile?.followersCount + 1
+                  : profile?.followersCount}
               </span>{" "}
               followers
             </p>
@@ -309,103 +286,25 @@ export default function ProfileDetail() {
         {/* Add the ability to follow/unfollow if the logged in and displayed is NOT the same profile. */}
         {!isSameProfile && (
           <div className="w-full my-2 relative">
-            {accountType === "TRADITIONAL" ? (
-              <followFetcher.Form onSubmit={handleFollowTraditional}>
-                {!profile?.isFollowing ? (
-                  <ActionButton
-                    type="submit"
-                    disabled={
-                      accountType !== "TRADITIONAL" ||
-                      !profile ||
-                      !loggedInProfile ||
-                      isSameProfile ||
-                      traditionalFollowLoading
-                    }
-                  >
-                    Follow
-                  </ActionButton>
-                ) : (
-                  <ActionButton
-                    type="submit"
-                    isError={true}
-                    disabled={
-                      accountType !== "TRADITIONAL" ||
-                      !profile ||
-                      !loggedInProfile ||
-                      isSameProfile ||
-                      traditionalFollowLoading
-                    }
-                  >
-                    UnFollow
-                  </ActionButton>
-                )}
-              </followFetcher.Form>
-            ) : accountType === "WALLET" ? (
-              <>
-                {!profile?.isFollowing ? (
-                  <ActionButton
-                    type="button"
-                    disabled={
-                      accountType !== "WALLET" ||
-                      !profile ||
-                      !loggedInProfile ||
-                      isSameProfile ||
-                      isPrepareLoading ||
-                      !write ||
-                      isWriteLoading ||
-                      isWaitLoading ||
-                      !!walletFollowLoading
-                    }
-                    onClick={handleFollowWallet}
-                  >
-                    Follow
-                  </ActionButton>
-                ) : (
-                  <ActionButton
-                    type="button"
-                    isError={true}
-                    disabled={
-                      accountType !== "WALLET" ||
-                      !profile ||
-                      !loggedInProfile ||
-                      isSameProfile ||
-                      isPrepareLoading ||
-                      !write ||
-                      isWriteLoading ||
-                      isWaitLoading ||
-                      !!walletFollowLoading
-                    }
-                    onClick={handleFollowWallet}
-                  >
-                    UnFollow
-                  </ActionButton>
-                )}
-              </>
-            ) : null}
-
-            {/* `TRADITIONAL` Account spinner */}
-            {accountType === "TRADITIONAL" && traditionalFollowLoading && (
-              <div
-                className={`absolute inset-0 flex items-center justify-center bg-white opacity-60`}
-              >
-                <Spinner
-                  size={{ w: "w-5", h: "h-5" }}
-                  color={profile?.isFollowing ? "orange" : "default"}
-                />
-              </div>
-            )}
-
-            {/* `WALLET` Account spinner */}
-            {accountType === "WALLET" && walletFollowLoading && (
-              <div
-                className={`absolute inset-0 flex items-center justify-center bg-white opacity-60`}
-              >
-                <Spinner
-                  size={{ w: "w-5", h: "h-5" }}
-                  color={profile?.isFollowing ? "orange" : "default"}
-                />
-              </div>
-            )}
+            <followFetcher.Form onSubmit={handleFollow}>
+              {!profile?.isFollowing ? (
+                <ActionButton
+                  type="submit"
+                  isError={followLoading ? true : false}
+                  disabled={!profile || !loggedInProfile || followLoading}
+                >
+                  {followLoading ? "UnFollow" : "Follow"}
+                </ActionButton>
+              ) : (
+                <ActionButton
+                  type="submit"
+                  isError={followLoading ? false : true}
+                  disabled={!profile || !loggedInProfile || followLoading}
+                >
+                  {followLoading ? "Follow" : "UnFollow"}
+                </ActionButton>
+              )}
+            </followFetcher.Form>
           </div>
         )}
       </div>
@@ -447,7 +346,9 @@ function ActionButton({
       type={type}
       className={`${
         isError ? "btn-light text-error" : "btn-dark"
-      } w-4/5 h-12 rounded-full text-lg`}
+      } w-4/5 h-12 rounded-full text-lg ${
+        disabled ? "opacity-50" : "opacity-100"
+      }`}
       disabled={disabled}
       onClick={onClick}
     >
