@@ -6,7 +6,6 @@ import {
 
 import ProfileContractV1Dev from "~/abi/localhost/ContentBaseProfileV1.json"
 import ProfileContractV1Test from "~/abi/testnet/ContentBaseProfileV1.json"
-import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
 import type { ENV } from "~/types"
 
 let NODE_ENV: ENV = "development"
@@ -38,11 +37,19 @@ const contract =
 //   return { data: data as string, isError, error, isLoading, refetch }
 // }
 
-export function useCreateProfile(
-  handle: string,
-  imageURI: string,
+export function useCreateProfile({
+  handle,
+  metadataURI,
+  imageURI,
+  isHandleLenValid,
+  isHandleUnique,
+}: {
+  handle: string
+  metadataURI: string
+  imageURI: string
+  isHandleLenValid: boolean
   isHandleUnique: boolean
-) {
+}) {
   const {
     config,
     isLoading: isPrepareLoading,
@@ -58,19 +65,23 @@ export function useCreateProfile(
         constant: false,
         payable: false,
         inputs: [
-          { type: "string", name: "handle" },
-          { type: "string", name: "imageURI" },
-          { type: "string", name: "originalHandle" },
+          {
+            type: "tuple",
+            name: "createProfileData",
+            components: [
+              { type: "string", name: "handle" },
+              { type: "string", name: "originalHandle" },
+              { type: "string", name: "metadataURI" },
+              { type: "string", name: "imageURI" },
+            ],
+          },
         ],
         outputs: [],
       },
     ],
     functionName: "createProfile",
-    args: [handle.toLowerCase(), imageURI, handle],
-    enabled:
-      handle.length >= MIN_HANDLE_LENGTH &&
-      handle.length <= MAX_HANDLE_LENGTH &&
-      isHandleUnique,
+    args: [[handle.toLowerCase(), handle, metadataURI, imageURI]],
+    enabled: isHandleLenValid && Boolean(metadataURI) && isHandleUnique,
   })
 
   const {
@@ -100,67 +111,6 @@ export function useCreateProfile(
     writeError,
     isWriteSuccess,
     write,
-    isWaitLoading,
-    isWaitSuccess,
-    isWaitError,
-    waitError,
-  }
-}
-
-export function useUpdateProfileImage(tokenId: number, imageURI: string) {
-  const {
-    config,
-    isLoading: isPrepareLoading,
-    isSuccess: isPrepareSuccess,
-    isError: isPrepareError,
-    error: prepareError,
-  } = usePrepareContractWrite({
-    address: contract.address as any,
-    abi: [
-      {
-        type: "function",
-        name: "updateProfileImage",
-        constant: false,
-        payable: false,
-        inputs: [
-          { type: "uint256", name: "tokenId" },
-          { type: "string", name: "newImageURI" },
-        ],
-        outputs: [],
-      },
-    ],
-    functionName: "updateProfileImage",
-    args: [tokenId, imageURI],
-    enabled: Boolean(tokenId) && Boolean(imageURI),
-  })
-
-  const {
-    data,
-    write,
-    isLoading: isWriteLoading,
-    isError: isWriteError,
-    isSuccess: isWriteSuccess,
-    error: writeError,
-  } = useContractWrite(config)
-  const {
-    isLoading: isWaitLoading,
-    isSuccess: isWaitSuccess,
-    isError: isWaitError,
-    error: waitError,
-  } = useWaitForTransaction({
-    hash: data?.hash,
-  })
-
-  return {
-    isPrepareLoading,
-    isPrepareSuccess,
-    isPrepareError,
-    prepareError,
-    isWriteLoading,
-    isWriteError,
-    isWriteSuccess,
-    write,
-    writeError,
     isWaitLoading,
     isWaitSuccess,
     isWaitError,

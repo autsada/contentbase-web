@@ -18,7 +18,7 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
 
   return (
     <div className="w-full h-[100px] px-4 flex items-center justify-between gap-x-2 border-b border-borderExtraLightGray shadow-neutral-300">
-      <div className="w-[60px] h-full flex items-center justify-start">
+      <div className="w-[80px] h-full flex items-center justify-start">
         {!isDrawerOpen && (
           <Link to="/">
             <img
@@ -30,7 +30,7 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
         )}
       </div>
 
-      <div className="h-full flex-grow flex items-center">
+      <div className="h-full flex-grow flex items-center justify-center">
         {pathname.startsWith("/auth") ? (
           <p>&nbsp;</p>
         ) : pathname.startsWith("/content") ||

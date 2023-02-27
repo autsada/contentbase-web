@@ -3,6 +3,8 @@
  * Do not make changes to this file directly
  */
 
+// import type { Context } from "./context"
+// import type { core } from "nexus"
 declare global {
   interface NexusGenCustomInputMethods<TypeName extends string> {
     /**
@@ -16,12 +18,15 @@ declare global {
     /**
      * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
      */
-    // date<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void // "DateTime";
+    date<FieldName extends string>(
+      fieldName: FieldName
+      // ...opts: core.ScalarOutSpread<TypeName, FieldName>
+    ): void // "DateTime";
   }
 }
 
 declare global {
-  // interface NexusGen extends NexusGenTypes {}
+  interface NexusGen extends NexusGenTypes {}
 }
 
 export interface NexusGenInputs {
@@ -131,6 +136,7 @@ export interface NexusGenObjects {
   }
   Playback: {
     // root type
+    contentPath: string // String!
     dash: string // String!
     duration: number // Float!
     hls: string // String!
@@ -153,11 +159,11 @@ export interface NexusGenObjects {
   }
   PreviewPublish: {
     // root type
-    contentURI: string // String!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     id: number // Int!
     kind: NexusGenEnums["PublishKind"] // PublishKind!
     primaryCategory: NexusGenEnums["Category"] // Category!
+    publishURI: string // String!
     secondaryCategory: NexusGenEnums["Category"] // Category!
     tertiaryCategory: NexusGenEnums["Category"] // Category!
     title: string // String!
@@ -172,6 +178,7 @@ export interface NexusGenObjects {
     handle: string // String!
     id: number // Int!
     imageURI?: string | null // String
+    metadataURI: string // String!
     originalHandle: string // String!
     owner: string // String!
     tokenId: string // String!
@@ -179,13 +186,14 @@ export interface NexusGenObjects {
   }
   Publish: {
     // root type
-    contentURI: string // String!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     creatorTokenId: string // String!
     description?: string | null // String
     id: number // Int!
     kind: NexusGenEnums["PublishKind"] // PublishKind!
+    metadataURI: string // String!
     primaryCategory: NexusGenEnums["Category"] // Category!
+    publishURI: string // String!
     secondaryCategory: NexusGenEnums["Category"] // Category!
     tertiaryCategory: NexusGenEnums["Category"] // Category!
     title: string // String!
@@ -277,6 +285,7 @@ export interface NexusGenFieldTypes {
   }
   Playback: {
     // field return type
+    contentPath: string // String!
     dash: string // String!
     duration: number // Float!
     hls: string // String!
@@ -300,13 +309,13 @@ export interface NexusGenFieldTypes {
   }
   PreviewPublish: {
     // field return type
-    contentURI: string // String!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     creator: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
     id: number // Int!
     kind: NexusGenEnums["PublishKind"] // PublishKind!
     playback: NexusGenRootTypes["Playback"] | null // Playback
     primaryCategory: NexusGenEnums["Category"] // Category!
+    publishURI: string // String!
     secondaryCategory: NexusGenEnums["Category"] // Category!
     tertiaryCategory: NexusGenEnums["Category"] // Category!
     title: string // String!
@@ -326,6 +335,7 @@ export interface NexusGenFieldTypes {
     id: number // Int!
     imageURI: string | null // String
     isFollowing: boolean | null // Boolean
+    metadataURI: string // String!
     originalHandle: string // String!
     owner: string // String!
     publishesCount: number // Int!
@@ -335,7 +345,6 @@ export interface NexusGenFieldTypes {
   Publish: {
     // field return type
     commentsCount: number // Int!
-    contentURI: string // String!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     creator: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
     creatorTokenId: string // String!
@@ -348,8 +357,10 @@ export interface NexusGenFieldTypes {
     liked: boolean | null // Boolean
     likes: Array<NexusGenRootTypes["PreviewProfile"] | null> // [PreviewProfile]!
     likesCount: number // Int!
+    metadataURI: string // String!
     playback: NexusGenRootTypes["Playback"] | null // Playback
     primaryCategory: NexusGenEnums["Category"] // Category!
+    publishURI: string // String!
     secondaryCategory: NexusGenEnums["Category"] // Category!
     tertiaryCategory: NexusGenEnums["Category"] // Category!
     title: string // String!
@@ -448,6 +459,7 @@ export interface NexusGenFieldTypeNames {
   }
   Playback: {
     // field return type name
+    contentPath: "String"
     dash: "String"
     duration: "Float"
     hls: "String"
@@ -471,13 +483,13 @@ export interface NexusGenFieldTypeNames {
   }
   PreviewPublish: {
     // field return type name
-    contentURI: "String"
     createdAt: "DateTime"
     creator: "PreviewProfile"
     id: "Int"
     kind: "PublishKind"
     playback: "Playback"
     primaryCategory: "Category"
+    publishURI: "String"
     secondaryCategory: "Category"
     tertiaryCategory: "Category"
     title: "String"
@@ -497,6 +509,7 @@ export interface NexusGenFieldTypeNames {
     id: "Int"
     imageURI: "String"
     isFollowing: "Boolean"
+    metadataURI: "String"
     originalHandle: "String"
     owner: "String"
     publishesCount: "Int"
@@ -506,7 +519,6 @@ export interface NexusGenFieldTypeNames {
   Publish: {
     // field return type name
     commentsCount: "Int"
-    contentURI: "String"
     createdAt: "DateTime"
     creator: "PreviewProfile"
     creatorTokenId: "String"
@@ -519,8 +531,10 @@ export interface NexusGenFieldTypeNames {
     liked: "Boolean"
     likes: "PreviewProfile"
     likesCount: "Int"
+    metadataURI: "String"
     playback: "Playback"
     primaryCategory: "Category"
+    publishURI: "String"
     secondaryCategory: "Category"
     tertiaryCategory: "Category"
     title: "String"
@@ -679,7 +693,8 @@ export interface NexusGenTypes {
 }
 
 declare global {
-  interface NexusGenPluginTypeConfig<TypeName extends string> {}
+  // interface NexusGenPluginTypeConfig<TypeName extends string> {
+  // }
   interface NexusGenPluginInputTypeConfig<TypeName extends string> {}
   interface NexusGenPluginFieldConfig<
     TypeName extends string,

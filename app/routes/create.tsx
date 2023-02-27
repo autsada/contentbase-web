@@ -55,9 +55,10 @@ export async function action({ request }: ActionArgs) {
   try {
     // Get the `idToken` from the request
     const form = await request.formData()
-    const { handle, imageURI, owner, idToken, isFirstProfile } =
+    const { handle, metadataURI, imageURI, owner, idToken, isFirstProfile } =
       Object.fromEntries(form) as {
         handle: string
+        metadataURI: string
         imageURI?: string
         owner: string
         idToken: string
@@ -66,16 +67,20 @@ export async function action({ request }: ActionArgs) {
 
     if (isFirstProfile === "True") {
       // Call `createFirstProfile` mutation in the `Server` service
-      await createFirstProfile({ handle, imageURI, owner }, idToken)
+      await createFirstProfile(
+        { handle, metadataURI, imageURI, owner },
+        idToken
+      )
     }
 
     if (isFirstProfile === "False") {
       // Call `createProfile` mutation in the `Server` service
-      await createProfile({ handle, imageURI }, idToken)
+      await createProfile({ handle, metadataURI, imageURI }, idToken)
     }
 
     return json({ status: "Ok" })
   } catch (error) {
+    console.log("error: ", error)
     return json({ status: "Error" })
   }
 }
@@ -83,10 +88,10 @@ export async function action({ request }: ActionArgs) {
 export default function CreateProfile() {
   const [handle, setHandle] = useState("")
   const isHandleLenValid =
-    handle &&
-    handle.length >= MIN_HANDLE_LENGTH &&
-    handle.length <= MAX_HANDLE_LENGTH
-  const [file, setFile] = useState<SelectedFile | null>(null)
+    !!handle &&
+    handle?.length >= MIN_HANDLE_LENGTH &&
+    handle?.length <= MAX_HANDLE_LENGTH
+  const [file, setFile] = useState<SelectedFile>()
   const [imageSizeError, setImageSizeError] = useState("")
   const [uploadingImage, setUploadingImage] = useState<boolean>()
   const [uploadImageError, setUploadImageError] = useState<boolean>()
@@ -95,6 +100,7 @@ export default function CreateProfile() {
   const [isCreateProfileSuccess, setIsCreateProfileSuccess] =
     useState<boolean>()
   const [isCreateProfileError, setIsCreateProfileError] = useState<boolean>()
+  const [metadataURI, setMetadataURI] = useState("") // For `WALLET` account, we need to set the metadata uri to state in order to pass it to wagmi hook.
   const [imageURI, setImageURI] = useState("") // For `WALLET` account, we need to set the image uri to state in order to pass it to wagmi hook.
   const [retryCount, setRetryCount] = useState(0)
   const [noWriteError, setNoWriteError] = useState<boolean>() // If, for some reason, there is no `write` transaction after magmi prepare transaction done, use this state to inform user.
@@ -133,11 +139,13 @@ export default function CreateProfile() {
     isWaitSuccess,
     isWaitError,
     waitError,
-  } = useCreateProfile(
+  } = useCreateProfile({
     handle,
+    metadataURI,
     imageURI,
-    accountType === "WALLET" && !!isHandleUnique
-  )
+    isHandleLenValid: accountType === "WALLET" && isHandleLenValid,
+    isHandleUnique: accountType === "WALLET" && !!isHandleUnique,
+  })
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -199,7 +207,7 @@ export default function CreateProfile() {
   }
 
   const removeImage = useCallback(() => {
-    setFile(null)
+    setFile(undefined)
   }, [])
 
   // First profile or `TRADITIONAL` Account: When the action returns
@@ -233,25 +241,22 @@ export default function CreateProfile() {
         return
       }
 
-      let imageURI: string = ""
-
-      // If user upload an image
-      if (file) {
-        setUploadingImage(true)
-        imageURI = await uploadImage({
-          uid: user?.uid || "",
-          file,
-          handle,
-          oldImageURI: null,
-        })
-        if (!imageURI) {
-          setUploadImageError(true)
-          setUploadingImage(false)
-          return
-        }
-
-        if (uploadImageError) setUploadImageError(false)
+      setUploadingImage(true)
+      const result = await uploadImage({
+        uid: user?.uid || "",
+        file,
+        handle,
+        oldImageURI: null,
+      })
+      const metadataURI = result.metadataURI
+      const imageURI = result.imageURI
+      if (!metadataURI || !imageURI) {
+        setUploadImageError(true)
+        setUploadingImage(false)
+        return
       }
+
+      if (uploadImageError) setUploadImageError(false)
 
       // If first profile or a traditional account, call the server.
       if (isFirstProfile || accountType === "TRADITIONAL") {
@@ -279,6 +284,7 @@ export default function CreateProfile() {
           actionFetcher.submit(
             {
               handle,
+              metadataURI,
               imageURI,
               owner: address,
               idToken,
@@ -291,6 +297,7 @@ export default function CreateProfile() {
           actionFetcher.submit(
             {
               handle,
+              metadataURI,
               imageURI,
               owner: address,
               idToken,
@@ -303,14 +310,11 @@ export default function CreateProfile() {
         // `WALLET` account and NOT a first profile
         if (accountType === "WALLET") {
           // B. Connect to the blockchain directly.
-          if (file && imageURI) {
-            setImageURI(imageURI)
-            // Wait 1000ms to make sure the `write` function is available
-            await wait(1000)
-            setUploadingImage(false)
-          } else {
-            // Don't need to wait
-          }
+          setMetadataURI(metadataURI)
+          setImageURI(imageURI)
+          // Wait 1000ms to make sure the `write` function is available
+          await wait(1000)
+          setUploadingImage(false)
 
           createProfileForWallet()
         }
@@ -371,7 +375,7 @@ export default function CreateProfile() {
     // Revalidate once again to make sure the UIs get the latest data.
     revalidator.revalidate()
     setHandle("")
-    setFile(null)
+    setFile(undefined)
     if (uploadingImage) setUploadingImage(false)
     if (uploadImageError) setUploadImageError(false)
     if (connectServerLoading) setConnectServerLoading(false)
@@ -522,7 +526,9 @@ export default function CreateProfile() {
                 }`}
               >
                 {uploadingImage
-                  ? "Uploading Image."
+                  ? file
+                    ? "Uploading Image."
+                    : "Using Default Image."
                   : connectServerLoading
                   ? "Transaction Submitted. Waiting..."
                   : null}
@@ -567,7 +573,9 @@ export default function CreateProfile() {
                 }`}
               >
                 {uploadingImage
-                  ? "Uploading Image."
+                  ? file
+                    ? "Uploading Image."
+                    : "Using Default Image."
                   : isWriteLoading
                   ? "Connecting Wallet."
                   : isWriteSuccess || isWaitLoading

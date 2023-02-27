@@ -1,11 +1,16 @@
 import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Outlet, useCatch, useLoaderData } from "@remix-run/react"
+import {
+  Outlet,
+  useCatch,
+  useLoaderData,
+  useOutletContext,
+} from "@remix-run/react"
 
 import ErrorComponent from "~/components/error"
-import FirstprofileNotification from "~/components/firstprofile-notification"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
-import { useFirstProfile } from "~/hooks/useFirstProfile"
+import type { UserRecord } from "firebase-admin/auth"
+import type { Profile, Account } from "~/types"
 
 export async function loader({ request }: LoaderArgs) {
   try {
@@ -22,6 +27,10 @@ export async function loader({ request }: LoaderArgs) {
       return redirect("/auth/reauthenticate", { headers })
     }
 
+    if (!loggedInProfile) {
+      return redirect("/create", { headers })
+    }
+
     return json({ user, account, loggedInProfile }, { headers })
   } catch (error) {
     throw new Response("Something not right")
@@ -30,23 +39,8 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function Upload() {
   const data = useLoaderData<typeof loader>()
-  const isNoProfile = !data?.loggedInProfile
 
-  const { modalVisible, onIntentToCreateProfile, onNotToCreateProfile } =
-    useFirstProfile(isNoProfile, false)
-
-  return (
-    <>
-      <Outlet />
-
-      <FirstprofileNotification
-        title="You need a first profile to upload"
-        modalVisible={modalVisible}
-        onOk={onIntentToCreateProfile}
-        onCancel={onNotToCreateProfile}
-      />
-    </>
-  )
+  return <Outlet context={data} />
 }
 
 export function CatchBoundary() {
@@ -59,4 +53,15 @@ export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error)
 
   return <ErrorComponent error={error.message} />
+}
+
+export type UploadContext = {
+  user: UserRecord
+  profile: Profile
+  account: Account
+  balance: string | undefined
+}
+
+export function useUploadContext() {
+  return useOutletContext<UploadContext>()
 }

@@ -30,3 +30,21 @@ export type SelectedFile = File & {
   path: string
   preview: string
 }
+
+export type UploadFileArgs = {
+  uid: string
+  file?: File
+  handle: string
+  oldImageURI?: string | null
+}
+
+export type UploadAvatarResult = {
+  imageURI: string // A uri to display the image
+  metadataURI: string // A uri point to the publish's metadata json file stored on nft.storage
+}
+
+export type UploadPublishResult = {
+  publishURI: string // A uri to display the publish
+  thumbnails: string[]
+  metadataURI: string // A uri point to the publish's metadata json file stored on nft.storage
+}

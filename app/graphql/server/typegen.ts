@@ -20,21 +20,23 @@ export interface NexusGenInputs {
     // input type
     handle: string // String!
     imageURI?: string | null // String
+    metadataURI: string // String!
     owner: string // String!
   }
   CreateProfileInput: {
     // input type
     handle: string // String!
     imageURI?: string | null // String
+    metadataURI: string // String!
   }
   CreatePublishInput: {
     // input type
-    contentRef: string // String!
-    contentURI: string // String!
     creatorId: number // Int!
     description: string // String!
     kind: NexusGenEnums["PublishKind"] // PublishKind!
+    metadataURI: string // String!
     primaryCategory: NexusGenEnums["Category"] // Category!
+    publishURI: string // String!
     secondaryCategory: NexusGenEnums["Category"] // Category!
     tertiaryCategory: NexusGenEnums["Category"] // Category!
     title: string // String!
@@ -154,13 +156,14 @@ export interface NexusGenObjects {
     // root type
     handle: string // String!
     imageURI: string // String!
+    metadataURI: string // String!
     owner: string // String!
     tokenId: number // Int!
   }
   PublishToken: {
     // root type
-    contentURI: string // String!
     creatorId: number // Int!
+    metadataURI: string // String!
     owner: string // String!
     tokenId: number // Int!
   }
@@ -257,7 +260,6 @@ export interface NexusGenFieldTypes {
     estimateGasCreatePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     estimateGasFollow: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     estimateGasLikePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
-    estimateGasUpdateProfileImage: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     follow: NexusGenRootTypes["WriteResult"] // WriteResult!
     hasRoleFollow: boolean // Boolean!
     hasRoleLike: boolean // Boolean!
@@ -276,7 +278,6 @@ export interface NexusGenFieldTypes {
     setPublishForComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     setPublishForLike: NexusGenRootTypes["WriteResult"] // WriteResult!
     updateComment: NexusGenRootTypes["WriteResult"] // WriteResult!
-    updateProfileImage: NexusGenRootTypes["WriteResult"] // WriteResult!
     updatePublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     validateHandle: boolean // Boolean!
     withdrawFunds: NexusGenRootTypes["WriteResult"] // WriteResult!
@@ -285,13 +286,14 @@ export interface NexusGenFieldTypes {
     // field return type
     handle: string // String!
     imageURI: string // String!
+    metadataURI: string // String!
     owner: string // String!
     tokenId: number // Int!
   }
   PublishToken: {
     // field return type
-    contentURI: string // String!
     creatorId: number // Int!
+    metadataURI: string // String!
     owner: string // String!
     tokenId: number // Int!
   }
@@ -395,7 +397,6 @@ export interface NexusGenFieldTypeNames {
     estimateGasCreatePublish: "EstimateGasResult"
     estimateGasFollow: "EstimateGasResult"
     estimateGasLikePublish: "EstimateGasResult"
-    estimateGasUpdateProfileImage: "EstimateGasResult"
     follow: "WriteResult"
     hasRoleFollow: "Boolean"
     hasRoleLike: "Boolean"
@@ -414,7 +415,6 @@ export interface NexusGenFieldTypeNames {
     setPublishForComment: "WriteResult"
     setPublishForLike: "WriteResult"
     updateComment: "WriteResult"
-    updateProfileImage: "WriteResult"
     updatePublish: "WriteResult"
     validateHandle: "Boolean"
     withdrawFunds: "WriteResult"
@@ -423,13 +423,14 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     handle: "String"
     imageURI: "String"
+    metadataURI: "String"
     owner: "String"
     tokenId: "Int"
   }
   PublishToken: {
     // field return type name
-    contentURI: "String"
     creatorId: "Int"
+    metadataURI: "String"
     owner: "String"
     tokenId: "Int"
   }
@@ -536,10 +537,6 @@ export interface NexusGenArgTypes {
       profileId: number // Int!
       publishId: number // Int!
     }
-    estimateGasUpdateProfileImage: {
-      // args
-      input: NexusGenInputs["UpdateProfileImageInput"] // UpdateProfileImageInput!
-    }
     follow: {
       // args
       input: NexusGenInputs["FollowInput"] // FollowInput!
@@ -613,10 +610,6 @@ export interface NexusGenArgTypes {
     updateComment: {
       // args
       input: NexusGenInputs["UpdateCommentInput"] // UpdateCommentInput!
-    }
-    updateProfileImage: {
-      // args
-      input: NexusGenInputs["UpdateProfileImageInput"] // UpdateProfileImageInput!
     }
     updatePublish: {
       // args

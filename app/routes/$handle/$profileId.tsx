@@ -11,20 +11,19 @@ import {
 } from "@remix-run/react"
 import { MdError, MdArrowBackIosNew, MdEdit, MdPerson } from "react-icons/md"
 import { toast } from "react-toastify"
-import type { LoaderArgs, ActionArgs } from "@remix-run/node"
+import type { LoaderArgs } from "@remix-run/node"
 import type { UserRecord } from "firebase-admin/auth"
 
 import ErrorComponent from "~/components/error"
 import { UpdateProfileImageModal } from "~/components/profile/update-image"
 import { Spinner } from "~/components/spinner"
 import { getMyProfile, getProfile } from "~/graphql/public-apis"
-import { getBalance, updateProfileImage } from "~/graphql/server"
+import { getBalance } from "~/graphql/server"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { clientAuth } from "~/client/firebase.client"
 import { useFollowProfile } from "~/hooks/follow-contract"
 import { wait } from "~/utils"
 import type { AccountType, Profile } from "~/types"
-import type { EstimateGasUpdateProfileImageAction } from "../contracts/profile/update-image"
 import type { FollowAction } from "../contracts/follow"
 
 /**
@@ -94,31 +93,6 @@ export async function loader({ request, params }: LoaderArgs) {
 }
 export type LoadProfileLoader = typeof loader
 
-/**
- * An action to update profile image
- */
-export async function action({ request }: ActionArgs) {
-  try {
-    const form = await request.formData()
-    const { tokenId, imageURI, idToken } = Object.fromEntries(form) as {
-      tokenId: string
-      imageURI: string
-      idToken: string
-    }
-
-    await updateProfileImage({
-      idToken,
-      imageURI,
-      tokenId: Number(tokenId),
-    })
-
-    return json({ status: "Ok" })
-  } catch (error) {
-    return json({ status: "Error" })
-  }
-}
-export type UpdateProfileImageAction = typeof action
-
 export default function ProfileDetail() {
   const data = useLoaderData<typeof loader>()
   const user = data?.user as UserRecord
@@ -132,7 +106,6 @@ export default function ProfileDetail() {
   // Use this state to display spinner for `WALLET` account
   const [walletFollowLoading, setWalletFollowLoading] = useState<boolean>()
 
-  const estimateGasFetcher = useFetcher<EstimateGasUpdateProfileImageAction>()
   const reauthenticateFetcher = useFetcher()
   const followFetcher = useFetcher<FollowAction>()
   const traditionalFollowLoading =
@@ -158,32 +131,6 @@ export default function ProfileDetail() {
   function closeModal() {
     navigate(-1)
   }
-
-  /**
-   * On first render when the profile is available and the logged in profile and the displayed profile are the same, check gas fee for updating an image.
-   */
-  useEffect(() => {
-    if (isSameProfile && profile?.tokenId) {
-      if (accountType === "TRADITIONAL") {
-        // Call the server
-        const getEstimatedGas = async () => {
-          const user = clientAuth.currentUser
-          const idToken = await user?.getIdToken()
-          if (!idToken) return
-          estimateGasFetcher.submit(
-            { idToken, tokenId: profile.tokenId },
-            {
-              method: "post",
-              action: `/contracts/profile/update-image`,
-            }
-          )
-        }
-
-        getEstimatedGas()
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountType, isSameProfile, profile?.tokenId])
 
   const openImageModal = useCallback(() => {
     setUpdateImageModalVisible(true)
@@ -469,11 +416,9 @@ export default function ProfileDetail() {
         <UpdateProfileImageModal
           userId={user?.uid}
           accountType={accountType}
-          gas={estimateGasFetcher?.data?.gas}
           handle={profile?.handle}
           tokenId={profile?.tokenId}
           oldImageURI={profile?.imageURI}
-          balance={data?.balance}
           closeModal={closeImageModal}
         />
       )}

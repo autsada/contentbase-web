@@ -4,15 +4,12 @@
  */
 
 import { GraphQLClient } from "graphql-request"
-import { dummyImageURI } from "~/constants"
 
 import {
   CREATE_FIRST_PROFILE_MUTATION,
   CREATE_PROFILE_MUTATION,
   CREATE_WALLET_MUTATION,
-  ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION,
   FOLLOW_MUTATION,
-  UPDATE_PROFILE_IMAGE_MUTATION,
   VALIDATE_HANDLE_MUTATION,
 } from "./mutations"
 import { GET_BALANCE_QUERY } from "./queries"
@@ -106,28 +103,6 @@ export async function createFirstProfile(
   return data.createFirstProfile
 }
 
-export async function estimateGaseUpdateProfileImage({
-  idToken,
-  tokenId,
-}: {
-  idToken: string
-  tokenId: number
-}) {
-  const data = await client
-    .setHeaders({
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${idToken}`,
-    })
-    .request<
-      MutationReturnType<"estimateGasUpdateProfileImage">,
-      MutationArgsType<"estimateGasUpdateProfileImage">
-    >(ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION, {
-      input: { tokenId, imageURI: dummyImageURI }, // Use a dummy hard-coded uri.
-    })
-
-  return data.estimateGasUpdateProfileImage
-}
-
 export async function createProfile(
   input: MutationArgsType<"createProfile">["input"],
   idToken: string
@@ -145,29 +120,29 @@ export async function createProfile(
   return data.createProfile
 }
 
-export async function updateProfileImage({
-  idToken,
-  tokenId,
-  imageURI,
-}: {
-  idToken: string
-  tokenId: number
-  imageURI: string
-}) {
-  const data = await client
-    .setHeaders({
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${idToken}`,
-    })
-    .request<
-      MutationReturnType<"updateProfileImage">,
-      MutationArgsType<"updateProfileImage">
-    >(UPDATE_PROFILE_IMAGE_MUTATION, {
-      input: { tokenId, imageURI },
-    })
+// export async function updateProfileImage({
+//   idToken,
+//   tokenId,
+//   imageURI,
+// }: {
+//   idToken: string
+//   tokenId: number
+//   imageURI: string
+// }) {
+//   const data = await client
+//     .setHeaders({
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${idToken}`,
+//     })
+//     .request<
+//       MutationReturnType<"updateProfileImage">,
+//       MutationArgsType<"updateProfileImage">
+//     >(UPDATE_PROFILE_IMAGE_MUTATION, {
+//       input: { tokenId, imageURI },
+//     })
 
-  return data.updateProfileImage
-}
+//   return data.updateProfileImage
+// }
 
 export async function follow({
   followerId,

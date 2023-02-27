@@ -3,7 +3,7 @@ import { json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 import type { LoaderArgs } from "@remix-run/node"
 
-import { UploadVideoContent } from "~/components/upload/video-content"
+import { UploadModal } from "~/components/upload/upload-modal"
 
 export function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
@@ -23,8 +23,12 @@ export default function ContentDashboard() {
     }
   }, [data])
 
-  const openUploadModal = useCallback((open: boolean) => {
-    setUploadModalVisible(open)
+  const openUploadModal = useCallback(() => {
+    setUploadModalVisible(true)
+  }, [])
+
+  const closeUploadModal = useCallback(() => {
+    setUploadModalVisible(false)
   }, [])
 
   return (
@@ -33,7 +37,7 @@ export default function ContentDashboard() {
         uploadModalVisible ? "overflow-y-hidden" : "overflow-y-auto"
       }`}
     >
-      {uploadModalVisible && <UploadVideoContent openModal={openUploadModal} />}
+      {uploadModalVisible && <UploadModal closeModal={closeUploadModal} />}
     </div>
   )
 }

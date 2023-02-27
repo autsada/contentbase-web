@@ -2,6 +2,7 @@ import { getCountries } from "react-phone-number-input/input"
 import en from "react-phone-number-input/locale/en.json"
 
 import { UPLOAD_SERVICE_URL } from "~/constants"
+import type { UploadFileArgs, UploadAvatarResult } from "~/types"
 
 export function getCountryNames() {
   return getCountries()
@@ -30,17 +31,15 @@ export function getPageTitle(pathname: string) {
   return title
 }
 
-export async function uploadImage({
-  uid,
-  file,
-  handle,
-  oldImageURI,
-}: {
-  uid: string
-  file: File
-  handle: string
-  oldImageURI: string | null
-}) {
+/**
+ * A helper functionto wait
+ * @param time
+ */
+export function wait(time: number) {
+  return new Promise((resolve) => setTimeout(resolve, time))
+}
+
+function uploadFile({ uid, file, handle, oldImageURI }: UploadFileArgs) {
   const formData = new FormData()
   formData.append("uid", uid)
   formData.append("file", file!)
@@ -49,20 +48,39 @@ export async function uploadImage({
     formData.append("oldURI", oldImageURI)
   }
 
+  return formData
+}
+
+export async function uploadImage({
+  uid,
+  file,
+  handle,
+  oldImageURI,
+}: UploadFileArgs) {
+  const formData = uploadFile({ uid, file, handle, oldImageURI })
+
   // const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
   const res = await fetch(`http://localhost:4444/profile/avatar`, {
     method: "POST",
     body: formData,
   })
 
-  const data = (await res.json()) as { url: string }
-  return data.url
+  const data = (await res.json()) as UploadAvatarResult
+  return data
 }
 
-/**
- * A helper functionto wait
- * @param time
- */
-export function wait(time: number) {
-  return new Promise((resolve) => setTimeout(resolve, time))
+export async function uploadVideo({
+  uid,
+  file,
+  handle,
+  oldImageURI,
+}: UploadFileArgs) {
+  const formData = uploadFile({ uid, file, handle, oldImageURI })
+
+  // const res = await fetch(`${UPLOAD_SERVICE_URL}/publish/video`, {
+  const res = await fetch(`http://localhost:4444/publish/video`, {
+    method: "POST",
+    body: formData,
+  })
+  return res.json()
 }

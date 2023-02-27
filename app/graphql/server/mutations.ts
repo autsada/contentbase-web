@@ -22,13 +22,13 @@ export const CREATE_FIRST_PROFILE_MUTATION = gql`
   }
 `
 
-export const ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION = gql`
-  mutation EstimateGasUpdateProfileImage($input: UpdateProfileImageInput!) {
-    estimateGasUpdateProfileImage(input: $input) {
-      gas
-    }
-  }
-`
+// export const ESTIMATE_UPDATE_PROFILE_IMAGE_GAS_MUTATION = gql`
+//   mutation EstimateGasUpdateProfileImage($input: UpdateProfileImageInput!) {
+//     estimateGasUpdateProfileImage(input: $input) {
+//       gas
+//     }
+//   }
+// `
 
 export const CREATE_PROFILE_MUTATION = gql`
   mutation CreateProfile($input: CreateProfileInput!) {
@@ -38,13 +38,13 @@ export const CREATE_PROFILE_MUTATION = gql`
   }
 `
 
-export const UPDATE_PROFILE_IMAGE_MUTATION = gql`
-  mutation UpdateProfileImage($input: UpdateProfileImageInput!) {
-    updateProfileImage(input: $input) {
-      status
-    }
-  }
-`
+// export const UPDATE_PROFILE_IMAGE_MUTATION = gql`
+//   mutation UpdateProfileImage($input: UpdateProfileImageInput!) {
+//     updateProfileImage(input: $input) {
+//       status
+//     }
+//   }
+// `
 
 export const FOLLOW_MUTATION = gql`
   mutation Follow($input: FollowInput!) {
