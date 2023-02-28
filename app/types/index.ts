@@ -32,7 +32,7 @@ export type SelectedFile = File & {
 }
 
 export type UploadFileArgs = {
-  uid: string
+  idToken: string
   file?: File
   handle: string
   oldImageURI?: string | null

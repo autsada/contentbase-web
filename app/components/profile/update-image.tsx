@@ -1,11 +1,13 @@
 import { useState, useCallback } from "react"
 import { useDropzone } from "react-dropzone"
+import { MdFileUpload } from "react-icons/md"
+import { useFetcher } from "@remix-run/react"
 
 import { BackdropWithInfo } from "../backdrop-info"
 import { Spinner } from "../spinner"
-import { uploadImage } from "~/utils"
+import { clientAuth } from "~/client/firebase.client"
+import { uploadImage } from "~/utils/upload-apis"
 import type { AccountType, SelectedFile } from "~/types"
-import { MdFileUpload } from "react-icons/md"
 
 interface Props {
   userId: string
@@ -29,6 +31,8 @@ export function UpdateProfileImageModal({
   const [uploadingImage, setUploadingImage] = useState<boolean>()
   const [uploadImageError, setUploadImageError] = useState<boolean>()
   const [isSuccess, setIsSuccess] = useState<boolean>()
+
+  const actionFetcher = useFetcher()
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -79,10 +83,22 @@ export function UpdateProfileImageModal({
       )
         return
 
-      setUploadingImage(true)
+      if (!clientAuth || !clientAuth.currentUser) {
+        actionFetcher.submit(null, {
+          method: "post",
+          action: "/auth/reauthenticate",
+        })
+        return
+      }
 
+      // Get user's id token
+      const user = clientAuth.currentUser
+      const idToken = await user?.getIdToken()
+
+      // Start upload image
+      setUploadingImage(true)
       const result = await uploadImage({
-        uid: userId,
+        idToken,
         file,
         handle,
         oldImageURI,

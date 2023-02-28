@@ -14,7 +14,6 @@ import { useHydrated } from "remix-utils"
 import { json, redirect } from "@remix-run/node"
 import type { ActionArgs, LoaderArgs } from "@remix-run/node"
 import type { ChangeEvent } from "react"
-import type { UserRecord } from "firebase-admin/auth"
 
 import { BackdropWithInfo } from "~/components/backdrop-info"
 import { Spinner } from "~/components/spinner"
@@ -25,7 +24,8 @@ import { useFirstProfile } from "~/hooks/useFirstProfile"
 import { clientAuth } from "~/client/firebase.client"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { createFirstProfile, createProfile } from "~/graphql/server"
-import { uploadImage, wait } from "~/utils"
+import { wait } from "~/utils"
+import { uploadImage } from "~/utils/upload-apis"
 import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
 import type { validateActionType } from "./contracts/profile/validate-handle"
 import type { SelectedFile } from "~/types"
@@ -80,7 +80,6 @@ export async function action({ request }: ActionArgs) {
 
     return json({ status: "Ok" })
   } catch (error) {
-    console.log("error: ", error)
     return json({ status: "Error" })
   }
 }
@@ -106,7 +105,6 @@ export default function CreateProfile() {
   const [noWriteError, setNoWriteError] = useState<boolean>() // If, for some reason, there is no `write` transaction after magmi prepare transaction done, use this state to inform user.
 
   const data = useLoaderData<typeof loader>()
-  const user = data?.user as UserRecord
   const validateFetcher = useFetcher<validateActionType>()
   const isHandleUnique = validateFetcher?.data?.isUnique
   const actionFetcher = useFetcher<typeof action>()
@@ -241,9 +239,23 @@ export default function CreateProfile() {
         return
       }
 
+      // Get user's id token
+      const user = clientAuth.currentUser
+      const idToken = await user?.getIdToken()
+      // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
+      if (!idToken || data?.account.uid !== user?.uid) {
+        setConnectServerLoading(false)
+        actionFetcher.submit(null, {
+          method: "post",
+          action: "/auth/reauthenticate",
+        })
+        return
+      }
+
+      // Start upload image
       setUploadingImage(true)
       const result = await uploadImage({
-        uid: user?.uid || "",
+        idToken,
         file,
         handle,
         oldImageURI: null,
@@ -265,19 +277,6 @@ export default function CreateProfile() {
 
         setConnectServerLoading(true)
         setUploadingImage(false)
-
-        // Get user's id token
-        const user = clientAuth.currentUser
-        const idToken = await user?.getIdToken()
-        // For some reason, if no idToken or uid from `account` and `user` don't match, we need to log user out and have them to sign in again
-        if (!idToken || data?.account.uid !== user?.uid) {
-          setConnectServerLoading(false)
-          actionFetcher.submit(null, {
-            method: "post",
-            action: "/auth/reauthenticate",
-          })
-          return
-        }
 
         if (isFirstProfile) {
           // If the first profile, call the action for both `TRADITIONAL` and `WALLET` accounts as the platform will be responsible for the gas fee for all users first profiles.
@@ -320,6 +319,7 @@ export default function CreateProfile() {
         }
       }
     } catch (error) {
+      setUploadingImage(false)
       setConnectServerLoading(false)
       setConnectServerError(true)
     }
