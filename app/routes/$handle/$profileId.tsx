@@ -179,8 +179,8 @@ export default function ProfileDetail() {
 
       followFetcher.submit(
         {
-          followerId: loggedInProfile.tokenId,
-          followeeId: profile.tokenId,
+          followerId: loggedInProfile.id.toString(),
+          followeeId: profile.id.toString(),
           idToken,
         },
         { method: "post" }

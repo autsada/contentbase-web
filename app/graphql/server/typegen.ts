@@ -128,6 +128,7 @@ export interface NexusGenObjects {
   CreateWalletResult: {
     // root type
     address: string // String!
+    uid?: string | null // String
   }
   EstimateGasResult: {
     // root type
@@ -137,10 +138,23 @@ export interface NexusGenObjects {
     // root type
     fee: number // Float!
   }
-  GetFollowsResult: {
+  FollowInfo: {
     // root type
-    followers: number // Int!
-    following: number // Int!
+    followers: Array<NexusGenRootTypes["FollowsData"] | null> // [FollowsData]!
+    following: Array<NexusGenRootTypes["FollowsData"] | null> // [FollowsData]!
+    handle: string // String!
+    uid: string // String!
+  }
+  FollowResult: {
+    // root type
+    followee: NexusGenRootTypes["FollowInfo"] // FollowInfo!
+    follower: NexusGenRootTypes["FollowInfo"] // FollowInfo!
+    status: string // String!
+  }
+  FollowsData: {
+    // root type
+    handle: string // String!
+    tokenId: string // String!
   }
   MetadataCustomProps: {
     // root type
@@ -171,6 +185,12 @@ export interface NexusGenObjects {
   TokenURIResult: {
     // root type
     uri: string // String!
+  }
+  UploadFollowsMetadataResult: {
+    // root type
+    followeeUrl: string // String!
+    followerUrl: string // String!
+    status: string // String!
   }
   UploadParams: {
     // root type
@@ -221,6 +241,7 @@ export interface NexusGenFieldTypes {
   CreateWalletResult: {
     // field return type
     address: string // String!
+    uid: string | null // String
   }
   EstimateGasResult: {
     // field return type
@@ -230,10 +251,23 @@ export interface NexusGenFieldTypes {
     // field return type
     fee: number // Float!
   }
-  GetFollowsResult: {
+  FollowInfo: {
     // field return type
-    followers: number // Int!
-    following: number // Int!
+    followers: Array<NexusGenRootTypes["FollowsData"] | null> // [FollowsData]!
+    following: Array<NexusGenRootTypes["FollowsData"] | null> // [FollowsData]!
+    handle: string // String!
+    uid: string // String!
+  }
+  FollowResult: {
+    // field return type
+    followee: NexusGenRootTypes["FollowInfo"] // FollowInfo!
+    follower: NexusGenRootTypes["FollowInfo"] // FollowInfo!
+    status: string // String!
+  }
+  FollowsData: {
+    // field return type
+    handle: string // String!
+    tokenId: string // String!
   }
   MetadataCustomProps: {
     // field return type
@@ -258,10 +292,8 @@ export interface NexusGenFieldTypes {
     disLikePublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     estimateGasCreateProfile: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     estimateGasCreatePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
-    estimateGasFollow: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     estimateGasLikePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
-    follow: NexusGenRootTypes["WriteResult"] // WriteResult!
-    hasRoleFollow: boolean // Boolean!
+    follow: NexusGenRootTypes["UploadFollowsMetadataResult"] // UploadFollowsMetadataResult!
     hasRoleLike: boolean // Boolean!
     hasRoleProfile: boolean // Boolean!
     hasRolePublish: boolean // Boolean!
@@ -301,7 +333,6 @@ export interface NexusGenFieldTypes {
     // field return type
     getComment: NexusGenRootTypes["CommentToken"] // CommentToken!
     getDefaultProfile: NexusGenRootTypes["ProfileToken"] | null // ProfileToken
-    getFollows: NexusGenRootTypes["GetFollowsResult"] | null // GetFollowsResult
     getLikeFee: NexusGenRootTypes["FeeResult"] // FeeResult!
     getMyBalance: string // String!
     getOwnerAddress: NexusGenRootTypes["AddressResult"] // AddressResult!
@@ -318,6 +349,12 @@ export interface NexusGenFieldTypes {
   TokenURIResult: {
     // field return type
     uri: string // String!
+  }
+  UploadFollowsMetadataResult: {
+    // field return type
+    followeeUrl: string // String!
+    followerUrl: string // String!
+    status: string // String!
   }
   UploadParams: {
     // field return type
@@ -358,6 +395,7 @@ export interface NexusGenFieldTypeNames {
   CreateWalletResult: {
     // field return type name
     address: "String"
+    uid: "String"
   }
   EstimateGasResult: {
     // field return type name
@@ -367,10 +405,23 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     fee: "Float"
   }
-  GetFollowsResult: {
+  FollowInfo: {
     // field return type name
-    followers: "Int"
-    following: "Int"
+    followers: "FollowsData"
+    following: "FollowsData"
+    handle: "String"
+    uid: "String"
+  }
+  FollowResult: {
+    // field return type name
+    followee: "FollowInfo"
+    follower: "FollowInfo"
+    status: "String"
+  }
+  FollowsData: {
+    // field return type name
+    handle: "String"
+    tokenId: "String"
   }
   MetadataCustomProps: {
     // field return type name
@@ -395,10 +446,8 @@ export interface NexusGenFieldTypeNames {
     disLikePublish: "WriteResult"
     estimateGasCreateProfile: "EstimateGasResult"
     estimateGasCreatePublish: "EstimateGasResult"
-    estimateGasFollow: "EstimateGasResult"
     estimateGasLikePublish: "EstimateGasResult"
-    follow: "WriteResult"
-    hasRoleFollow: "Boolean"
+    follow: "UploadFollowsMetadataResult"
     hasRoleLike: "Boolean"
     hasRoleProfile: "Boolean"
     hasRolePublish: "Boolean"
@@ -438,7 +487,6 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     getComment: "CommentToken"
     getDefaultProfile: "ProfileToken"
-    getFollows: "GetFollowsResult"
     getLikeFee: "FeeResult"
     getMyBalance: "String"
     getOwnerAddress: "AddressResult"
@@ -455,6 +503,12 @@ export interface NexusGenFieldTypeNames {
   TokenURIResult: {
     // field return type name
     uri: "String"
+  }
+  UploadFollowsMetadataResult: {
+    // field return type name
+    followeeUrl: "String"
+    followerUrl: "String"
+    status: "String"
   }
   UploadParams: {
     // field return type name
@@ -528,10 +582,6 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs["CreatePublishInput"] // CreatePublishInput!
     }
-    estimateGasFollow: {
-      // args
-      input: NexusGenInputs["FollowInput"] // FollowInput!
-    }
     estimateGasLikePublish: {
       // args
       profileId: number // Int!
@@ -540,10 +590,6 @@ export interface NexusGenArgTypes {
     follow: {
       // args
       input: NexusGenInputs["FollowInput"] // FollowInput!
-    }
-    hasRoleFollow: {
-      // args
-      data: NexusGenInputs["HasRoleInput"] // HasRoleInput!
     }
     hasRoleLike: {
       // args
@@ -624,10 +670,6 @@ export interface NexusGenArgTypes {
     getComment: {
       // args
       commentId: number // Int!
-    }
-    getFollows: {
-      // args
-      profileId: number // Int!
     }
     getMyBalance: {
       // args
