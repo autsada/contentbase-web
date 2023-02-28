@@ -14,6 +14,7 @@ export const GET_ACCOUNT_BY_ID_QUERY = gql`
         followersCount
         default
         originalHandle
+        metadataURI
         imageURI
         owner
       }
@@ -25,6 +26,7 @@ export const GET_ACCOUNT_BY_ID_QUERY = gql`
         followersCount
         default
         originalHandle
+        metadataURI
         imageURI
         owner
       }
@@ -41,6 +43,7 @@ export const GET_MY_PROFILE_QUERY = gql`
       tokenId
       handle
       originalHandle
+      metadataURI
       imageURI
       default
       followersCount
@@ -71,6 +74,7 @@ export const GET_PROFILE_QUERY = gql`
       tokenId
       handle
       originalHandle
+      metadataURI
       imageURI
       default
       followersCount
