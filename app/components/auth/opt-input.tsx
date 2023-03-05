@@ -7,7 +7,7 @@ interface Props {
   onChange: (value: string) => void
 }
 
-export default function OtpInput({ value, valueLen, onChange }: Props) {
+export function OtpInput({ value, valueLen, onChange }: Props) {
   const valueItems = React.useMemo(() => {
     const valueArray = value.split("")
     return new Array(valueLen).fill(1).map((_, i) => {

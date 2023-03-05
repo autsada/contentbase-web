@@ -1804,6 +1804,10 @@ button {
   padding-bottom: 0.5rem;
 }
 
+.pb-\[80px\] {
+  padding-bottom: 80px;
+}
+
 .text-left {
   text-align: left;
 }

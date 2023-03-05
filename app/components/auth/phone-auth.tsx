@@ -11,7 +11,7 @@ import type { Country } from "react-phone-number-input"
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth"
 import type { ConfirmationResult } from "firebase/auth"
 
-import OtpInput from "./opt-input"
+import { OtpInput } from "./opt-input"
 import { InfoWithSpinner } from "../info-spinner"
 import { clientAuth } from "~/client/firebase.client"
 import { getCountryNames } from "~/utils"

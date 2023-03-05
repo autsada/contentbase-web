@@ -2,7 +2,7 @@ import { json, redirect } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import { ClientOnly } from "remix-utils"
 
-import EmailVerify from "~/components/auth/email-verify"
+import { EmailVerify } from "~/components/auth/email-verify"
 import { VERIFY_CODE, VERIFY_ID } from "~/constants"
 
 /**

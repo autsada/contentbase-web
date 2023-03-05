@@ -12,7 +12,7 @@ import { useAuthenticityToken } from "remix-utils"
 import type { LoginActionType } from "~/routes/auth/login"
 import type { AccountType } from "~/types"
 
-export default function EmailVerify() {
+export function EmailVerify() {
   const [savedEmail, setSavedEmail] = useState<string | undefined>()
   const [email, setEmail] = useState("")
   const [processing, setProcessing] = useState(false)
@@ -76,9 +76,9 @@ export default function EmailVerify() {
 
   return (
     <>
-      <Backdrop withSpinner={true} opacity={30}></Backdrop>
+      <Backdrop withSpinner={true} opacity={30} zIndex="z-[10000]"></Backdrop>
       {/* If user opens the link in a different device (doesn't have email saved in localstorage) */}
-      <div className="absolute inset-0 z-50 flex flex-col justify-center items-center">
+      <div className="absolute inset-0 z-[10001] flex flex-col justify-center items-center">
         <div className="relative w-[90%] max-w-[360px] mx-auto bg-white rounded-2xl">
           {savedEmail === "" && !finished && (
             <fetcher.Form className="p-6" onSubmit={handleSubmit}>
@@ -102,9 +102,9 @@ export default function EmailVerify() {
 
           {(error || (loginData && loginData.error)) && (
             <div className="my-5">
-              <p className="error mb-3">Sorry, failed to verify</p>
+              <p className="error text-lg mb-3">Sorry, failed to verify</p>
               <Link to="/auth/email" replace={true}>
-                close
+                <p className="text-lg">close</p>
               </Link>
             </div>
           )}

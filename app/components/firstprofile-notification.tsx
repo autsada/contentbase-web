@@ -16,7 +16,7 @@ export default function FirstprofileNotification({
   if (!modalVisible) return null
 
   return (
-    <BackdropWithInfo>
+    <BackdropWithInfo zIndex="z-[10000]">
       <div className="px-2">
         <h6 className="text-center mt-2 mb-5">
           {title ? title : "Create First Profile"}

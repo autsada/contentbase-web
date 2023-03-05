@@ -384,7 +384,7 @@ export default function CreateProfile() {
   }
 
   return (
-    <div className="page p-4 text-start">
+    <div className="page p-4 pb-[80px] text-start">
       <actionFetcher.Form className="px-5" onSubmit={handleCreateProfile}>
         <h5 className="mb-5 text-center">
           {isFirstProfile ? "Create First Profile" : "Create Profile"}
