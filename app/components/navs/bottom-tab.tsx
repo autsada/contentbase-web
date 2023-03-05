@@ -18,7 +18,7 @@ export default function BottomTab() {
           <AiOutlineHome size={34} className="text-textLight cursor-pointer" />
         )}
       </Link>
-      <Link to="/content?start=true">
+      <Link to="/content?upload=true">
         <BsPlusCircle size={34} className="text-textLight cursor-pointer" />
       </Link>
       <Link to="/wallet">

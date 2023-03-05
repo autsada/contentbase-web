@@ -27,7 +27,7 @@ import { createFirstProfile, createProfile } from "~/graphql/server"
 import { wait } from "~/utils"
 import { uploadImage } from "~/utils/upload-apis"
 import { MAX_HANDLE_LENGTH, MIN_HANDLE_LENGTH } from "~/constants"
-import type { validateActionType } from "./contracts/profile/validate-handle"
+import type { validateActionType } from "./api/contracts/validate-handle"
 import type { SelectedFile } from "~/types"
 
 export async function loader({ request }: LoaderArgs) {
@@ -188,7 +188,7 @@ export default function CreateProfile() {
 
     validateFetcher.submit(
       { handle },
-      { method: "post", action: "/contracts/profile/validate-handle" }
+      { method: "post", action: "/api/contracts/validate-handle" }
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -519,7 +519,7 @@ export default function CreateProfile() {
         <>
           {/* Info and spinner */}
           {(uploadingImage || connectServerLoading) && (
-            <BackdropWithInfo>
+            <BackdropWithInfo zIndex="z-[10000]">
               <h6
                 className={`text-base text-center ${
                   connectServerLoading ? "text-orange-600" : ""
@@ -562,7 +562,7 @@ export default function CreateProfile() {
         <>
           {/* Info and spinner */}
           {(uploadingImage || isWriteLoading || isWaitLoading) && (
-            <BackdropWithInfo>
+            <BackdropWithInfo zIndex="z-[10000]">
               <h6
                 className={`text-base text-center ${
                   isWriteLoading
@@ -618,12 +618,12 @@ export default function CreateProfile() {
 
       {/* All Accounts */}
       {isCreateProfileSuccess && (
-        <BackdropWithInfo>
+        <BackdropWithInfo zIndex="z-[10000]">
           <h6 className="px-2 mt-2 text-center">
             <span className="text-blueBase">{handle}</span> Profile NFT Minted
           </h6>
           <div className="mt-6 text-center">
-            <Link to="/upload">
+            <Link to="/content?upload=true">
               <h6
                 className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
                 onClick={clearForm}

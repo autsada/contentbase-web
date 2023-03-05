@@ -9,6 +9,9 @@ import {
   GET_ACCOUNT_BY_ID_QUERY,
   GET_MY_PROFILE_QUERY,
   GET_PROFILE_QUERY,
+  GET_PREVIEW_PUBLISH_QUERY,
+  LIST_PUBLISHES_FOR_CREATOR_QUERY,
+  GET_PUBLISH_QUERY,
 } from "./queries"
 import type { AccountType } from "~/types"
 import type {
@@ -45,6 +48,10 @@ export const client = new GraphQLClient(`${url}/graphql`, {
   },
 })
 
+/**
+ * ===== QUERY =====
+ */
+
 export async function queryAccountByUid(uid: string) {
   const data = await client.request<
     QueryReturnType<"getAccountByUid">,
@@ -53,6 +60,76 @@ export async function queryAccountByUid(uid: string) {
 
   return data.getAccountByUid
 }
+
+/**
+ * @dev Use this function the logged in profile and the to-be-queried profile is the same as it will have followers and following detail.
+ * @param profileId {number} - an id of the profile to be queried
+ * @param userId {number} - an id of the profile who performs the query
+ * @returns
+ */
+export async function getMyProfile(profileId: number, userId?: number) {
+  const data = await client.request<
+    QueryReturnType<"getProfileById">,
+    QueryArgsType<"getProfileById">
+  >(GET_MY_PROFILE_QUERY, { input: { profileId, userId } })
+
+  return data.getProfileById
+}
+
+/**
+ * @dev Use this function the logged in profile and the to-be-queried profile is NOT same as we DO NOT need to know the followers and following detail.
+ * @param profileId {number} - an id of the profile to be queried
+ * @param userId {number} - an id of the profile who performs the query
+ * @returns
+ */
+export async function getProfile(profileId: number, userId?: number) {
+  const data = await client.request<
+    QueryReturnType<"getProfileById">,
+    QueryArgsType<"getProfileById">
+  >(GET_PROFILE_QUERY, { input: { profileId, userId } })
+
+  return data.getProfileById
+}
+
+export async function getPreviewPublish(publishId: number) {
+  const data = await client.request<
+    QueryReturnType<"getPreviewPublish">,
+    QueryArgsType<"getPreviewPublish">
+  >(GET_PREVIEW_PUBLISH_QUERY, { publishId })
+
+  return data.getPreviewPublish
+}
+
+export async function getPublish(publishId: number, profileId?: number) {
+  const data = await client.request<
+    QueryReturnType<"getPublishById">,
+    QueryArgsType<"getPublishById">
+  >(GET_PUBLISH_QUERY, { input: { publishId, profileId } })
+
+  return data.getPublishById
+}
+
+export async function listPublishesForCreator(creatorId: number) {
+  const data = await client.request<
+    QueryReturnType<"listPublishesByCreatorId">,
+    QueryArgsType<"listPublishesByCreatorId">
+  >(LIST_PUBLISHES_FOR_CREATOR_QUERY, { id: creatorId })
+
+  return data.listPublishesByCreatorId
+}
+
+// export async function getPlayback(contentPath: string) {
+//   const data = await client.request<
+//     QueryReturnType<"getPlaybackByContentPath">,
+//     QueryArgsType<"getPlaybackByContentPath">
+//   >(GET_PLAYBACK_QUERY, { contentPath })
+
+//   return data.getPlaybackByContentPath
+// }
+
+/**
+ * ===== MUTATION =====
+ */
 
 /**
  * This is a rest endpoint for creating an account (mostly used to create accounts for users connected to ContentBase App with their own wallets)
@@ -87,36 +164,6 @@ export async function createAccount(data: {
   })
 
   return result.json()
-}
-
-/**
- * @dev Use this function the logged in profile and the to-be-queried profile is the same as it will have followers and following detail.
- * @param profileId {number} - an id of the profile to be queried
- * @param userId {number} - an id of the profile who performs the query
- * @returns
- */
-export async function getMyProfile(profileId: number, userId?: number) {
-  const data = await client.request<
-    QueryReturnType<"getProfileById">,
-    QueryArgsType<"getProfileById">
-  >(GET_MY_PROFILE_QUERY, { input: { profileId, userId } })
-
-  return data.getProfileById
-}
-
-/**
- * @dev Use this function the logged in profile and the to-be-queried profile is NOT same as we DO NOT need to know the followers and following detail.
- * @param profileId {number} - an id of the profile to be queried
- * @param userId {number} - an id of the profile who performs the query
- * @returns
- */
-export async function getProfile(profileId: number, userId?: number) {
-  const data = await client.request<
-    QueryReturnType<"getProfileById">,
-    QueryArgsType<"getProfileById">
-  >(GET_PROFILE_QUERY, { input: { profileId, userId } })
-
-  return data.getProfileById
 }
 
 /**

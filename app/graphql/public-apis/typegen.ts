@@ -18,15 +18,12 @@ declare global {
     /**
      * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
      */
-    date<FieldName extends string>(
-      fieldName: FieldName
-      // ...opts: core.ScalarOutSpread<TypeName, FieldName>
-    ): void // "DateTime";
+    // date<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void // "DateTime";
   }
 }
 
 declare global {
-  interface NexusGen extends NexusGenTypes {}
+  // interface NexusGen extends NexusGenTypes {}
 }
 
 export interface NexusGenInputs {
@@ -77,7 +74,7 @@ export interface NexusGenEnums {
     | "Vehicles"
     | "Women"
   CommentType: "COMMENT" | "PUBLISH"
-  PublishKind: "Audio" | "Blog" | "Post" | "Short" | "Video"
+  PublishKind: "Blog" | "Course" | "Video"
 }
 
 export interface NexusGenScalars {
@@ -114,20 +111,6 @@ export interface NexusGenObjects {
     cursor?: string | null // String
     node?: NexusGenRootTypes["Profile"] | null // Profile
   }
-  Fee: {
-    // root type
-    amount: string // String!
-    createdAt: NexusGenScalars["DateTime"] // DateTime!
-    fee: string // String!
-    id: number // Int!
-  }
-  Like: {
-    // root type
-    createdAt: NexusGenScalars["DateTime"] // DateTime!
-    id: number // Int!
-    likeFeeId: string // String!
-    tokenId: string // String!
-  }
   Mutation: {}
   PageInfo: {
     // root type
@@ -136,12 +119,12 @@ export interface NexusGenObjects {
   }
   Playback: {
     // root type
-    contentPath: string // String!
     dash: string // String!
     duration: number // Float!
     hls: string // String!
     id: number // Int!
     preview: string // String!
+    publishId: number // Int!
     thumbnail: string // String!
   }
   PreviewComment: {
@@ -160,15 +143,23 @@ export interface NexusGenObjects {
   PreviewPublish: {
     // root type
     createdAt: NexusGenScalars["DateTime"] // DateTime!
+    creatorId: number // Int!
+    description?: string | null // String
+    filename?: string | null // String
     id: number // Int!
-    kind: NexusGenEnums["PublishKind"] // PublishKind!
-    primaryCategory: NexusGenEnums["Category"] // Category!
-    publishURI: string // String!
-    secondaryCategory: NexusGenEnums["Category"] // Category!
-    tertiaryCategory: NexusGenEnums["Category"] // Category!
-    title: string // String!
-    tokenId: string // String!
-    views: number // Int!
+    isPublic: boolean // Boolean!
+    isTranscodingError: boolean // Boolean!
+    isUploading: boolean // Boolean!
+    isUploadingError: boolean // Boolean!
+    kind?: NexusGenEnums["PublishKind"] | null // PublishKind
+    metadataURI?: string | null // String
+    primaryCategory?: NexusGenEnums["Category"] | null // Category
+    publishURI?: string | null // String
+    secondaryCategory?: NexusGenEnums["Category"] | null // Category
+    tertiaryCategory?: NexusGenEnums["Category"] | null // Category
+    title?: string | null // String
+    tokenId?: string | null // String
+    views?: number | null // Int
   }
   Profile: {
     // root type
@@ -187,25 +178,38 @@ export interface NexusGenObjects {
   Publish: {
     // root type
     createdAt: NexusGenScalars["DateTime"] // DateTime!
+    creatorId: number // Int!
     creatorTokenId: string // String!
     description?: string | null // String
+    filename?: string | null // String
     id: number // Int!
-    kind: NexusGenEnums["PublishKind"] // PublishKind!
-    metadataURI: string // String!
-    primaryCategory: NexusGenEnums["Category"] // Category!
-    publishURI: string // String!
-    secondaryCategory: NexusGenEnums["Category"] // Category!
-    tertiaryCategory: NexusGenEnums["Category"] // Category!
-    title: string // String!
-    tokenId: string // String!
+    isPublic: boolean // Boolean!
+    isTranscodingError: boolean // Boolean!
+    isUploading: boolean // Boolean!
+    isUploadingError: boolean // Boolean!
+    kind?: NexusGenEnums["PublishKind"] | null // PublishKind
+    metadataURI?: string | null // String
+    primaryCategory?: NexusGenEnums["Category"] | null // Category
+    publishURI?: string | null // String
+    secondaryCategory?: NexusGenEnums["Category"] | null // Category
+    tertiaryCategory?: NexusGenEnums["Category"] | null // Category
+    title?: string | null // String
+    tokenId?: string | null // String
     updatedAt?: NexusGenScalars["DateTime"] | null // DateTime
-    views: number // Int!
+    views?: number | null // Int
   }
   Query: {}
   Response: {
     // root type
     edges: Array<NexusGenRootTypes["Edge"] | null> // [Edge]!
     pageInfo: NexusGenRootTypes["PageInfo"] // PageInfo!
+  }
+  Tip: {
+    // root type
+    amount: string // String!
+    createdAt: NexusGenScalars["DateTime"] // DateTime!
+    fee: string // String!
+    id: number // Int!
   }
   WriteResult: {
     // root type
@@ -255,25 +259,6 @@ export interface NexusGenFieldTypes {
     cursor: string | null // String
     node: NexusGenRootTypes["Profile"] | null // Profile
   }
-  Fee: {
-    // field return type
-    amount: string // String!
-    createdAt: NexusGenScalars["DateTime"] // DateTime!
-    fee: string // String!
-    id: number // Int!
-    likeTokenId: string | null // String
-    publish: NexusGenRootTypes["PreviewPublish"] | null // PreviewPublish
-    receiver: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
-    sender: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
-  }
-  Like: {
-    // field return type
-    createdAt: NexusGenScalars["DateTime"] // DateTime!
-    id: number // Int!
-    likeFeeId: string // String!
-    profile: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
-    tokenId: string // String!
-  }
   Mutation: {
     // field return type
     cacheProfileId: NexusGenRootTypes["WriteResult"] // WriteResult!
@@ -285,12 +270,12 @@ export interface NexusGenFieldTypes {
   }
   Playback: {
     // field return type
-    contentPath: string // String!
     dash: string // String!
     duration: number // Float!
     hls: string // String!
     id: number // Int!
     preview: string // String!
+    publishId: number // Int!
     thumbnail: string // String!
   }
   PreviewComment: {
@@ -311,16 +296,24 @@ export interface NexusGenFieldTypes {
     // field return type
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     creator: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
+    creatorId: number // Int!
+    description: string | null // String
+    filename: string | null // String
     id: number // Int!
-    kind: NexusGenEnums["PublishKind"] // PublishKind!
+    isPublic: boolean // Boolean!
+    isTranscodingError: boolean // Boolean!
+    isUploading: boolean // Boolean!
+    isUploadingError: boolean // Boolean!
+    kind: NexusGenEnums["PublishKind"] | null // PublishKind
+    metadataURI: string | null // String
     playback: NexusGenRootTypes["Playback"] | null // Playback
-    primaryCategory: NexusGenEnums["Category"] // Category!
-    publishURI: string // String!
-    secondaryCategory: NexusGenEnums["Category"] // Category!
-    tertiaryCategory: NexusGenEnums["Category"] // Category!
-    title: string // String!
-    tokenId: string // String!
-    views: number // Int!
+    primaryCategory: NexusGenEnums["Category"] | null // Category
+    publishURI: string | null // String
+    secondaryCategory: NexusGenEnums["Category"] | null // Category
+    tertiaryCategory: NexusGenEnums["Category"] | null // Category
+    title: string | null // String
+    tokenId: string | null // String
+    views: number | null // Int
   }
   Profile: {
     // field return type
@@ -347,49 +340,67 @@ export interface NexusGenFieldTypes {
     commentsCount: number // Int!
     createdAt: NexusGenScalars["DateTime"] // DateTime!
     creator: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
+    creatorId: number // Int!
     creatorTokenId: string // String!
     description: string | null // String
     disLiked: boolean | null // Boolean
     disLikesCount: number // Int!
+    filename: string | null // String
     id: number // Int!
-    kind: NexusGenEnums["PublishKind"] // PublishKind!
+    isPublic: boolean // Boolean!
+    isTranscodingError: boolean // Boolean!
+    isUploading: boolean // Boolean!
+    isUploadingError: boolean // Boolean!
+    kind: NexusGenEnums["PublishKind"] | null // PublishKind
     lastComment: NexusGenRootTypes["PreviewComment"] | null // PreviewComment
     liked: boolean | null // Boolean
     likes: Array<NexusGenRootTypes["PreviewProfile"] | null> // [PreviewProfile]!
     likesCount: number // Int!
-    metadataURI: string // String!
+    metadataURI: string | null // String
     playback: NexusGenRootTypes["Playback"] | null // Playback
-    primaryCategory: NexusGenEnums["Category"] // Category!
-    publishURI: string // String!
-    secondaryCategory: NexusGenEnums["Category"] // Category!
-    tertiaryCategory: NexusGenEnums["Category"] // Category!
-    title: string // String!
-    tokenId: string // String!
+    primaryCategory: NexusGenEnums["Category"] | null // Category
+    publishURI: string | null // String
+    secondaryCategory: NexusGenEnums["Category"] | null // Category
+    tertiaryCategory: NexusGenEnums["Category"] | null // Category
+    tips: Array<NexusGenRootTypes["PreviewProfile"] | null> // [PreviewProfile]!
+    title: string | null // String
+    tokenId: string | null // String
     updatedAt: NexusGenScalars["DateTime"] | null // DateTime
-    views: number // Int!
+    views: number | null // Int
   }
   Query: {
     // field return type
     fetchPublishes: Array<NexusGenRootTypes["PreviewPublish"] | null> // [PreviewPublish]!
     getAccount: NexusGenRootTypes["Account"] | null // Account
     getAccountByUid: NexusGenRootTypes["Account"] | null // Account
+    getPlaybackByPublishId: NexusGenRootTypes["Playback"] | null // Playback
+    getPreviewPublish: NexusGenRootTypes["PreviewPublish"] | null // PreviewPublish
     getProfileById: NexusGenRootTypes["Profile"] | null // Profile
     getPublishById: NexusGenRootTypes["Publish"] | null // Publish
     listCommentsByCommentId: Array<NexusGenRootTypes["Comment"] | null> // [Comment]!
     listCommentsByPublishId: Array<NexusGenRootTypes["Comment"] | null> // [Comment]!
-    listLikesByPublishId: Array<NexusGenRootTypes["Like"] | null> // [Like]!
     listPublishesByCategory: Array<NexusGenRootTypes["PreviewPublish"] | null> // [PreviewPublish]!
-    listPublishesByCreatorId: Array<NexusGenRootTypes["PreviewPublish"] | null> // [PreviewPublish]!
+    listPublishesByCreatorId: Array<NexusGenRootTypes["Publish"] | null> // [Publish]!
     listPublishesByCreatorTokenId: Array<
       NexusGenRootTypes["PreviewPublish"] | null
     > // [PreviewPublish]!
-    listReceivedFees: Array<NexusGenRootTypes["Fee"] | null> // [Fee]!
-    listSentFees: Array<NexusGenRootTypes["Fee"] | null> // [Fee]!
+    listTipsPaid: Array<NexusGenRootTypes["Tip"] | null> // [Tip]!
+    listTipsReceived: Array<NexusGenRootTypes["Tip"] | null> // [Tip]!
   }
   Response: {
     // field return type
     edges: Array<NexusGenRootTypes["Edge"] | null> // [Edge]!
     pageInfo: NexusGenRootTypes["PageInfo"] // PageInfo!
+  }
+  Tip: {
+    // field return type
+    amount: string // String!
+    createdAt: NexusGenScalars["DateTime"] // DateTime!
+    fee: string // String!
+    id: number // Int!
+    publish: NexusGenRootTypes["PreviewPublish"] | null // PreviewPublish
+    receiver: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
+    sender: NexusGenRootTypes["PreviewProfile"] | null // PreviewProfile
   }
   WriteResult: {
     // field return type
@@ -429,25 +440,6 @@ export interface NexusGenFieldTypeNames {
     cursor: "String"
     node: "Profile"
   }
-  Fee: {
-    // field return type name
-    amount: "String"
-    createdAt: "DateTime"
-    fee: "String"
-    id: "Int"
-    likeTokenId: "String"
-    publish: "PreviewPublish"
-    receiver: "PreviewProfile"
-    sender: "PreviewProfile"
-  }
-  Like: {
-    // field return type name
-    createdAt: "DateTime"
-    id: "Int"
-    likeFeeId: "String"
-    profile: "PreviewProfile"
-    tokenId: "String"
-  }
   Mutation: {
     // field return type name
     cacheProfileId: "WriteResult"
@@ -459,12 +451,12 @@ export interface NexusGenFieldTypeNames {
   }
   Playback: {
     // field return type name
-    contentPath: "String"
     dash: "String"
     duration: "Float"
     hls: "String"
     id: "Int"
     preview: "String"
+    publishId: "Int"
     thumbnail: "String"
   }
   PreviewComment: {
@@ -485,8 +477,16 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     createdAt: "DateTime"
     creator: "PreviewProfile"
+    creatorId: "Int"
+    description: "String"
+    filename: "String"
     id: "Int"
+    isPublic: "Boolean"
+    isTranscodingError: "Boolean"
+    isUploading: "Boolean"
+    isUploadingError: "Boolean"
     kind: "PublishKind"
+    metadataURI: "String"
     playback: "Playback"
     primaryCategory: "Category"
     publishURI: "String"
@@ -521,11 +521,17 @@ export interface NexusGenFieldTypeNames {
     commentsCount: "Int"
     createdAt: "DateTime"
     creator: "PreviewProfile"
+    creatorId: "Int"
     creatorTokenId: "String"
     description: "String"
     disLiked: "Boolean"
     disLikesCount: "Int"
+    filename: "String"
     id: "Int"
+    isPublic: "Boolean"
+    isTranscodingError: "Boolean"
+    isUploading: "Boolean"
+    isUploadingError: "Boolean"
     kind: "PublishKind"
     lastComment: "PreviewComment"
     liked: "Boolean"
@@ -537,6 +543,7 @@ export interface NexusGenFieldTypeNames {
     publishURI: "String"
     secondaryCategory: "Category"
     tertiaryCategory: "Category"
+    tips: "PreviewProfile"
     title: "String"
     tokenId: "String"
     updatedAt: "DateTime"
@@ -547,21 +554,32 @@ export interface NexusGenFieldTypeNames {
     fetchPublishes: "PreviewPublish"
     getAccount: "Account"
     getAccountByUid: "Account"
+    getPlaybackByPublishId: "Playback"
+    getPreviewPublish: "PreviewPublish"
     getProfileById: "Profile"
     getPublishById: "Publish"
     listCommentsByCommentId: "Comment"
     listCommentsByPublishId: "Comment"
-    listLikesByPublishId: "Like"
     listPublishesByCategory: "PreviewPublish"
-    listPublishesByCreatorId: "PreviewPublish"
+    listPublishesByCreatorId: "Publish"
     listPublishesByCreatorTokenId: "PreviewPublish"
-    listReceivedFees: "Fee"
-    listSentFees: "Fee"
+    listTipsPaid: "Tip"
+    listTipsReceived: "Tip"
   }
   Response: {
     // field return type name
     edges: "Edge"
     pageInfo: "PageInfo"
+  }
+  Tip: {
+    // field return type name
+    amount: "String"
+    createdAt: "DateTime"
+    fee: "String"
+    id: "Int"
+    publish: "PreviewPublish"
+    receiver: "PreviewProfile"
+    sender: "PreviewProfile"
   }
   WriteResult: {
     // field return type name
@@ -585,6 +603,14 @@ export interface NexusGenArgTypes {
       // args
       uid: string // String!
     }
+    getPlaybackByPublishId: {
+      // args
+      publishId: number // Int!
+    }
+    getPreviewPublish: {
+      // args
+      publishId: number // Int!
+    }
     getProfileById: {
       // args
       input: NexusGenInputs["GetProfileByIdInput"] // GetProfileByIdInput!
@@ -601,10 +627,6 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs["ListCommentsByParentIdInput"] // ListCommentsByParentIdInput!
     }
-    listLikesByPublishId: {
-      // args
-      publishId: number // Int!
-    }
     listPublishesByCategory: {
       // args
       category: NexusGenEnums["Category"] // Category!
@@ -615,13 +637,13 @@ export interface NexusGenArgTypes {
     }
     listPublishesByCreatorTokenId: {
       // args
-      creatorTokenId: string // String!
+      profileTokenId: string // String!
     }
-    listReceivedFees: {
+    listTipsPaid: {
       // args
       profileId: number // Int!
     }
-    listSentFees: {
+    listTipsReceived: {
       // args
       profileId: number // Int!
     }
@@ -693,8 +715,7 @@ export interface NexusGenTypes {
 }
 
 declare global {
-  // interface NexusGenPluginTypeConfig<TypeName extends string> {
-  // }
+  interface NexusGenPluginTypeConfig<TypeName extends string> {}
   interface NexusGenPluginInputTypeConfig<TypeName extends string> {}
   interface NexusGenPluginFieldConfig<
     TypeName extends string,

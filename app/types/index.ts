@@ -35,16 +35,21 @@ export type UploadFileArgs = {
   idToken: string
   file?: File
   handle: string
+}
+
+export type UploadAvatarArgs = {
+  idToken: string
+  file?: File
+  handle: string
   oldImageURI?: string | null
 }
 
+// export type UploadAvatarArgs = UploadFileArgs & { oldImageURI?: string | null }
 export type UploadAvatarResult = {
   imageURI: string // A uri to display the image
   metadataURI: string // A uri point to the publish's metadata json file stored on nft.storage
 }
-
+export type UploadPublishArgs = UploadFileArgs & { publishId: number }
 export type UploadPublishResult = {
-  publishURI: string // A uri to display the publish
-  thumbnails: string[]
-  metadataURI: string // A uri point to the publish's metadata json file stored on nft.storage
+  status: "Ok"
 }

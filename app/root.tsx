@@ -33,7 +33,7 @@ import { getSession, commitSession } from "./server/session.server"
 import { getUser } from "./server/auth.server"
 import { ethereumClient, wagmiClient } from "./ethereum/client"
 import { queryAccountByUid } from "./graphql/public-apis"
-import { firestore } from "./client/firebase.client"
+import { activitiesCollection, firestore } from "./client/firebase.client"
 import {
   INITIAL_VISIT_ID,
   LOGGED_IN_KEY,
@@ -212,7 +212,7 @@ export default function App() {
     const formattedAddress = address.toLowerCase()
 
     const unsubscribe = onSnapshot(
-      doc(firestore, "activities", formattedAddress),
+      doc(firestore, activitiesCollection, formattedAddress),
       () => {
         revalidator.revalidate()
       }
@@ -251,7 +251,7 @@ export default function App() {
               />
               <RightDrawer
                 openDrawer={openRightDrawer}
-                className={!isRightDrawerOpen ? "-right-[100%]" : "right-0"}
+                className={!isRightDrawerOpen ? "-right-[200%]" : "right-0"}
                 profile={profile}
                 profiles={loaderData?.account?.profiles as Profile[]}
               />

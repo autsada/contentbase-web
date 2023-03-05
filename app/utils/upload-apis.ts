@@ -1,28 +1,27 @@
+/**
+ * We connect to the `Upload` APIs client side as sending file from client to server in remix is not simple.
+ */
+
 import { UPLOAD_SERVICE_URL } from "~/constants"
-import type { UploadFileArgs, UploadAvatarResult } from "~/types"
-
-function uploadFile({
-  file,
-  handle,
-  oldImageURI,
-}: Omit<UploadFileArgs, "idToken">) {
-  const formData = new FormData()
-  formData.append("file", file!)
-  formData.append("handle", handle)
-  if (oldImageURI) {
-    formData.append("oldURI", oldImageURI)
-  }
-
-  return formData
-}
+import type {
+  UploadAvatarArgs,
+  UploadAvatarResult,
+  UploadPublishResult,
+  UploadPublishArgs,
+} from "~/types"
 
 export async function uploadImage({
   idToken,
   file,
   handle,
   oldImageURI,
-}: UploadFileArgs) {
-  const formData = uploadFile({ file, handle, oldImageURI })
+}: UploadAvatarArgs) {
+  const formData = new FormData()
+  formData.append("file", file!)
+  formData.append("handle", handle)
+  if (oldImageURI) {
+    formData.append("oldURI", oldImageURI)
+  }
 
   // const res = await fetch(`${UPLOAD_SERVICE_URL}/profile/avatar`, {
   const res = await fetch(`http://localhost:4444/profile/avatar`, {
@@ -37,13 +36,20 @@ export async function uploadImage({
   return data
 }
 
+/**
+ * A function to upload a video file
+ */
 export async function uploadVideo({
   idToken,
   file,
   handle,
-  oldImageURI,
-}: UploadFileArgs) {
-  const formData = uploadFile({ file, handle, oldImageURI })
+  publishId,
+}: UploadPublishArgs): Promise<UploadPublishResult> {
+  const formData = new FormData()
+  formData.append("file", file!)
+  formData.append("handle", handle)
+  formData.append("publishId", `${publishId}`)
+  //   formData.append("contentParentPath", contentParentPath)
 
   // const res = await fetch(`${UPLOAD_SERVICE_URL}/publish/video`, {
   const res = await fetch(`http://localhost:4444/publish/video`, {

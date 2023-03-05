@@ -30,6 +30,6 @@ setPersistence(
 export const firestore = getFirestore(firebaseApp)
 export const storage = getStorage(firebaseApp)
 
-// Storage folder names
-export const avatarsStorageFolder = "avatars"
-export const videosStorageFolder = "videos"
+// Firestore collections
+export const activitiesCollection = "activities"
+export const playbacksCollection = "playbacks"

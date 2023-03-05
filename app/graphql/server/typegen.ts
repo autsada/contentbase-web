@@ -23,6 +23,13 @@ export interface NexusGenInputs {
     metadataURI: string // String!
     owner: string // String!
   }
+  CreateDraftPublishInput: {
+    // input type
+    creatorId: number // Int!
+    creatorTokenId: string // String!
+    filename?: string | null // String
+    title?: string | null // String
+  }
   CreateProfileInput: {
     // input type
     handle: string // String!
@@ -49,6 +56,12 @@ export interface NexusGenInputs {
   HasRoleInput: {
     // input type
     role: NexusGenEnums["Role"] // Role!
+  }
+  UpadateDraftPublishInput: {
+    // input type
+    contentPath: string // String!
+    metadataURI: string // String!
+    publishURI: string // String!
   }
   UpdateCommentInput: {
     // input type
@@ -98,7 +111,7 @@ export interface NexusGenEnums {
     | "Vehicles"
     | "Women"
   CommentType: "COMMENT" | "PUBLISH"
-  PublishKind: "Audio" | "Blog" | "Post" | "Short" | "Video"
+  PublishKind: "Blog" | "Course" | "Video"
   Role: "ADMIN_ROLE" | "DEFAULT_ADMIN_ROLE" | "UPGRADER_ROLE"
   UploadType: "avatar" | "post"
 }
@@ -124,6 +137,11 @@ export interface NexusGenObjects {
     parentId: number // Int!
     text: string // String!
     tokenId: number // Int!
+  }
+  CreatePublishResult: {
+    // root type
+    publishId: number // Int!
+    status: string // String!
   }
   CreateWalletResult: {
     // root type
@@ -188,8 +206,6 @@ export interface NexusGenObjects {
   }
   UploadFollowsMetadataResult: {
     // root type
-    followeeUrl: string // String!
-    followerUrl: string // String!
     status: string // String!
   }
   UploadParams: {
@@ -238,6 +254,11 @@ export interface NexusGenFieldTypes {
     text: string // String!
     tokenId: number // Int!
   }
+  CreatePublishResult: {
+    // field return type
+    publishId: number // Int!
+    status: string // String!
+  }
   CreateWalletResult: {
     // field return type
     address: string // String!
@@ -282,16 +303,14 @@ export interface NexusGenFieldTypes {
     // field return type
     commentOnComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     commentOnPublish: NexusGenRootTypes["WriteResult"] // WriteResult!
+    createDraftPublish: NexusGenRootTypes["CreatePublishResult"] // CreatePublishResult!
     createFirstProfile: NexusGenRootTypes["WriteResult"] // WriteResult!
     createProfile: NexusGenRootTypes["WriteResult"] // WriteResult!
-    createPublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     createWallet: NexusGenRootTypes["CreateWalletResult"] // CreateWalletResult!
     deleteComment: NexusGenRootTypes["WriteResult"] // WriteResult!
-    deletePublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     disLikeComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     disLikePublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     estimateGasCreateProfile: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
-    estimateGasCreatePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     estimateGasLikePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     follow: NexusGenRootTypes["UploadFollowsMetadataResult"] // UploadFollowsMetadataResult!
     hasRoleLike: boolean // Boolean!
@@ -310,7 +329,6 @@ export interface NexusGenFieldTypes {
     setPublishForComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     setPublishForLike: NexusGenRootTypes["WriteResult"] // WriteResult!
     updateComment: NexusGenRootTypes["WriteResult"] // WriteResult!
-    updatePublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     validateHandle: boolean // Boolean!
     withdrawFunds: NexusGenRootTypes["WriteResult"] // WriteResult!
   }
@@ -339,12 +357,9 @@ export interface NexusGenFieldTypes {
     getPlatformFee: NexusGenRootTypes["FeeResult"] // FeeResult!
     getProfileAddressFromComment: NexusGenRootTypes["AddressResult"] // AddressResult!
     getProfileAddressFromLike: NexusGenRootTypes["AddressResult"] // AddressResult!
-    getProfileAddressFromPuiblish: NexusGenRootTypes["AddressResult"] // AddressResult!
     getProfileImageURI: NexusGenRootTypes["TokenURIResult"] | null // TokenURIResult
-    getPublish: NexusGenRootTypes["PublishToken"] | null // PublishToken
     getPublishAddressFromComment: NexusGenRootTypes["AddressResult"] // AddressResult!
     getPublishAddressFromLike: NexusGenRootTypes["AddressResult"] // AddressResult!
-    getPublishTokenURI: NexusGenRootTypes["TokenURIResult"] | null // TokenURIResult
   }
   TokenURIResult: {
     // field return type
@@ -352,8 +367,6 @@ export interface NexusGenFieldTypes {
   }
   UploadFollowsMetadataResult: {
     // field return type
-    followeeUrl: string // String!
-    followerUrl: string // String!
     status: string // String!
   }
   UploadParams: {
@@ -391,6 +404,11 @@ export interface NexusGenFieldTypeNames {
     parentId: "Int"
     text: "String"
     tokenId: "Int"
+  }
+  CreatePublishResult: {
+    // field return type name
+    publishId: "Int"
+    status: "String"
   }
   CreateWalletResult: {
     // field return type name
@@ -436,16 +454,14 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     commentOnComment: "WriteResult"
     commentOnPublish: "WriteResult"
+    createDraftPublish: "CreatePublishResult"
     createFirstProfile: "WriteResult"
     createProfile: "WriteResult"
-    createPublish: "WriteResult"
     createWallet: "CreateWalletResult"
     deleteComment: "WriteResult"
-    deletePublish: "WriteResult"
     disLikeComment: "WriteResult"
     disLikePublish: "WriteResult"
     estimateGasCreateProfile: "EstimateGasResult"
-    estimateGasCreatePublish: "EstimateGasResult"
     estimateGasLikePublish: "EstimateGasResult"
     follow: "UploadFollowsMetadataResult"
     hasRoleLike: "Boolean"
@@ -464,7 +480,6 @@ export interface NexusGenFieldTypeNames {
     setPublishForComment: "WriteResult"
     setPublishForLike: "WriteResult"
     updateComment: "WriteResult"
-    updatePublish: "WriteResult"
     validateHandle: "Boolean"
     withdrawFunds: "WriteResult"
   }
@@ -493,12 +508,9 @@ export interface NexusGenFieldTypeNames {
     getPlatformFee: "FeeResult"
     getProfileAddressFromComment: "AddressResult"
     getProfileAddressFromLike: "AddressResult"
-    getProfileAddressFromPuiblish: "AddressResult"
     getProfileImageURI: "TokenURIResult"
-    getPublish: "PublishToken"
     getPublishAddressFromComment: "AddressResult"
     getPublishAddressFromLike: "AddressResult"
-    getPublishTokenURI: "TokenURIResult"
   }
   TokenURIResult: {
     // field return type name
@@ -506,8 +518,6 @@ export interface NexusGenFieldTypeNames {
   }
   UploadFollowsMetadataResult: {
     // field return type name
-    followeeUrl: "String"
-    followerUrl: "String"
     status: "String"
   }
   UploadParams: {
@@ -542,6 +552,10 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs["CreateCommentInput"] // CreateCommentInput!
     }
+    createDraftPublish: {
+      // args
+      input: NexusGenInputs["CreateDraftPublishInput"] // CreateDraftPublishInput!
+    }
     createFirstProfile: {
       // args
       input: NexusGenInputs["CreateDefaultProfileInput"] // CreateDefaultProfileInput!
@@ -550,19 +564,10 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs["CreateProfileInput"] // CreateProfileInput!
     }
-    createPublish: {
-      // args
-      input: NexusGenInputs["CreatePublishInput"] // CreatePublishInput!
-    }
     deleteComment: {
       // args
       commentId: number // Int!
       creatorId: number // Int!
-    }
-    deletePublish: {
-      // args
-      creatorId: number // Int!
-      publishId: number // Int!
     }
     disLikeComment: {
       // args
@@ -577,10 +582,6 @@ export interface NexusGenArgTypes {
     estimateGasCreateProfile: {
       // args
       input: NexusGenInputs["CreateProfileInput"] // CreateProfileInput!
-    }
-    estimateGasCreatePublish: {
-      // args
-      input: NexusGenInputs["CreatePublishInput"] // CreatePublishInput!
     }
     estimateGasLikePublish: {
       // args
@@ -657,10 +658,6 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs["UpdateCommentInput"] // UpdateCommentInput!
     }
-    updatePublish: {
-      // args
-      input: NexusGenInputs["UpdatePublishInput"] // UpdatePublishInput!
-    }
     validateHandle: {
       // args
       handle: string // String!
@@ -676,14 +673,6 @@ export interface NexusGenArgTypes {
       address: string // String!
     }
     getProfileImageURI: {
-      // args
-      tokenId: number // Int!
-    }
-    getPublish: {
-      // args
-      publishId: number // Int!
-    }
-    getPublishTokenURI: {
       // args
       tokenId: number // Int!
     }

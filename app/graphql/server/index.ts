@@ -6,6 +6,7 @@
 import { GraphQLClient } from "graphql-request"
 
 import {
+  CREATE_DRAFT_PUBLISH_MUTATION,
   CREATE_FIRST_PROFILE_MUTATION,
   CREATE_PROFILE_MUTATION,
   CREATE_WALLET_MUTATION,
@@ -13,6 +14,7 @@ import {
   VALIDATE_HANDLE_MUTATION,
 } from "./mutations"
 import { GET_BALANCE_QUERY } from "./queries"
+import type { NexusGenInputs } from "./typegen"
 import type {
   QueryReturnType,
   QueryArgsType,
@@ -142,4 +144,23 @@ export async function follow({
     )
 
   return data.follow
+}
+
+export async function createDraftPublish(
+  idToken: string,
+  input: NexusGenInputs["CreateDraftPublishInput"]
+) {
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"createDraftPublish">,
+      MutationArgsType<"createDraftPublish">
+    >(CREATE_DRAFT_PUBLISH_MUTATION, {
+      input,
+    })
+
+  return data.createDraftPublish
 }

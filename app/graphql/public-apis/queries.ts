@@ -86,3 +86,132 @@ export const GET_PROFILE_QUERY = gql`
     }
   }
 `
+
+export const GET_PREVIEW_PUBLISH_QUERY = gql`
+  query GetPreviewPublish($publishId: Int!) {
+    getPreviewPublish(publishId: $publishId) {
+      id
+      tokenId
+      title
+      description
+      publishURI
+      metadataURI
+      filename
+      primaryCategory
+      secondaryCategory
+      tertiaryCategory
+      kind
+      isPublic
+      isTranscodingError
+      isUploading
+      isUploadingError
+      views
+      createdAt
+      creator {
+        id
+        imageURI
+        originalHandle
+        tokenId
+      }
+      playback {
+        duration
+        preview
+        thumbnail
+        dash
+        hls
+      }
+    }
+  }
+`
+
+export const GET_PUBLISH_QUERY = gql`
+  query GetPublishById($input: GetPublishByIdInput!) {
+    getPublishById(input: $input) {
+      id
+      tokenId
+      title
+      description
+      publishURI
+      metadataURI
+      filename
+      primaryCategory
+      secondaryCategory
+      tertiaryCategory
+      kind
+      isPublic
+      isTranscodingError
+      isUploading
+      isUploadingError
+      views
+      createdAt
+      updatedAt
+      creator {
+        id
+        imageURI
+        originalHandle
+        tokenId
+      }
+      playback {
+        duration
+        preview
+        thumbnail
+        dash
+        hls
+      }
+      liked
+      likesCount
+      likes {
+        id
+        imageURI
+        originalHandle
+      }
+      disLiked
+      disLikesCount
+      commentsCount
+      lastComment {
+        id
+        text
+        commentType
+        creator {
+          id
+          imageURI
+          originalHandle
+        }
+      }
+    }
+  }
+`
+
+export const LIST_PUBLISHES_FOR_CREATOR_QUERY = gql`
+  query ListPublishesByCreatorId($id: Int!) {
+    listPublishesByCreatorId(id: $id) {
+      id
+      title
+      description
+      playback {
+        thumbnail
+        duration
+      }
+      createdAt
+      commentsCount
+      likesCount
+      disLikesCount
+      isPublic
+      isTranscodingError
+    }
+  }
+`
+
+// export const GET_PLAYBACK_QUERY = gql`
+//   query GetPlaybackByContentPath($contentPath: String!) {
+//     getPlaybackByContentPath(contentPath: $contentPath) {
+//       id
+//       duration
+//       thumbnail
+//       preview
+//       dash
+//       hls
+//       contentPath
+//     }
+//   }
+// `

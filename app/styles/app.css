@@ -795,8 +795,8 @@ button {
   left: 0px;
 }
 
-.-right-\[200\%\] {
-  right: -200%;
+.-right-\[100\%\] {
+  right: -100%;
 }
 
 .right-0 {
@@ -827,10 +827,6 @@ button {
   top: -2.75rem;
 }
 
-.-right-\[100\%\] {
-  right: -100%;
-}
-
 .top-0 {
   top: 0px;
 }
@@ -857,6 +853,10 @@ button {
 
 .right-8 {
   right: 2rem;
+}
+
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .z-\[10000\] {
@@ -1021,16 +1021,20 @@ button {
   margin-bottom: 2.5rem;
 }
 
+.mb-8 {
+  margin-bottom: 2rem;
+}
+
 .mt-3 {
   margin-top: 0.75rem;
 }
 
-.mt-\[20px\] {
-  margin-top: 20px;
+.mr-2 {
+  margin-right: 0.5rem;
 }
 
-.mb-8 {
-  margin-bottom: 2rem;
+.mt-\[20px\] {
+  margin-top: 20px;
 }
 
 .ml-5 {
@@ -1140,6 +1144,14 @@ button {
 
 .h-\[200px\] {
   height: 200px;
+}
+
+.h-\[14px\] {
+  height: 14px;
+}
+
+.h-\[15px\] {
+  height: 15px;
 }
 
 .h-\[120px\] {
@@ -1253,6 +1265,14 @@ button {
 
 .w-4\/5 {
   width: 80%;
+}
+
+.w-\[14px\] {
+  width: 14px;
+}
+
+.w-\[15px\] {
+  width: 15px;
 }
 
 .w-\[120px\] {
@@ -1429,6 +1449,10 @@ button {
   border-width: 1px;
 }
 
+.border-\[1px\] {
+  border-width: 1px;
+}
+
 .border-y {
   border-top-width: 1px;
   border-bottom-width: 1px;
@@ -1483,6 +1507,11 @@ button {
 .border-gray-50 {
   --tw-border-opacity: 1;
   border-color: rgb(249 250 251 / var(--tw-border-opacity));
+}
+
+.border-gray-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(107 114 128 / var(--tw-border-opacity));
 }
 
 .border-neutral-300 {
@@ -1587,6 +1616,11 @@ button {
 .bg-blueBase {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+}
+
+.bg-blue-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(96 165 250 / var(--tw-bg-opacity));
 }
 
 .bg-gradient-to-b {
@@ -1764,6 +1798,10 @@ button {
 
 .pt-5 {
   padding-top: 1.25rem;
+}
+
+.pb-2 {
+  padding-bottom: 0.5rem;
 }
 
 .text-left {
@@ -1949,8 +1987,24 @@ button {
   opacity: 0.6;
 }
 
+.opacity-50 {
+  opacity: 0.5;
+}
+
 .opacity-\[98\%\] {
   opacity: 98%;
+}
+
+.opacity-95 {
+  opacity: 0.95;
+}
+
+.opacity-90 {
+  opacity: 0.9;
+}
+
+.opacity-80 {
+  opacity: 0.8;
 }
 
 .shadow-neutral-300 {
@@ -2211,6 +2265,15 @@ button {
 .placeholder\:text-textExtraLight::placeholder {
   --tw-text-opacity: 1;
   color: rgb(163 163 163 / var(--tw-text-opacity));
+}
+
+.checked\:border-none:checked {
+  border-style: none;
+}
+
+.checked\:bg-orange-500:checked {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 115 22 / var(--tw-bg-opacity));
 }
 
 .hover\:bg-gray-50:hover {

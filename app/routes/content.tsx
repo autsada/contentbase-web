@@ -1,10 +1,11 @@
-import { json, redirect } from "@remix-run/node"
+import { redirect, json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Outlet, useCatch, useLoaderData } from "@remix-run/react"
+import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react"
+import type { UserRecord } from "firebase-admin/auth"
 
-import ErrorComponent from "~/components/error"
-import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { getBalance } from "~/graphql/server"
+import { checkAuthenticatedAndReady } from "~/server/auth.server"
+import type { Profile, Account } from "~/types"
 
 export async function loader({ request }: LoaderArgs) {
   try {
@@ -50,14 +51,13 @@ export default function Content() {
   )
 }
 
-export function CatchBoundary() {
-  const caught = useCatch()
-
-  return <ErrorComponent error={caught.statusText} />
+export type ContentContext = {
+  user: UserRecord
+  profile: Profile
+  account: Account
+  balance: string | undefined
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error)
-
-  return <ErrorComponent error={error.message} />
+export function useContentContext() {
+  return useOutletContext<ContentContext>()
 }

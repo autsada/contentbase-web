@@ -37,3 +37,12 @@ export const FOLLOW_MUTATION = gql`
     }
   }
 `
+
+export const CREATE_DRAFT_PUBLISH_MUTATION = gql`
+  mutation CreateDraftPublish($input: CreateDraftPublishInput!) {
+    createDraftPublish(input: $input) {
+      status
+      publishId
+    }
+  }
+`

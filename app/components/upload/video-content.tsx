@@ -1,36 +1,23 @@
-import { useState, useCallback } from "react"
-import { Link } from "@remix-run/react"
 import { useDropzone } from "react-dropzone"
 import { MdFileUpload } from "react-icons/md"
 
 import type { SelectedFile } from "~/types"
-import { Backdrop } from "../backdrop"
 
 interface Props {
-  openModal: (open: boolean) => void
+  isPreparingError: boolean | undefined
+  file: SelectedFile | null
+  onDropFile: (acceptedFiles: File[]) => void
+  onNext: () => void
+  publishId?: number | null
 }
 
-export function UploadVideoContent({ openModal }: Props) {
-  const [videoFile, setVideoFile] = useState<SelectedFile | null>(null)
-
-  const onDropVideo = useCallback(
-    (acceptedFiles: File[]) => {
-      const selectedFile = acceptedFiles[0] as SelectedFile
-
-      if (selectedFile.size / 1000 > 51200) {
-        // Maximum allowed image size = 50mb
-        return
-      }
-
-      const fileWithPreview = Object.assign(selectedFile, {
-        preview: URL.createObjectURL(selectedFile),
-      })
-
-      setVideoFile(fileWithPreview)
-    },
-    [setVideoFile]
-  )
-
+export function UploadVideoContent({
+  isPreparingError,
+  file,
+  onDropFile,
+  onNext,
+  publishId,
+}: Props) {
   const {
     getRootProps,
     getInputProps,
@@ -38,53 +25,70 @@ export function UploadVideoContent({ openModal }: Props) {
     isDragReject,
     isDragAccept,
   } = useDropzone({
-    onDrop: onDropVideo,
+    onDrop: onDropFile,
     accept: {
       "video/*": [],
     },
   })
 
   return (
-    <div className="fixed z-[10010] inset-0 py-5 px-2">
-      <Backdrop />
-      <form className="relative z-[10010] w-full bg-white pt-8 pb-5 px-5 rounded-xl flex flex-col h-full max-h-full overflow-y-scroll">
-        <Link to="/content" replace={true}>
+    <div className="w-full h-full flex flex-col">
+      <h6 className="text-center mb-5">Upload a Video File</h6>
+
+      <div
+        className={
+          "relative flex-grow w-full mb-5 flex flex-col justify-center items-center cursor-pointer bg-gray-50"
+        }
+        {...getRootProps({
+          isDragActive,
+          isDragReject,
+          isDragAccept,
+        })}
+      >
+        <input {...getInputProps({ multiple: false })} />
+        {!file ? (
+          <>
+            <MdFileUpload size={30} className="mb-5" />
+            <h6 className="px-4 text-base text-center">
+              Drag and drop a video file to upload
+            </h6>
+            <p className="mb-2 px-4 font-light text-center text-textExtraLight">
+              Your video is invisible to the public until you share it.
+            </p>
+          </>
+        ) : (
+          <div className="w-full h-[240px]">
+            <video controls className="w-full h-full">
+              <source src={file.preview} />
+            </video>
+          </div>
+        )}
+
+        {isPreparingError && (
+          <div className="absolute inset-0 bg-white opacity-90 flex flex-col justify-center px-10">
+            <p className="error">
+              An error occurred while preparing to upload the file, please close
+              this page and try again.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="h-12 w-full mb-10">
+        {file && !isPreparingError ? (
           <button
-            className="absolute top-3 right-6 text-lg text-textLight"
-            onClick={openModal.bind(undefined, false)}
+            className={`btn-orange w-4/5 h-full rounded-full ${
+              !publishId ? "opacity-50" : "opacity-100"
+            }`}
+            disabled={!file || !publishId}
+            onClick={onNext}
           >
-            &#10005;
+            {!publishId ? "PREPARING..." : "NEXT"}
           </button>
-        </Link>
-
-        <h6 className="text-center mb-5">Upload Video</h6>
-
-        <div
-          className={
-            "flex-grow w-full mb-5 flex flex-col justify-center items-center cursor-pointer bg-gray-50"
-          }
-          {...getRootProps({
-            isDragActive,
-            isDragReject,
-            isDragAccept,
-          })}
-        >
-          <input {...getInputProps({ multiple: false })} />
-          {!videoFile ? (
-            <>
-              <MdFileUpload size={30} className="mb-5" />
-              <h6 className="px-2 text-base text-center">
-                Drag and drop a video file to upload
-              </h6>
-              <p className="mb-2 px-2 font-light text-center text-textExtraLight">
-                Your video is invisible to the public until you share it.
-              </p>
-            </>
-          ) : (
-            <p>Uploaded</p>
-          )}
-        </div>
-      </form>
+        ) : (
+          <>&nbsp;</>
+        )}
+      </div>
     </div>
   )
 }
