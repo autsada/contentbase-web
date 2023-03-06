@@ -1,5 +1,6 @@
 import { getCountries } from "react-phone-number-input/input"
 import en from "react-phone-number-input/locale/en.json"
+import _ from "lodash"
 
 export function getCountryNames() {
   return getCountries()
@@ -15,8 +16,20 @@ export function getCountryNames() {
 export function getPageTitle(pathname: string) {
   let title: string = ""
 
-  if (pathname === "/content") {
-    title = "Dashboard"
+  if (pathname.startsWith("/dashboard")) {
+    switch (pathname) {
+      case "/dashboard/videos":
+        title = "Dashboard: Videos"
+        break
+
+      case "/dashboard/blogs":
+        title = "Dashboard: Blogs"
+        break
+
+      default:
+        title = "Dashboard"
+        break
+    }
   }
   if (pathname === "/wallet") {
     title = "Wallet"
@@ -34,4 +47,9 @@ export function getPageTitle(pathname: string) {
  */
 export function wait(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time))
+}
+
+// Create excerpt from long string
+export function getTextExcerpt(text: string, len = 100) {
+  return _.truncate(text, { length: len, separator: /,?\.* +/ }) // separate by spaces, including preceding commas and periods
 }

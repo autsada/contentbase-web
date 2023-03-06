@@ -17,14 +17,14 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
   const { pathname } = useLocation()
 
   return (
-    <div className="w-full h-[100px] px-4 flex items-center justify-between gap-x-2 border-b border-borderExtraLightGray shadow-neutral-300">
+    <div className="w-full h-[80px] px-4 flex items-center justify-between gap-x-2 border-b border-borderExtraLightGray shadow-neutral-300">
       <div className="w-[80px] h-full flex items-center justify-start">
         {!isDrawerOpen && (
           <Link to="/">
             <img
               src="/logo.png"
               alt="CTB"
-              className="w-[55px] h-[55px] rounded-full object-cover"
+              className="w-[65px] h-[65px] rounded-full object-cover"
             />
           </Link>
         )}
@@ -33,7 +33,7 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
       <div className="h-full flex-grow flex items-center justify-center">
         {pathname.startsWith("/auth") ? (
           <p>&nbsp;</p>
-        ) : pathname.startsWith("/content") ||
+        ) : pathname.startsWith("/dashboard") ||
           pathname.startsWith("/wallet") ||
           pathname.startsWith("/settings") ? (
           <h6>{getPageTitle(pathname)}</h6>

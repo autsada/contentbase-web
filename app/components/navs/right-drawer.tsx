@@ -100,11 +100,11 @@ export default function RightDrawer({
           </Link>
         </div>
         <div className="py-4 mb-2">
-          <Link to="/content" className="flex items-start">
+          <Link to="/dashboard" className="flex items-start">
             <div className="text-start w-12">
               <MdOutlineDashboard size={26} />
             </div>
-            <h6 className="font-normal text-lg">Content Dashboard</h6>
+            <h6 className="font-normal text-lg">Dashboard</h6>
           </Link>
         </div>
         <div className="py-4 mb-2">

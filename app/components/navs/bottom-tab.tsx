@@ -7,7 +7,7 @@ export default function BottomTab() {
   const { pathname } = useLocation()
 
   return (
-    <div className="fixed z-[9999] bottom-0 w-full h-[80px] flex items-center justify-between px-10 bg-white">
+    <div className="fixed z-[9999] bottom-0 w-full h-[80px] flex items-center justify-between px-10 bg-white border-t border-t-gray-300">
       <Link to="/">
         {pathname === "/" ||
         pathname === "/blogs" ||
@@ -18,7 +18,7 @@ export default function BottomTab() {
           <AiOutlineHome size={34} className="text-textLight cursor-pointer" />
         )}
       </Link>
-      <Link to="/content?upload=true">
+      <Link to="/dashboard?upload=true">
         <BsPlusCircle size={34} className="text-textLight cursor-pointer" />
       </Link>
       <Link to="/wallet">

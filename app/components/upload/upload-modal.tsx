@@ -6,9 +6,9 @@ import { Backdrop } from "../backdrop"
 import { SelectType } from "./select-type"
 import { UploadVideo } from "./upload-video"
 import { clientAuth } from "~/client/firebase.client"
-import { useContentContext } from "~/routes/content"
+import { useDashboardContext } from "~/routes/dashboard"
 import type { UploadType } from "./select-type"
-import type { CreateDraftAction } from "~/routes/content/create-draft"
+import type { CreateDraftAction } from "~/routes/dashboard/create-draft"
 
 interface Props {
   closeModal: () => void
@@ -19,7 +19,7 @@ interface Props {
 export function UploadModal({ closeModal, uploadType, setUploadType }: Props) {
   const [createDraftError, setCreateDraftError] = useState<boolean>()
 
-  const { profile } = useContentContext()
+  const { profile } = useDashboardContext()
   const authenticateFetcher = useFetcher()
   const createDraftFetcher = useFetcher<CreateDraftAction>()
   const isSubmitting =
@@ -58,7 +58,7 @@ export function UploadModal({ closeModal, uploadType, setUploadType }: Props) {
           title,
           filename,
         },
-        { method: "post", action: "/content/create-draft" }
+        { method: "post", action: "/dashboard/create-draft" }
       )
     } catch (error) {
       console.error(error)
@@ -102,7 +102,7 @@ export function UploadModal({ closeModal, uploadType, setUploadType }: Props) {
               />
             ) : (
               <Link
-                to="/content"
+                to="/dashboard"
                 replace={true}
                 className="m-0 p-0"
                 onClick={closeModal.bind(undefined, undefined)}

@@ -144,7 +144,7 @@ export function UploadVideoInfo({
         </div>
         <div className="w-[60px] h-full flex items-center justify-center">
           <Link
-            to="/content"
+            to="/dashboard"
             replace={true}
             className="m-0 p-0"
             onClick={closeModal.bind(undefined, onUpdateDraft)}

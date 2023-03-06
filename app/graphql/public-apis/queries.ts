@@ -182,22 +182,54 @@ export const GET_PUBLISH_QUERY = gql`
   }
 `
 
-export const LIST_PUBLISHES_FOR_CREATOR_QUERY = gql`
+export const LIST_PUBLISHES_BY_CREATOR_QUERY = gql`
   query ListPublishesByCreatorId($id: Int!) {
     listPublishesByCreatorId(id: $id) {
       id
+      tokenId
       title
       description
-      playback {
-        thumbnail
-        duration
-      }
-      createdAt
-      commentsCount
-      likesCount
-      disLikesCount
+      publishURI
+      metadataURI
+      filename
+      primaryCategory
+      secondaryCategory
+      tertiaryCategory
+      kind
       isPublic
       isTranscodingError
+      isUploading
+      isUploadingError
+      views
+      createdAt
+      updatedAt
+      playback {
+        duration
+        preview
+        thumbnail
+        dash
+        hls
+      }
+      liked
+      likesCount
+      likes {
+        id
+        imageURI
+        originalHandle
+      }
+      disLiked
+      disLikesCount
+      commentsCount
+      lastComment {
+        id
+        text
+        commentType
+        creator {
+          id
+          imageURI
+          originalHandle
+        }
+      }
     }
   }
 `

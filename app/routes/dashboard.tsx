@@ -3,9 +3,11 @@ import type { LoaderArgs } from "@remix-run/node"
 import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react"
 import type { UserRecord } from "firebase-admin/auth"
 
-import { getBalance } from "~/graphql/server"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
+import { getBalance } from "~/graphql/server"
+import { listPublishesByCreator } from "~/graphql/public-apis"
 import type { Profile, Account } from "~/types"
+import type { NexusGenFieldTypes } from "~/graphql/public-apis/typegen"
 
 export async function loader({ request }: LoaderArgs) {
   try {
@@ -27,10 +29,24 @@ export async function loader({ request }: LoaderArgs) {
       return redirect("/create", { headers })
     }
 
+    const url = new URL(request.url)
+    const isStartUpload = url.searchParams.get("upload")
     const address = account.address
     const balance = address ? await getBalance(address) : ""
+    // Query publishes uploaded by the loggged in profile
+    const publishes = await listPublishesByCreator(Number(loggedInProfile.id))
 
-    return json({ user, account, loggedInProfile, balance }, { headers })
+    return json(
+      {
+        startUpload: isStartUpload === "true",
+        user,
+        account,
+        loggedInProfile,
+        balance,
+        publishes,
+      },
+      { headers }
+    )
   } catch (error) {
     throw new Response("Something not right")
   }
@@ -42,22 +58,26 @@ export default function Content() {
   return (
     <Outlet
       context={{
+        startUpload: data?.startUpload,
         user: data?.user,
         account: data?.account,
         profile: data?.loggedInProfile,
         balance: data?.balance,
+        publishes: data?.publishes,
       }}
     />
   )
 }
 
-export type ContentContext = {
+export type DashboardContext = {
+  startUpload: boolean
   user: UserRecord
   profile: Profile
   account: Account
   balance: string | undefined
+  publishes: NexusGenFieldTypes["Publish"][]
 }
 
-export function useContentContext() {
-  return useOutletContext<ContentContext>()
+export function useDashboardContext() {
+  return useOutletContext<DashboardContext>()
 }

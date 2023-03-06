@@ -3,7 +3,7 @@ import { useFetcher } from "@remix-run/react"
 
 import { UploadVideoContent } from "./video-content"
 import { UploadVideoInfo } from "./video-info"
-import { useContentContext } from "~/routes/content"
+import { useDashboardContext } from "~/routes/dashboard"
 import { uploadVideo } from "~/utils/upload-apis"
 import type { SelectedFile } from "~/types"
 import { clientAuth } from "~/client/firebase.client"
@@ -24,7 +24,7 @@ export function UploadVideo({
   const [step, setStep] = useState<"upload" | "info">("upload")
   const [videoFile, setVideoFile] = useState<SelectedFile | null>(null)
 
-  const { profile } = useContentContext()
+  const { profile } = useDashboardContext()
   const authenticateFetcher = useFetcher()
 
   const onDropVideo = useCallback(

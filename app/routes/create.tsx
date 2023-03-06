@@ -623,7 +623,7 @@ export default function CreateProfile() {
             <span className="text-blueBase">{handle}</span> Profile NFT Minted
           </h6>
           <div className="mt-6 text-center">
-            <Link to="/content?upload=true">
+            <Link to="/dashboard?upload=true">
               <h6
                 className="btn-blue w-max mx-auto px-5 py-2 rounded-full mt-6 font-light text-center text-base cursor-pointer"
                 onClick={clearForm}
