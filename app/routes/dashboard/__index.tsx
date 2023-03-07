@@ -11,7 +11,7 @@ export default function ContentDashboard() {
     <>
       {/* Tab to select by content type */}
       <div className="py-4 flex max-w-full w-full items-center overflow-x-auto scrollbar-hide">
-        <Link to="/dashboard">
+        <Link to="/dashboard" preventScrollReset={true}>
           <div
             className={`${
               pathname === "/dashboard" ? "border-b-2" : "border-none"
@@ -28,7 +28,7 @@ export default function ContentDashboard() {
             </h6>
           </div>
         </Link>
-        <Link to="/dashboard/videos">
+        <Link to="/dashboard/videos" preventScrollReset={true}>
           <div
             className={`${
               pathname === "/dashboard/videos" ? "border-b-2" : "border-none"
@@ -45,7 +45,7 @@ export default function ContentDashboard() {
             </h6>
           </div>
         </Link>
-        <Link to="blogs">
+        <Link to="blogs" preventScrollReset={true}>
           <div
             className={`${
               pathname === "/dashboard/blogs" ? "border-b-2" : "border-none"
@@ -62,9 +62,7 @@ export default function ContentDashboard() {
         </Link>
       </div>
 
-      <div className="page">
-        <Outlet context={context} />
-      </div>
+      <Outlet context={context} />
     </>
   )
 }

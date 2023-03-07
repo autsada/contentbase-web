@@ -245,6 +245,7 @@ export function UploadVideoInfo({
           <Link
             to="/dashboard"
             replace={true}
+            preventScrollReset={true}
             className="m-0 p-0"
             onClick={closeModal.bind(undefined, onCloseModal)}
           >

@@ -798,8 +798,8 @@ button {
   left: 0px;
 }
 
-.-right-\[100\%\] {
-  right: -100%;
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .right-0 {
@@ -846,6 +846,10 @@ button {
   right: 2px;
 }
 
+.-right-\[100\%\] {
+  right: -100%;
+}
+
 .top-3 {
   top: 0.75rem;
 }
@@ -868,10 +872,6 @@ button {
 
 .right-8 {
   right: 2rem;
-}
-
-.-right-\[200\%\] {
-  right: -200%;
 }
 
 .z-\[10000\] {
@@ -1440,6 +1440,14 @@ button {
   overflow-x: auto;
 }
 
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
+.overflow-y-hidden {
+  overflow-y: hidden;
+}
+
 .overflow-y-scroll {
   overflow-y: scroll;
 }
@@ -1538,11 +1546,6 @@ button {
 .border-borderGray {
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
-}
-
-.border-gray-100 {
-  --tw-border-opacity: 1;
-  border-color: rgb(243 244 246 / var(--tw-border-opacity));
 }
 
 .border-borderExtraDarkGray {

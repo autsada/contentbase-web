@@ -9,7 +9,7 @@ export default function ContentDashboard() {
   const { publishes, selectPublish } = useDashboardContext()
 
   return (
-    <div className="relative h-full flex flex-col items-stretch">
+    <div className="page relative flex flex-col items-stretch">
       <DashboardHeader />
       <div>
         {publishes &&
