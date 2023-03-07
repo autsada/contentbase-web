@@ -97,6 +97,7 @@ export function UploadVideo({
     />
   ) : step === "info" ? (
     <UploadVideoInfo
+      handle={profile?.handle}
       file={videoFile}
       goBack={setStep}
       closeModal={closeModal}

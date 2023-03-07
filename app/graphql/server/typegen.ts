@@ -67,6 +67,7 @@ export interface NexusGenInputs {
   UpdateDraftPublishInput: {
     // input type
     description?: string | null // String
+    handle: string // String!
     isPublic?: boolean | null // Boolean
     primaryCategory?: NexusGenEnums["Category"] | null // Category
     publishId: number // Int!

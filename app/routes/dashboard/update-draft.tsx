@@ -17,6 +17,7 @@ export async function action({ request }: ActionArgs) {
     const form = await request.formData()
     const input = Object.fromEntries(form) as {
       idToken: string
+      handle: string
       publishId: string
       title: string
       description: string
@@ -28,6 +29,7 @@ export async function action({ request }: ActionArgs) {
 
     const {
       idToken,
+      handle,
       publishId,
       title,
       description,
@@ -40,6 +42,7 @@ export async function action({ request }: ActionArgs) {
     // We need to provide `null` if the value doesn't exist as the graphql endpoint will except `null` but not empty value
     const data = await updateDraftPublish(idToken, {
       publishId: Number(publishId),
+      handle,
       title: title || null,
       description: description || null,
       primaryCategory: primaryCategory || null,

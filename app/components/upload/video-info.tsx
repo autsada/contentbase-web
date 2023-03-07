@@ -24,6 +24,7 @@ import type { Publish, PublishCategory, SelectedFile } from "~/types"
 import type { GetPublishAction } from "~/routes/api/queries/$publishId"
 
 interface Props {
+  handle: string
   file?: SelectedFile | null
   goBack: (step: "upload") => void
   closeModal: () => void
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export function UploadVideoInfo({
+  handle,
   file,
   goBack,
   closeModal,
@@ -205,6 +207,7 @@ export function UploadVideoInfo({
         // If user update data or use a custom thumbnail, update the publish
         updatePublishFetcher.submit(
           {
+            handle,
             idToken,
             publishId: publish.id.toString(),
             title: newData.title ?? "",
@@ -234,7 +237,6 @@ export function UploadVideoInfo({
   //     } catch (error) {}
   //   }
 
-  console.log("changed -->", isDataChanged)
   return (
     <div className="absolute z-[10020] inset-0 w-full bg-white rounded-xl flex flex-col h-full max-h-full overflow-y-scroll">
       <div className="w-full h-[50px] min-h-[50px] flex justify-between items-center">
