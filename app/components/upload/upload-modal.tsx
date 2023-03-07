@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link, useFetcher } from "@remix-run/react"
+import { useState, useEffect } from "react"
+import { Link, useFetcher, useRevalidator } from "@remix-run/react"
 import { MdOutlineClose, MdOutlineKeyboardBackspace } from "react-icons/md"
 
 import { Backdrop } from "../backdrop"
@@ -9,15 +9,26 @@ import { clientAuth } from "~/client/firebase.client"
 import { useDashboardContext } from "~/routes/dashboard"
 import type { UploadType } from "./select-type"
 import type { CreateDraftAction } from "~/routes/dashboard/create-draft"
+import type { Publish } from "~/types"
 
 interface Props {
   closeModal: () => void
   uploadType: UploadType
   setUploadType: (t: UploadType) => void
+  // selectedPublishId?: number // Use this state to skip "upload" step and go directly to "info" step for editting mode
+  selectedPublish?: Publish // This prop will be available when user open the info modal from one of their saved publishes
 }
 
-export function UploadModal({ closeModal, uploadType, setUploadType }: Props) {
+export function UploadModal({
+  closeModal,
+  uploadType,
+  setUploadType,
+  selectedPublish,
+}: Props) {
   const [createDraftError, setCreateDraftError] = useState<boolean>()
+  const [step, setStep] = useState<"upload" | "info">(() =>
+    selectedPublish ? "info" : "upload"
+  ) // Upload steps
 
   const { profile } = useDashboardContext()
   const authenticateFetcher = useFetcher()
@@ -25,6 +36,15 @@ export function UploadModal({ closeModal, uploadType, setUploadType }: Props) {
   const isSubmitting =
     createDraftFetcher?.state === "submitting" ||
     createDraftFetcher?.state === "loading"
+  const revalidator = useRevalidator()
+
+  // Revalidate states when a draft is created
+  useEffect(() => {
+    if (createDraftFetcher?.data?.status === "Ok") {
+      revalidator.revalidate()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createDraftFetcher?.data])
 
   // A function to create a draft publish
   async function createDraft(title: string, filename: string) {
@@ -121,12 +141,17 @@ export function UploadModal({ closeModal, uploadType, setUploadType }: Props) {
             <SelectType selectType={setUploadType} />
           ) : uploadType === "Video" ? (
             <UploadVideo
+              step={step}
+              setStep={setStep}
               closeModal={closeModal}
               createDraft={createDraft}
               isCreateDraftError={
                 createDraftFetcher?.data?.status === "Error" || createDraftError
               }
-              publishId={createDraftFetcher?.data?.publishId}
+              publishId={
+                selectedPublish?.id || createDraftFetcher?.data?.publishId
+              }
+              selectedPublish={selectedPublish}
             />
           ) : null}
         </div>

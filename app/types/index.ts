@@ -1,6 +1,9 @@
 import type { UserRecord } from "firebase-admin/auth"
 import type { RecaptchaVerifier } from "firebase/auth"
-import type { NexusGenFieldTypes } from "~/graphql/public-apis/typegen"
+import type {
+  NexusGenEnums,
+  NexusGenFieldTypes,
+} from "~/graphql/public-apis/typegen"
 
 declare global {
   interface Window {
@@ -23,9 +26,6 @@ export interface LoaderData {
   }
 }
 
-export type Account = NexusGenFieldTypes["Account"]
-export type AccountType = "TRADITIONAL" | "WALLET"
-export type Profile = NexusGenFieldTypes["Profile"]
 export type SelectedFile = File & {
   path: string
   preview: string
@@ -53,3 +53,12 @@ export type UploadPublishArgs = UploadFileArgs & { publishId: number }
 export type UploadPublishResult = {
   status: "Ok"
 }
+
+export type Account = NexusGenFieldTypes["Account"]
+export type AccountType = "TRADITIONAL" | "WALLET"
+export type Profile = NexusGenFieldTypes["Profile"]
+export type PreviewProfile = NexusGenFieldTypes["PreviewProfile"]
+export type PublishCategory = NexusGenEnums["Category"]
+export type Publish = NexusGenFieldTypes["Publish"]
+export type PreviewPublish = NexusGenFieldTypes["PreviewPublish"]
+export type WriteResult = NexusGenFieldTypes["WriteResult"]

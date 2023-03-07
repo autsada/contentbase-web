@@ -13,14 +13,21 @@ import {
   LIST_PUBLISHES_BY_CREATOR_QUERY,
   GET_PUBLISH_QUERY,
 } from "./queries"
-import type { AccountType } from "~/types"
+import type {
+  Account,
+  AccountType,
+  PreviewPublish,
+  Profile,
+  Publish,
+  WriteResult,
+} from "~/types"
 import type {
   QueryReturnType,
   QueryArgsType,
   MutationReturnType,
   MutationArgsType,
 } from "./types"
-import type { NexusGenFieldTypes } from "./typegen"
+
 import { CACHE_PROFILE_MUTATION } from "./mutation"
 
 const {
@@ -55,7 +62,7 @@ export const client = new GraphQLClient(`${url}/graphql`, {
 
 export async function queryAccountByUid(uid: string) {
   const data = await client.request<
-    QueryReturnType<"getAccountByUid", NexusGenFieldTypes["Account"]>,
+    QueryReturnType<"getAccountByUid", Account>,
     QueryArgsType<"getAccountByUid">
   >(GET_ACCOUNT_BY_ID_QUERY, { uid })
 
@@ -70,7 +77,7 @@ export async function queryAccountByUid(uid: string) {
  */
 export async function getMyProfile(profileId: number, userId?: number) {
   const data = await client.request<
-    QueryReturnType<"getProfileById", NexusGenFieldTypes["Profile"]>,
+    QueryReturnType<"getProfileById", Profile>,
     QueryArgsType<"getProfileById">
   >(GET_MY_PROFILE_QUERY, { input: { profileId, userId } })
 
@@ -85,7 +92,7 @@ export async function getMyProfile(profileId: number, userId?: number) {
  */
 export async function getProfile(profileId: number, userId?: number) {
   const data = await client.request<
-    QueryReturnType<"getProfileById", NexusGenFieldTypes["Profile"]>,
+    QueryReturnType<"getProfileById", Profile>,
     QueryArgsType<"getProfileById">
   >(GET_PROFILE_QUERY, { input: { profileId, userId } })
 
@@ -94,7 +101,7 @@ export async function getProfile(profileId: number, userId?: number) {
 
 export async function getPreviewPublish(publishId: number) {
   const data = await client.request<
-    QueryReturnType<"getPreviewPublish", NexusGenFieldTypes["PreviewPublish"]>,
+    QueryReturnType<"getPreviewPublish", PreviewPublish>,
     QueryArgsType<"getPreviewPublish">
   >(GET_PREVIEW_PUBLISH_QUERY, { publishId })
 
@@ -103,7 +110,7 @@ export async function getPreviewPublish(publishId: number) {
 
 export async function getPublish(publishId: number, profileId?: number) {
   const data = await client.request<
-    QueryReturnType<"getPublishById", NexusGenFieldTypes["Publish"]>,
+    QueryReturnType<"getPublishById", Publish>,
     QueryArgsType<"getPublishById">
   >(GET_PUBLISH_QUERY, { input: { publishId, profileId } })
 
@@ -112,10 +119,7 @@ export async function getPublish(publishId: number, profileId?: number) {
 
 export async function listPublishesByCreator(creatorId: number) {
   const data = await client.request<
-    QueryReturnType<
-      "listPublishesByCreatorId",
-      NexusGenFieldTypes["Publish"][]
-    >,
+    QueryReturnType<"listPublishesByCreatorId", Publish[]>,
     QueryArgsType<"listPublishesByCreatorId">
   >(LIST_PUBLISHES_BY_CREATOR_QUERY, { id: creatorId })
 
@@ -178,7 +182,7 @@ export async function createAccount(data: {
  */
 export async function cacheLoggedInProfile(address: string, tokenId: string) {
   const data = await client.request<
-    MutationReturnType<"cacheProfileId", NexusGenFieldTypes["WriteResult"]>,
+    MutationReturnType<"cacheProfileId", WriteResult>,
     MutationArgsType<"cacheProfileId">
   >(CACHE_PROFILE_MUTATION, { input: { address, tokenId } })
 

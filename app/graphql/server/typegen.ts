@@ -57,18 +57,22 @@ export interface NexusGenInputs {
     // input type
     role: NexusGenEnums["Role"] // Role!
   }
-  UpadateDraftPublishInput: {
-    // input type
-    contentPath: string // String!
-    metadataURI: string // String!
-    publishURI: string // String!
-  }
   UpdateCommentInput: {
     // input type
     contentURI: string // String!
     creatorId: number // Int!
     text: string // String!
     tokenId: number // Int!
+  }
+  UpdateDraftPublishInput: {
+    // input type
+    description?: string | null // String
+    isPublic?: boolean | null // Boolean
+    primaryCategory?: NexusGenEnums["Category"] | null // Category
+    publishId: number // Int!
+    secondaryCategory?: NexusGenEnums["Category"] | null // Category
+    tertiaryCategory?: NexusGenEnums["Category"] | null // Category
+    title?: string | null // String
   }
   UpdateProfileImageInput: {
     // input type
@@ -92,7 +96,6 @@ export interface NexusGenEnums {
     | "Animals"
     | "Children"
     | "Education"
-    | "Empty"
     | "Entertainment"
     | "Food"
     | "Gaming"
@@ -101,7 +104,6 @@ export interface NexusGenEnums {
     | "Movies"
     | "Music"
     | "News"
-    | "NotExist"
     | "Other"
     | "Programming"
     | "Science"
@@ -329,6 +331,7 @@ export interface NexusGenFieldTypes {
     setPublishForComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     setPublishForLike: NexusGenRootTypes["WriteResult"] // WriteResult!
     updateComment: NexusGenRootTypes["WriteResult"] // WriteResult!
+    updateDraftPublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     validateHandle: boolean // Boolean!
     withdrawFunds: NexusGenRootTypes["WriteResult"] // WriteResult!
   }
@@ -480,6 +483,7 @@ export interface NexusGenFieldTypeNames {
     setPublishForComment: "WriteResult"
     setPublishForLike: "WriteResult"
     updateComment: "WriteResult"
+    updateDraftPublish: "WriteResult"
     validateHandle: "Boolean"
     withdrawFunds: "WriteResult"
   }
@@ -657,6 +661,10 @@ export interface NexusGenArgTypes {
     updateComment: {
       // args
       input: NexusGenInputs["UpdateCommentInput"] // UpdateCommentInput!
+    }
+    updateDraftPublish: {
+      // args
+      input: NexusGenInputs["UpdateDraftPublishInput"] // UpdateDraftPublishInput!
     }
     validateHandle: {
       // args

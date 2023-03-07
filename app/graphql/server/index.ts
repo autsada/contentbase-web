@@ -11,6 +11,7 @@ import {
   CREATE_PROFILE_MUTATION,
   CREATE_WALLET_MUTATION,
   FOLLOW_MUTATION,
+  UPDATE_DRAFT_PUBLISH_MUTATION,
   VALIDATE_HANDLE_MUTATION,
 } from "./mutations"
 import { GET_BALANCE_QUERY } from "./queries"
@@ -163,4 +164,23 @@ export async function createDraftPublish(
     })
 
   return data.createDraftPublish
+}
+
+export async function updateDraftPublish(
+  idToken: string,
+  input: NexusGenInputs["UpdateDraftPublishInput"]
+) {
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"updateDraftPublish">,
+      MutationArgsType<"updateDraftPublish">
+    >(UPDATE_DRAFT_PUBLISH_MUTATION, {
+      input,
+    })
+
+  return data.updateDraftPublish
 }

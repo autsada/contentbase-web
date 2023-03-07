@@ -798,8 +798,8 @@ button {
   left: 0px;
 }
 
-.-right-\[200\%\] {
-  right: -200%;
+.-right-\[100\%\] {
+  right: -100%;
 }
 
 .right-0 {
@@ -830,12 +830,20 @@ button {
   top: -2.75rem;
 }
 
-.-right-\[100\%\] {
-  right: -100%;
-}
-
 .top-0 {
   top: 0px;
+}
+
+.left-0 {
+  left: 0px;
+}
+
+.bottom-\[1px\] {
+  bottom: 1px;
+}
+
+.right-\[2px\] {
+  right: 2px;
 }
 
 .top-3 {
@@ -862,8 +870,8 @@ button {
   right: 2rem;
 }
 
-.left-0 {
-  left: 0px;
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .z-\[10000\] {
@@ -1012,10 +1020,6 @@ button {
   margin-left: 0.75rem;
 }
 
-.mb-1 {
-  margin-bottom: 0.25rem;
-}
-
 .ml-2 {
   margin-left: 0.5rem;
 }
@@ -1125,6 +1129,14 @@ button {
   height: 40px;
 }
 
+.h-\[100px\] {
+  height: 100px;
+}
+
+.h-\[70px\] {
+  height: 70px;
+}
+
 .h-\[80px\] {
   height: 80px;
 }
@@ -1175,10 +1187,6 @@ button {
 
 .h-40 {
   height: 10rem;
-}
-
-.h-\[100px\] {
-  height: 100px;
 }
 
 .h-\[140px\] {
@@ -1250,6 +1258,10 @@ button {
   width: 90%;
 }
 
+.w-4\/5 {
+  width: 80%;
+}
+
 .w-\[80px\] {
   width: 80px;
 }
@@ -1286,10 +1298,6 @@ button {
   width: 11rem;
 }
 
-.w-4\/5 {
-  width: 80%;
-}
-
 .w-\[14px\] {
   width: 14px;
 }
@@ -1320,10 +1328,6 @@ button {
 
 .w-56 {
   width: 14rem;
-}
-
-.w-3\/5 {
-  width: 60%;
 }
 
 .max-w-\[360px\] {
@@ -1436,14 +1440,6 @@ button {
   overflow-x: auto;
 }
 
-.overflow-y-auto {
-  overflow-y: auto;
-}
-
-.overflow-y-hidden {
-  overflow-y: hidden;
-}
-
 .overflow-y-scroll {
   overflow-y: scroll;
 }
@@ -1486,12 +1482,12 @@ button {
   border-width: 1px;
 }
 
-.border-\[1px\] {
-  border-width: 1px;
-}
-
 .border-0 {
   border-width: 0px;
+}
+
+.border-\[1px\] {
+  border-width: 1px;
 }
 
 .border-y {
@@ -1671,26 +1667,6 @@ button {
 .bg-blueBase {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
-}
-
-.bg-green-300 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(134 239 172 / var(--tw-bg-opacity));
-}
-
-.bg-red-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 202 202 / var(--tw-bg-opacity));
-}
-
-.bg-blue-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(191 219 254 / var(--tw-bg-opacity));
-}
-
-.bg-yellow-300 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(253 224 71 / var(--tw-bg-opacity));
 }
 
 .bg-gradient-to-b {

@@ -49,7 +49,6 @@ export async function uploadVideo({
   formData.append("file", file!)
   formData.append("handle", handle)
   formData.append("publishId", `${publishId}`)
-  //   formData.append("contentParentPath", contentParentPath)
 
   // const res = await fetch(`${UPLOAD_SERVICE_URL}/publish/video`, {
   const res = await fetch(`http://localhost:4444/publish/video`, {
@@ -59,5 +58,7 @@ export async function uploadVideo({
     },
     body: formData,
   })
-  return res.json()
+  const result = await res.json()
+  console.log("result -->", result)
+  return result
 }

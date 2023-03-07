@@ -53,3 +53,23 @@ export function wait(time: number) {
 export function getTextExcerpt(text: string, len = 100) {
   return _.truncate(text, { length: len, separator: /,?\.* +/ }) // separate by spaces, including preceding commas and periods
 }
+
+// Transform seconds to hour format
+export function secondsToHourFormat(sec: number) {
+  const h = Math.floor(sec / 3600)
+    .toString()
+    .padStart(1, "0")
+  const H = h === "0" ? "" : `${h}:`
+
+  const m = Math.floor((sec % 3600) / 60)
+    .toString()
+    .padStart(2, "0")
+  const M =
+    m === "00" ? "0:" : m.startsWith("0") ? `${m.replace("0", "")}:` : `${m}:`
+
+  const s = Math.floor(sec % 60)
+    .toString()
+    .padStart(2, "0")
+
+  return `${H}${M}${s}`
+}

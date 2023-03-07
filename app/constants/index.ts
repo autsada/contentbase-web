@@ -1,5 +1,7 @@
 import type { ENV } from "~/types"
 
+import { NexusGenEnums } from "~/graphql/server/typegen"
+
 let NODE_ENV: ENV = "development"
 
 if (typeof window !== "undefined") {

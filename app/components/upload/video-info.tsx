@@ -10,11 +10,17 @@ import {
 import { IoCaretDownSharp } from "react-icons/io5"
 import { toast } from "react-toastify"
 import { doc, onSnapshot } from "firebase/firestore"
+import _ from "lodash"
 
+import { Backdrop } from "../backdrop"
 import { Spinner } from "../spinner"
-import { firestore, playbacksCollection } from "~/client/firebase.client"
+import {
+  clientAuth,
+  firestore,
+  playbacksCollection,
+} from "~/client/firebase.client"
 import { contentCategories } from "~/constants"
-import type { SelectedFile } from "~/types"
+import type { Publish, PublishCategory, SelectedFile } from "~/types"
 import type { GetPublishAction } from "~/routes/api/queries/$publishId"
 
 interface Props {
@@ -22,7 +28,8 @@ interface Props {
   goBack: (step: "upload") => void
   closeModal: () => void
   publishId?: number | null
-  title?: string
+  defaultTitle?: string
+  selectedPublish?: Publish // This prop will be available when user open the info modal from one of their saved publishes
 }
 
 export function UploadVideoInfo({
@@ -30,21 +37,34 @@ export function UploadVideoInfo({
   goBack,
   closeModal,
   publishId,
-  title,
+  defaultTitle,
+  selectedPublish,
 }: Props) {
-  const [thumbnail, setThumbnail] = useState<SelectedFile | null>(null)
-  const [primaryCat, setPrimaryCat] =
-    useState<typeof contentCategories[number]>()
-  const [secondaryCat, setSecondaryCat] =
-    useState<typeof contentCategories[number]>()
-  const [tertiaryCat, setTertiaryCat] =
-    useState<typeof contentCategories[number]>()
-  const [visibility, setVisibility] = useState<"share" | "draft">("share")
-
   const getPublishFetcher = useFetcher<GetPublishAction>()
-  const publish = getPublishFetcher?.data?.publish
+  const publish = getPublishFetcher?.data?.publish || selectedPublish
+  const updatePublishFetcher = useFetcher()
 
-  // TODO: Listen to the playback in Firestore and if the playback is updated, call the `API` service to query the publish.
+  const [title, setTitle] = useState<string | undefined>(
+    () => publish?.title || defaultTitle
+  )
+  const [description, setDescription] = useState<string | undefined>(
+    () => publish?.description || undefined
+  )
+  const [thumbnail, setThumbnail] = useState<SelectedFile | null>(null)
+  const [primaryCategory, setPrimaryCategory] = useState<
+    PublishCategory | undefined
+  >(() => publish?.primaryCategory || undefined)
+  const [secondaryCategory, setSecondaryCategory] = useState<
+    PublishCategory | undefined
+  >(() => publish?.secondaryCategory || undefined)
+  const [tertiaryCategory, setTertiaryCategory] = useState<
+    PublishCategory | undefined
+  >(() => publish?.tertiaryCategory || undefined)
+  const [visibility, setVisibility] = useState<"share" | "draft">(() =>
+    !publish ? "draft" : publish.isPublic ? "share" : "draft"
+  )
+
+  // Listen to the playback in Firestore and if the playback is updated, call the `API` service to query the publish.
   useEffect(() => {
     if (typeof document === "undefined" || !publishId) return
 
@@ -99,32 +119,107 @@ export function UploadVideoInfo({
     },
   })
 
-  function handleChangePrimaryCat(e: React.ChangeEvent<HTMLSelectElement>) {
-    setPrimaryCat(e.target.value as typeof contentCategories[number])
-  }
+  const handleChangeTitle = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTitle(e.target.value)
+    },
+    []
+  )
 
-  function handleChangeSecondaryCat(e: React.ChangeEvent<HTMLSelectElement>) {
-    setSecondaryCat(e.target.value as typeof contentCategories[number])
-  }
+  const handleChangeDescription = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setDescription(e.target.value)
+    },
+    []
+  )
 
-  function handleChangeTertiaryCat(e: React.ChangeEvent<HTMLSelectElement>) {
-    setTertiaryCat(e.target.value as typeof contentCategories[number])
-  }
+  const handleChangePrimaryCat = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setPrimaryCategory(e.target.value as typeof contentCategories[number])
+    },
+    []
+  )
 
-  function onChangeVisibility(e: React.ChangeEvent<HTMLInputElement>) {
-    setVisibility(e.target.value as "share" | "draft")
-  }
+  const handleChangeSecondaryCat = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSecondaryCategory(e.target.value as typeof contentCategories[number])
+    },
+    []
+  )
 
-  async function onUpdateDraft() {
+  const handleChangeTertiaryCat = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setTertiaryCategory(e.target.value as typeof contentCategories[number])
+    },
+    []
+  )
+
+  const onChangeVisibility = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setVisibility(e.target.value as "share" | "draft")
+    },
+    []
+  )
+
+  async function onCloseModal() {
+    if (!publish || !clientAuth) return
     try {
-      toast.success("Saving draft and close", { theme: "dark" })
-    } catch (error) {}
+      // Get user's id token
+      const user = clientAuth.currentUser
+      const idToken = await user?.getIdToken()
+
+      // At this point we should have id token as we will force user to reauthenticate if they don't earlier since they enter the dashboard page.
+      if (!idToken) return
+
+      // Check if user updates the publish, if so we need to update the publish in the database.
+      const oldData = {
+        title: publish.title ?? undefined,
+        description: publish.description ?? undefined,
+        primaryCategory: publish.primaryCategory ?? undefined,
+        secondaryCategory: publish.secondaryCategory ?? undefined,
+        tertiaryCategory: publish.tertiaryCategory ?? undefined,
+        isPublic: publish.isPublic,
+      }
+      const newData = {
+        title: title ?? publish.title ?? undefined,
+        description: description ?? undefined,
+        primaryCategory,
+        secondaryCategory,
+        tertiaryCategory,
+        isPublic: visibility === "share",
+      }
+
+      const isDataEqual = _.isEqual(oldData, newData)
+
+      if (!isDataEqual || thumbnail) {
+        // If user update data or use a custom thumbnail, update the publish
+        updatePublishFetcher.submit(
+          {
+            idToken,
+            publishId: publish.id.toString(),
+            title: newData.title ?? "",
+            description: newData.description ?? "",
+            primaryCategory: newData.primaryCategory ?? "",
+            secondaryCategory: newData.secondaryCategory ?? "",
+            tertiaryCategory: newData.tertiaryCategory ?? "",
+            isPublic: newData.isPublic ? "true" : "false",
+          },
+          { method: "post", action: "/dashboard/update-draft" }
+        )
+        toast.success("Saving draft and close", { theme: "dark" })
+      }
+
+      // Before close reset `step` to `upload` so user can start upload again
+      goBack("upload")
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   //   async function onShare() {
   //     try {
   //       if (visibility === "draft") {
-  //         onUpdateDraft()
+  //         onCloseModal()
   //       }
   //     } catch (error) {}
   //   }
@@ -133,11 +228,15 @@ export function UploadVideoInfo({
     <div className="absolute z-[10020] inset-0 w-full bg-white rounded-xl flex flex-col h-full max-h-full overflow-y-scroll">
       <div className="w-full h-[50px] min-h-[50px] flex justify-between items-center">
         <div className="w-[60px] h-full flex items-center justify-center">
-          <MdOutlineKeyboardBackspace
-            size={25}
-            className="text-blue-400 cursor-pointer"
-            onClick={goBack.bind(undefined, "upload")}
-          />
+          {!selectedPublish && !publishId ? (
+            <MdOutlineKeyboardBackspace
+              size={25}
+              className="text-blue-400 cursor-pointer"
+              onClick={goBack.bind(undefined, "upload")}
+            />
+          ) : (
+            <>&nbsp;</>
+          )}
         </div>
         <div className="h-full flex-grow flex items-center justify-start">
           <>&nbsp;</>
@@ -147,7 +246,7 @@ export function UploadVideoInfo({
             to="/dashboard"
             replace={true}
             className="m-0 p-0"
-            onClick={closeModal.bind(undefined, onUpdateDraft)}
+            onClick={closeModal.bind(undefined, onCloseModal)}
           >
             <MdOutlineClose
               size={25}
@@ -157,7 +256,13 @@ export function UploadVideoInfo({
         </div>
       </div>
 
-      {true ? (
+      {publish && publish.isUploadingError ? (
+        <div className="w-full h-full flex items-center justify-center px-10">
+          <p className="error">
+            Oops, something went wrong. Please retry upload the video.
+          </p>
+        </div>
+      ) : (
         <>
           <h6 className="text-center">Video Details</h6>
 
@@ -179,7 +284,8 @@ export function UploadVideoInfo({
                     className="block w-full h-10 text-lg outline-none placeholder:font-light placeholder:text-textExtraLight placeholder:text-base"
                     minLength={1}
                     maxLength={100}
-                    defaultValue={title || publish?.title || ""}
+                    value={title}
+                    onChange={handleChangeTitle}
                   />
                 </label>
               </fieldset>
@@ -197,6 +303,8 @@ export function UploadVideoInfo({
                     placeholder="Content description"
                     className="block w-full text-lg outline-none placeholder:font-light placeholder:text-textExtralLight placeholder:text-base"
                     maxLength={5000}
+                    value={description}
+                    onChange={handleChangeDescription}
                   />
                 </label>
               </fieldset>
@@ -278,13 +386,13 @@ export function UploadVideoInfo({
                   <CategorySelect
                     name="primary"
                     preSelectOption="Primary category is mandatory"
-                    value={primaryCat}
+                    value={publish?.primaryCategory || primaryCategory}
                     handleSelect={handleChangePrimaryCat}
                     options={contentCategories}
                   />
                 </fieldset>
 
-                {primaryCat && (
+                {primaryCategory && (
                   <fieldset className="relative pl-5 border border-borderGray rounded-md mb-3">
                     <legend className="font-normal text-base">
                       Secondary Category
@@ -292,16 +400,16 @@ export function UploadVideoInfo({
                     <CategorySelect
                       name="secondary"
                       preSelectOption="Secondary category is optional"
-                      value={secondaryCat}
+                      value={secondaryCategory}
                       handleSelect={handleChangeSecondaryCat}
                       options={contentCategories.filter(
-                        (cat) => cat !== primaryCat
+                        (cat) => cat !== primaryCategory
                       )}
                     />
                   </fieldset>
                 )}
 
-                {primaryCat && secondaryCat && (
+                {primaryCategory && secondaryCategory && (
                   <fieldset className="relative pl-5 border border-borderGray rounded-md mb-3">
                     <legend className="font-normal text-base">
                       Tertiary Category
@@ -309,10 +417,11 @@ export function UploadVideoInfo({
                     <CategorySelect
                       name="Tertiary"
                       preSelectOption="Tertiary category is optional"
-                      value={tertiaryCat}
+                      value={tertiaryCategory}
                       handleSelect={handleChangeTertiaryCat}
                       options={contentCategories.filter(
-                        (cat) => cat !== primaryCat && cat !== secondaryCat
+                        (cat) =>
+                          cat !== primaryCategory && cat !== secondaryCategory
                       )}
                     />
                   </fieldset>
@@ -429,17 +538,20 @@ export function UploadVideoInfo({
               </div>
             </div>
 
-            <button className={`btn-orange w-4/5 h-12 mb-10 rounded-full`}>
+            <button
+              className={`btn-orange w-4/5 h-12 mb-10 rounded-full ${
+                !title || !primaryCategory ? "opacity-50" : "opacity-100"
+              }`}
+              disabled={!title || !primaryCategory}
+            >
               {visibility === "share" ? "SHARE" : "SAVE DRAFT"}
             </button>
           </form>
         </>
-      ) : (
-        <div className="w-full h-full flex items-center justify-center px-10">
-          <p className="error">
-            Oops, something went wrong. Please retry upload the video.
-          </p>
-        </div>
+      )}
+
+      {(!publishId || !publish) && (
+        <Backdrop bgWhite={true} withSpinner={true} />
       )}
     </div>
   )

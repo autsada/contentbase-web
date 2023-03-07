@@ -6,8 +6,7 @@ import { DashboardHeader } from "~/components/dashboard/dashboard-header"
 import { useDashboardContext } from "~/routes/dashboard"
 
 export default function ContentDashboard() {
-  const context = useDashboardContext()
-  const publishes = context?.publishes
+  const { publishes, selectPublish } = useDashboardContext()
 
   return (
     <div className="relative h-full flex flex-col items-stretch">
@@ -16,7 +15,11 @@ export default function ContentDashboard() {
         {publishes &&
           publishes.length > 0 &&
           publishes.map((publish) => (
-            <PublishItem key={publish.id} publish={publish} />
+            <PublishItem
+              key={publish.id}
+              publish={publish}
+              selectPublish={selectPublish}
+            />
           ))}
       </div>
     </div>

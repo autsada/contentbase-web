@@ -1,35 +1,11 @@
-import { useCallback, useState, useEffect } from "react"
 import { useCatch, Link, useLocation, Outlet } from "@remix-run/react"
 
-import { UploadModal } from "~/components/upload/upload-modal"
 import ErrorComponent from "~/components/error"
 import { useDashboardContext } from "../dashboard"
-import type { UploadType } from "~/components/upload/select-type"
 
 export default function ContentDashboard() {
-  const [uploadModalVisible, setUploadModalVisible] = useState<boolean>()
-  const [uploadType, setUploadType] = useState<UploadType>("SelectType")
-
-  // const data = useLoaderData<typeof loader>()
   const context = useDashboardContext()
   const { pathname } = useLocation()
-
-  useEffect(() => {
-    if (context?.startUpload) {
-      setUploadModalVisible(true)
-    }
-  }, [context?.startUpload])
-
-  // const openUploadModal = useCallback(() => {
-  //   setUploadModalVisible(true)
-  // }, [])
-
-  const closeUploadModal = useCallback((cb?: () => void) => {
-    if (cb) {
-      cb()
-    }
-    setUploadModalVisible(false)
-  }, [])
 
   return (
     <>
@@ -89,14 +65,6 @@ export default function ContentDashboard() {
       <div className="page">
         <Outlet context={context} />
       </div>
-
-      {uploadModalVisible && (
-        <UploadModal
-          closeModal={closeUploadModal}
-          uploadType={uploadType}
-          setUploadType={setUploadType}
-        />
-      )}
     </>
   )
 }

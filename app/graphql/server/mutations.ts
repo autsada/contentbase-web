@@ -46,3 +46,10 @@ export const CREATE_DRAFT_PUBLISH_MUTATION = gql`
     }
   }
 `
+export const UPDATE_DRAFT_PUBLISH_MUTATION = gql`
+  mutation UpdateDraftPublish($input: UpdateDraftPublishInput!) {
+    updateDraftPublish(input: $input) {
+      status
+    }
+  }
+`
