@@ -64,6 +64,28 @@ export function UploadVideoInfo({
     !publish ? "draft" : publish.isPublic ? "share" : "draft"
   )
 
+  // Check if user updates the publish, if so we need to update the publish in the database.
+  const isDataChanged = !_.isEqual(
+    // Old data
+    {
+      title: publish?.title ?? undefined,
+      description: publish?.description ?? undefined,
+      primaryCategory: publish?.primaryCategory ?? undefined,
+      secondaryCategory: publish?.secondaryCategory ?? undefined,
+      tertiaryCategory: publish?.tertiaryCategory ?? undefined,
+      isPublic: publish?.isPublic,
+    },
+    // New data
+    {
+      title: title ?? publish?.title ?? undefined,
+      description: description ?? undefined,
+      primaryCategory,
+      secondaryCategory,
+      tertiaryCategory,
+      isPublic: visibility === "share",
+    }
+  )
+
   // Listen to the playback in Firestore and if the playback is updated, call the `API` service to query the publish.
   useEffect(() => {
     if (typeof document === "undefined" || !publishId) return
@@ -161,7 +183,7 @@ export function UploadVideoInfo({
     []
   )
 
-  async function onCloseModal() {
+  async function saveDraft() {
     if (!publish || !clientAuth) return
     try {
       // Get user's id token
@@ -171,27 +193,15 @@ export function UploadVideoInfo({
       // At this point we should have id token as we will force user to reauthenticate if they don't earlier since they enter the dashboard page.
       if (!idToken) return
 
-      // Check if user updates the publish, if so we need to update the publish in the database.
-      const oldData = {
-        title: publish.title ?? undefined,
-        description: publish.description ?? undefined,
-        primaryCategory: publish.primaryCategory ?? undefined,
-        secondaryCategory: publish.secondaryCategory ?? undefined,
-        tertiaryCategory: publish.tertiaryCategory ?? undefined,
-        isPublic: publish.isPublic,
-      }
-      const newData = {
-        title: title ?? publish.title ?? undefined,
-        description: description ?? undefined,
-        primaryCategory,
-        secondaryCategory,
-        tertiaryCategory,
-        isPublic: visibility === "share",
-      }
-
-      const isDataEqual = _.isEqual(oldData, newData)
-
-      if (!isDataEqual || thumbnail) {
+      if (isDataChanged || thumbnail) {
+        const newData = {
+          title: title ?? publish?.title ?? undefined,
+          description: description ?? undefined,
+          primaryCategory,
+          secondaryCategory,
+          tertiaryCategory,
+          isPublic: visibility === "share",
+        }
         // If user update data or use a custom thumbnail, update the publish
         updatePublishFetcher.submit(
           {
@@ -209,7 +219,7 @@ export function UploadVideoInfo({
         toast.success("Saving draft and close", { theme: "dark" })
       }
 
-      // Before close reset `step` to `upload` so user can start upload again
+      // Before closing reset `step` to `upload` so user can start upload again
       goBack("upload")
     } catch (error) {
       console.error(error)
@@ -224,6 +234,7 @@ export function UploadVideoInfo({
   //     } catch (error) {}
   //   }
 
+  console.log("changed -->", isDataChanged)
   return (
     <div className="absolute z-[10020] inset-0 w-full bg-white rounded-xl flex flex-col h-full max-h-full overflow-y-scroll">
       <div className="w-full h-[50px] min-h-[50px] flex justify-between items-center">
@@ -247,7 +258,7 @@ export function UploadVideoInfo({
             replace={true}
             preventScrollReset={true}
             className="m-0 p-0"
-            onClick={closeModal.bind(undefined, onCloseModal)}
+            onClick={closeModal.bind(undefined, saveDraft)}
           >
             <MdOutlineClose
               size={25}
@@ -539,6 +550,29 @@ export function UploadVideoInfo({
               </div>
             </div>
 
+            {visibility === "share" ? (
+              <button
+                className={`btn-orange w-4/5 h-12 mb-10 rounded-full ${
+                  !title || !primaryCategory ? "opacity-30" : "opacity-100"
+                }`}
+                disabled={!title || !primaryCategory}
+              >
+                SHARE
+              </button>
+            ) : (
+              <button
+                className={`btn-orange w-4/5 h-12 mb-10 rounded-full ${
+                  !isDataChanged
+                    ? "opacity-30 cursor-not-allowed"
+                    : "opacity-100"
+                }`}
+                disabled={!isDataChanged}
+                onClick={closeModal.bind(undefined, saveDraft)}
+              >
+                SAVE DRAFT
+              </button>
+            )}
+            {/* 
             <button
               className={`btn-orange w-4/5 h-12 mb-10 rounded-full ${
                 !title || !primaryCategory ? "opacity-50" : "opacity-100"
@@ -546,7 +580,7 @@ export function UploadVideoInfo({
               disabled={!title || !primaryCategory}
             >
               {visibility === "share" ? "SHARE" : "SAVE DRAFT"}
-            </button>
+            </button> */}
           </form>
         </>
       )}

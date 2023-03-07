@@ -11,11 +11,11 @@ interface Props {
 export function PublishItem({ publish, selectPublish }: Props) {
   return (
     <div
-      className="h-[100px] grid grid-cols-5 mb-2 border-b border-b-gray-100"
+      className="h-[100px] grid grid-cols-5 mb-2 border-b border-b-gray-100 cursor-pointer"
       onClick={selectPublish.bind(undefined, publish?.id)}
     >
       <div className="h-full col-span-2 flex flex-col items-center justify-center">
-        <div className="relative w-4/5 h-[70px] flex items-center justify-center border-0 bg-black">
+        <div className="relative z-10 w-4/5 h-[70px] flex items-center justify-center border-0 bg-black">
           <img
             src={publish.playback?.thumbnail}
             alt={publish.title || ""}
