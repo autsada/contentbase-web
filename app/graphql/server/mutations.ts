@@ -38,17 +38,17 @@ export const FOLLOW_MUTATION = gql`
   }
 `
 
-export const CREATE_DRAFT_PUBLISH_MUTATION = gql`
-  mutation CreateDraftPublish($input: CreateDraftPublishInput!) {
-    createDraftPublish(input: $input) {
+export const CREATE_PUBLISH_MUTATION = gql`
+  mutation CreatePublish($input: CreatePublishInput!) {
+    createPublish(input: $input) {
       status
       publishId
     }
   }
 `
-export const UPDATE_DRAFT_PUBLISH_MUTATION = gql`
-  mutation UpdateDraftPublish($input: UpdateDraftPublishInput!) {
-    updateDraftPublish(input: $input) {
+export const UPDATE_PUBLISH_MUTATION = gql`
+  mutation UpdatePublish($input: UpdatePublishInput!) {
+    updatePublish(input: $input) {
       status
     }
   }

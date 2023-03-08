@@ -23,13 +23,6 @@ export interface NexusGenInputs {
     metadataURI: string // String!
     owner: string // String!
   }
-  CreateDraftPublishInput: {
-    // input type
-    creatorId: number // Int!
-    creatorTokenId: string // String!
-    filename?: string | null // String
-    title?: string | null // String
-  }
   CreateProfileInput: {
     // input type
     handle: string // String!
@@ -39,14 +32,14 @@ export interface NexusGenInputs {
   CreatePublishInput: {
     // input type
     creatorId: number // Int!
-    description: string // String!
-    kind: NexusGenEnums["PublishKind"] // PublishKind!
+    creatorTokenId: string // String!
+    filename?: string | null // String
+    title?: string | null // String
+  }
+  CreatePublishNFTInput: {
+    // input type
+    creatorId: number // Int!
     metadataURI: string // String!
-    primaryCategory: NexusGenEnums["Category"] // Category!
-    publishURI: string // String!
-    secondaryCategory: NexusGenEnums["Category"] // Category!
-    tertiaryCategory: NexusGenEnums["Category"] // Category!
-    title: string // String!
   }
   FollowInput: {
     // input type
@@ -64,16 +57,6 @@ export interface NexusGenInputs {
     text: string // String!
     tokenId: number // Int!
   }
-  UpdateDraftPublishInput: {
-    // input type
-    description?: string | null // String
-    handle: string // String!
-    isPublic?: boolean | null // Boolean
-    primaryCategory?: NexusGenEnums["Category"] | null // Category
-    publishId: number // Int!
-    secondaryCategory?: NexusGenEnums["Category"] | null // Category
-    title?: string | null // String
-  }
   UpdateProfileImageInput: {
     // input type
     imageURI: string // String!
@@ -81,13 +64,14 @@ export interface NexusGenInputs {
   }
   UpdatePublishInput: {
     // input type
-    creatorId: number // Int!
     description?: string | null // String
-    primaryCategory: NexusGenEnums["Category"] // Category!
-    secondaryCategory: NexusGenEnums["Category"] // Category!
-    tertiaryCategory: NexusGenEnums["Category"] // Category!
-    title: string // String!
-    tokenId: number // Int!
+    handle: string // String!
+    isPublic?: boolean | null // Boolean
+    primaryCategory?: NexusGenEnums["Category"] | null // Category
+    publishId: number // Int!
+    secondaryCategory?: NexusGenEnums["Category"] | null // Category
+    thumbSource?: NexusGenEnums["ThumbSource"] | null // ThumbSource
+    title?: string | null // String
   }
 }
 
@@ -115,6 +99,7 @@ export interface NexusGenEnums {
   CommentType: "COMMENT" | "PUBLISH"
   PublishKind: "Blog" | "Course" | "Video"
   Role: "ADMIN_ROLE" | "DEFAULT_ADMIN_ROLE" | "UPGRADER_ROLE"
+  ThumbSource: "custom" | "generated"
   UploadType: "avatar" | "post"
 }
 
@@ -305,9 +290,9 @@ export interface NexusGenFieldTypes {
     // field return type
     commentOnComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     commentOnPublish: NexusGenRootTypes["WriteResult"] // WriteResult!
-    createDraftPublish: NexusGenRootTypes["CreatePublishResult"] // CreatePublishResult!
     createFirstProfile: NexusGenRootTypes["WriteResult"] // WriteResult!
     createProfile: NexusGenRootTypes["WriteResult"] // WriteResult!
+    createPublish: NexusGenRootTypes["CreatePublishResult"] // CreatePublishResult!
     createWallet: NexusGenRootTypes["CreateWalletResult"] // CreateWalletResult!
     deleteComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     disLikeComment: NexusGenRootTypes["WriteResult"] // WriteResult!
@@ -331,7 +316,7 @@ export interface NexusGenFieldTypes {
     setPublishForComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     setPublishForLike: NexusGenRootTypes["WriteResult"] // WriteResult!
     updateComment: NexusGenRootTypes["WriteResult"] // WriteResult!
-    updateDraftPublish: NexusGenRootTypes["WriteResult"] // WriteResult!
+    updatePublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     validateHandle: boolean // Boolean!
     withdrawFunds: NexusGenRootTypes["WriteResult"] // WriteResult!
   }
@@ -457,9 +442,9 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     commentOnComment: "WriteResult"
     commentOnPublish: "WriteResult"
-    createDraftPublish: "CreatePublishResult"
     createFirstProfile: "WriteResult"
     createProfile: "WriteResult"
+    createPublish: "CreatePublishResult"
     createWallet: "CreateWalletResult"
     deleteComment: "WriteResult"
     disLikeComment: "WriteResult"
@@ -483,7 +468,7 @@ export interface NexusGenFieldTypeNames {
     setPublishForComment: "WriteResult"
     setPublishForLike: "WriteResult"
     updateComment: "WriteResult"
-    updateDraftPublish: "WriteResult"
+    updatePublish: "WriteResult"
     validateHandle: "Boolean"
     withdrawFunds: "WriteResult"
   }
@@ -556,10 +541,6 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs["CreateCommentInput"] // CreateCommentInput!
     }
-    createDraftPublish: {
-      // args
-      input: NexusGenInputs["CreateDraftPublishInput"] // CreateDraftPublishInput!
-    }
     createFirstProfile: {
       // args
       input: NexusGenInputs["CreateDefaultProfileInput"] // CreateDefaultProfileInput!
@@ -567,6 +548,10 @@ export interface NexusGenArgTypes {
     createProfile: {
       // args
       input: NexusGenInputs["CreateProfileInput"] // CreateProfileInput!
+    }
+    createPublish: {
+      // args
+      input: NexusGenInputs["CreatePublishInput"] // CreatePublishInput!
     }
     deleteComment: {
       // args
@@ -662,9 +647,9 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs["UpdateCommentInput"] // UpdateCommentInput!
     }
-    updateDraftPublish: {
+    updatePublish: {
       // args
-      input: NexusGenInputs["UpdateDraftPublishInput"] // UpdateDraftPublishInput!
+      input: NexusGenInputs["UpdatePublishInput"] // UpdatePublishInput!
     }
     validateHandle: {
       // args

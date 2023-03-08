@@ -329,7 +329,7 @@ export function UploadVideoInfo({
         publishId: publish.id.toString(),
         ...updatedData,
       },
-      { method: "post", action: "/dashboard/update-draft" }
+      { method: "post", action: "/dashboard/update-publish" }
     )
     toast.success("Saving draft and close", { theme: "dark" })
   }
@@ -357,13 +357,16 @@ export function UploadVideoInfo({
     if (isIntentToChangeThumbnail) setIsIntentToChangeThumbnail(false)
   }
 
-  //   async function onShare() {
-  //     try {
-  //       if (visibility === "draft") {
-  //         onCloseModal()
-  //       }
-  //     } catch (error) {}
-  //   }
+  async function onShare() {
+    try {
+      if (visibility === "draft") {
+        onCloseModal()
+        return
+      }
+
+      // If
+    } catch (error) {}
+  }
 
   return (
     <div className="absolute z-[10020] inset-0 w-full bg-white rounded-xl flex flex-col h-full max-h-full overflow-y-scroll">
@@ -414,6 +417,8 @@ export function UploadVideoInfo({
             onSubmit={
               visibility === "draft"
                 ? closeModal.bind(undefined, onSavePublish)
+                : visibility === "share"
+                ? onShare
                 : undefined
             }
           >

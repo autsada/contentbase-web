@@ -5,7 +5,7 @@
 import { json, redirect } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
 
-import { createDraftPublish } from "~/graphql/server"
+import { createPublish } from "~/graphql/server"
 
 export function loader() {
   return redirect("/")
@@ -24,7 +24,7 @@ export async function action({ request }: ActionArgs) {
 
     const { idToken, creatorId, creatorTokenId, title, filename } = input
 
-    const data = await createDraftPublish(idToken, {
+    const data = await createPublish(idToken, {
       creatorId: Number(creatorId),
       creatorTokenId,
       title,

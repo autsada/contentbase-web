@@ -5,7 +5,7 @@
 import { json, redirect } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
 
-import { updateDraftPublish } from "~/graphql/server"
+import { updatePublish } from "~/graphql/server"
 
 export function loader() {
   return redirect("/")
@@ -23,7 +23,7 @@ export async function action({ request }: ActionArgs) {
     const { idToken, handle, publishId, ...rest } = input
 
     // We need to provide `null` if the value doesn't exist as the graphql endpoint will except `null` but not empty value
-    const data = await updateDraftPublish(idToken, {
+    const data = await updatePublish(idToken, {
       publishId: Number(publishId),
       handle,
       ...rest,

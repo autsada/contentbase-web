@@ -8,7 +8,7 @@ import { UploadVideo } from "./upload-video"
 import { clientAuth } from "~/client/firebase.client"
 import { useDashboardContext } from "~/routes/dashboard"
 import type { UploadType } from "./select-type"
-import type { CreateDraftAction } from "~/routes/dashboard/create-draft"
+import type { CreateDraftAction } from "~/routes/dashboard/create-publish"
 import type { Publish } from "~/types"
 
 interface Props {
@@ -78,7 +78,7 @@ export function UploadModal({
           title,
           filename,
         },
-        { method: "post", action: "/dashboard/create-draft" }
+        { method: "post", action: "/dashboard/create-publish" }
       )
     } catch (error) {
       console.error(error)

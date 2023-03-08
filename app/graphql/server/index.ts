@@ -6,12 +6,12 @@
 import { GraphQLClient } from "graphql-request"
 
 import {
-  CREATE_DRAFT_PUBLISH_MUTATION,
   CREATE_FIRST_PROFILE_MUTATION,
   CREATE_PROFILE_MUTATION,
   CREATE_WALLET_MUTATION,
   FOLLOW_MUTATION,
-  UPDATE_DRAFT_PUBLISH_MUTATION,
+  CREATE_PUBLISH_MUTATION,
+  UPDATE_PUBLISH_MUTATION,
   VALIDATE_HANDLE_MUTATION,
 } from "./mutations"
 import { GET_BALANCE_QUERY } from "./queries"
@@ -147,9 +147,9 @@ export async function follow({
   return data.follow
 }
 
-export async function createDraftPublish(
+export async function createPublish(
   idToken: string,
-  input: NexusGenInputs["CreateDraftPublishInput"]
+  input: NexusGenInputs["CreatePublishInput"]
 ) {
   const data = await client
     .setHeaders({
@@ -157,18 +157,18 @@ export async function createDraftPublish(
       Authorization: `Bearer ${idToken}`,
     })
     .request<
-      MutationReturnType<"createDraftPublish">,
-      MutationArgsType<"createDraftPublish">
-    >(CREATE_DRAFT_PUBLISH_MUTATION, {
+      MutationReturnType<"createPublish">,
+      MutationArgsType<"createPublish">
+    >(CREATE_PUBLISH_MUTATION, {
       input,
     })
 
-  return data.createDraftPublish
+  return data.createPublish
 }
 
-export async function updateDraftPublish(
+export async function updatePublish(
   idToken: string,
-  input: NexusGenInputs["UpdateDraftPublishInput"]
+  input: NexusGenInputs["UpdatePublishInput"]
 ) {
   const data = await client
     .setHeaders({
@@ -176,11 +176,11 @@ export async function updateDraftPublish(
       Authorization: `Bearer ${idToken}`,
     })
     .request<
-      MutationReturnType<"updateDraftPublish">,
-      MutationArgsType<"updateDraftPublish">
-    >(UPDATE_DRAFT_PUBLISH_MUTATION, {
+      MutationReturnType<"updatePublish">,
+      MutationArgsType<"updatePublish">
+    >(UPDATE_PUBLISH_MUTATION, {
       input,
     })
 
-  return data.updateDraftPublish
+  return data.updatePublish
 }
