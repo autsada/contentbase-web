@@ -59,6 +59,7 @@ export type AccountType = "TRADITIONAL" | "WALLET"
 export type Profile = NexusGenFieldTypes["Profile"]
 export type PreviewProfile = NexusGenFieldTypes["PreviewProfile"]
 export type PublishCategory = NexusGenEnums["Category"]
+export type ThumbSource = NexusGenEnums["ThumbSource"]
 export type Publish = NexusGenFieldTypes["Publish"]
 export type PreviewPublish = NexusGenFieldTypes["PreviewPublish"]
 export type WriteResult = NexusGenFieldTypes["WriteResult"]

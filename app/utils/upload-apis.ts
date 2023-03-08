@@ -58,7 +58,33 @@ export async function uploadVideo({
     },
     body: formData,
   })
-  const result = await res.json()
-  console.log("result -->", result)
-  return result
+  return res.json()
+}
+
+/**
+ * A function to upload a thumbnail file
+ */
+export async function uploadThumbnail({
+  idToken,
+  file,
+  handle,
+  publishId,
+}: UploadPublishArgs): Promise<{
+  thumbnail: string
+}> {
+  const formData = new FormData()
+  formData.append("file", file!)
+  formData.append("handle", handle)
+  formData.append("publishId", `${publishId}`)
+
+  // const res = await fetch(`${UPLOAD_SERVICE_URL}/publish/thumbnail`, {
+  const res = await fetch(`http://localhost:4444/publish/thumbnail`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: formData,
+  })
+
+  return res.json()
 }

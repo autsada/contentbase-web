@@ -73,6 +73,7 @@ export interface NexusGenEnums {
     | "Women"
   CommentType: "COMMENT" | "PUBLISH"
   PublishKind: "Blog" | "Course" | "Video"
+  ThumbSource: "custom" | "generated"
 }
 
 export interface NexusGenScalars {
@@ -154,7 +155,8 @@ export interface NexusGenObjects {
     primaryCategory?: NexusGenEnums["Category"] | null // Category
     publishURI?: string | null // String
     secondaryCategory?: NexusGenEnums["Category"] | null // Category
-    tertiaryCategory?: NexusGenEnums["Category"] | null // Category
+    thumbSource?: NexusGenEnums["ThumbSource"] | null // ThumbSource
+    thumbnail?: string | null // String
     title?: string | null // String
     tokenId?: string | null // String
     views?: number | null // Int
@@ -190,7 +192,8 @@ export interface NexusGenObjects {
     primaryCategory?: NexusGenEnums["Category"] | null // Category
     publishURI?: string | null // String
     secondaryCategory?: NexusGenEnums["Category"] | null // Category
-    tertiaryCategory?: NexusGenEnums["Category"] | null // Category
+    thumbSource?: NexusGenEnums["ThumbSource"] | null // ThumbSource
+    thumbnail?: string | null // String
     title?: string | null // String
     tokenId?: string | null // String
     updatedAt?: NexusGenScalars["DateTime"] | null // DateTime
@@ -308,7 +311,8 @@ export interface NexusGenFieldTypes {
     primaryCategory: NexusGenEnums["Category"] | null // Category
     publishURI: string | null // String
     secondaryCategory: NexusGenEnums["Category"] | null // Category
-    tertiaryCategory: NexusGenEnums["Category"] | null // Category
+    thumbSource: NexusGenEnums["ThumbSource"] | null // ThumbSource
+    thumbnail: string | null // String
     title: string | null // String
     tokenId: string | null // String
     views: number | null // Int
@@ -359,7 +363,8 @@ export interface NexusGenFieldTypes {
     primaryCategory: NexusGenEnums["Category"] | null // Category
     publishURI: string | null // String
     secondaryCategory: NexusGenEnums["Category"] | null // Category
-    tertiaryCategory: NexusGenEnums["Category"] | null // Category
+    thumbSource: NexusGenEnums["ThumbSource"] | null // ThumbSource
+    thumbnail: string | null // String
     tips: Array<NexusGenRootTypes["PreviewProfile"] | null> // [PreviewProfile]!
     title: string | null // String
     tokenId: string | null // String
@@ -489,7 +494,8 @@ export interface NexusGenFieldTypeNames {
     primaryCategory: "Category"
     publishURI: "String"
     secondaryCategory: "Category"
-    tertiaryCategory: "Category"
+    thumbSource: "ThumbSource"
+    thumbnail: "String"
     title: "String"
     tokenId: "String"
     views: "Int"
@@ -540,7 +546,8 @@ export interface NexusGenFieldTypeNames {
     primaryCategory: "Category"
     publishURI: "String"
     secondaryCategory: "Category"
-    tertiaryCategory: "Category"
+    thumbSource: "ThumbSource"
+    thumbnail: "String"
     tips: "PreviewProfile"
     title: "String"
     tokenId: "String"

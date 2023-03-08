@@ -1,13 +1,9 @@
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { Link, useFetcher } from "@remix-run/react"
 import { useDropzone } from "react-dropzone"
-import {
-  MdFileUpload,
-  MdOutlineClose,
-  MdOutlineKeyboardBackspace,
-  MdOutlineWarning,
-} from "react-icons/md"
-import { IoCaretDownSharp } from "react-icons/io5"
+import { MdFileUpload, MdOutlineClose, MdOutlineWarning } from "react-icons/md"
+import { IoCaretDownSharp, IoTrashOutline } from "react-icons/io5"
+import { RxDotsVertical } from "react-icons/rx"
 import { toast } from "react-toastify"
 import { doc, onSnapshot } from "firebase/firestore"
 import _ from "lodash"
@@ -20,8 +16,14 @@ import {
   playbacksCollection,
 } from "~/client/firebase.client"
 import { contentCategories } from "~/constants"
-import type { Publish, PublishCategory, SelectedFile } from "~/types"
+import type {
+  Publish,
+  PublishCategory,
+  SelectedFile,
+  ThumbSource,
+} from "~/types"
 import type { GetPublishAction } from "~/routes/api/queries/$publishId"
+import { uploadThumbnail } from "~/utils/upload-apis"
 
 interface Props {
   handle: string
@@ -43,7 +45,9 @@ export function UploadVideoInfo({
   selectedPublish,
 }: Props) {
   const getPublishFetcher = useFetcher<GetPublishAction>()
-  const publish = getPublishFetcher?.data?.publish || selectedPublish
+  // A publish to display
+  const publish = (getPublishFetcher?.data?.publish ||
+    selectedPublish) as Publish
   const updatePublishFetcher = useFetcher()
 
   const [title, setTitle] = useState<string | undefined>(
@@ -53,40 +57,55 @@ export function UploadVideoInfo({
     () => publish?.description || undefined
   )
   const [thumbnail, setThumbnail] = useState<SelectedFile | null>(null)
+  const [isThumbnailError, setIsThumbnailError] = useState(false)
+  // Use this state for user to confirm if they really want to upload a new thumbnail
+  const [isRequestToChangeThumbnail, setIsRequestToChangeThumbnail] =
+    useState(false)
+  // Use this state to open upload dialog
+  const [isIntentToChangeThumbnail, setIsIntentToChangeThumbnail] =
+    useState<boolean>()
+  // This state will make user be able to switch between uploaded custom thumbnail and the auto generated one.
+  const [thumbSource, setThumbSource] = useState<ThumbSource | undefined>(() =>
+    publish
+      ? publish.thumbSource ||
+        (publish?.playback?.thumbnail ? "generated" : undefined)
+      : undefined
+  )
   const [primaryCategory, setPrimaryCategory] = useState<
     PublishCategory | undefined
   >(() => publish?.primaryCategory || undefined)
   const [secondaryCategory, setSecondaryCategory] = useState<
     PublishCategory | undefined
   >(() => publish?.secondaryCategory || undefined)
-  const [tertiaryCategory, setTertiaryCategory] = useState<
-    PublishCategory | undefined
-  >(() => publish?.tertiaryCategory || undefined)
   const [visibility, setVisibility] = useState<"share" | "draft">(() =>
     !publish ? "draft" : publish.isPublic ? "share" : "draft"
   )
 
+  // When user intents to upload a new thumbnail, under the hood we will click this div
+  const uploadRef = useRef<HTMLDivElement>(null)
+
   // Check if user updates the publish, if so we need to update the publish in the database.
-  const isDataChanged = !_.isEqual(
-    // Old data
-    {
-      title: publish?.title ?? undefined,
-      description: publish?.description ?? undefined,
-      primaryCategory: publish?.primaryCategory ?? undefined,
-      secondaryCategory: publish?.secondaryCategory ?? undefined,
-      tertiaryCategory: publish?.tertiaryCategory ?? undefined,
-      isPublic: publish?.isPublic,
-    },
-    // New data
-    {
-      title: title ?? publish?.title ?? undefined,
-      description: description ?? undefined,
-      primaryCategory,
-      secondaryCategory,
-      tertiaryCategory,
-      isPublic: visibility === "share",
-    }
-  )
+  // Use undefined for falsy values
+  const oldData = {
+    title: publish?.title ?? undefined,
+    description: publish?.description ?? undefined,
+    primaryCategory: publish?.primaryCategory ?? undefined,
+    secondaryCategory: publish?.secondaryCategory ?? undefined,
+    isPublic: publish?.isPublic,
+    thumbSource: publish
+      ? publish.thumbSource ||
+        (publish?.playback?.thumbnail ? "generated" : undefined)
+      : undefined,
+  }
+  const newData = {
+    title: title ?? publish?.title ?? undefined,
+    description: description ?? undefined,
+    primaryCategory,
+    secondaryCategory,
+    isPublic: visibility === "share",
+    thumbSource,
+  }
+  const isDataChanged = !_.isEqual(oldData, newData)
 
   // Listen to the playback in Firestore and if the playback is updated, call the `API` service to query the publish.
   useEffect(() => {
@@ -121,13 +140,16 @@ export function UploadVideoInfo({
 
     if (selectedFile.size / 1000 > 2048) {
       // Maximum allowed image size = 2mb
+      setIsThumbnailError(true)
       return
     }
     const fileWithPreview = Object.assign(selectedFile, {
       preview: URL.createObjectURL(selectedFile),
     })
 
+    setIsThumbnailError(false)
     setThumbnail(fileWithPreview)
+    setThumbSource("custom")
   }, [])
 
   const {
@@ -157,6 +179,42 @@ export function UploadVideoInfo({
     []
   )
 
+  // A function to switch between a generated and a custom thumbnail
+  const selectThumbnail = useCallback(
+    (s: "generated" | "custom") => {
+      setThumbSource(s)
+      if (isRequestToChangeThumbnail && s === "generated")
+        setIsRequestToChangeThumbnail(false)
+    },
+    [isRequestToChangeThumbnail]
+  )
+
+  const onRequestToChangeThumbnail = useCallback((r: boolean) => {
+    setIsRequestToChangeThumbnail(r)
+    if (!r) setIsIntentToChangeThumbnail(false)
+  }, [])
+
+  const onConfirmToChangeThumbnail = useCallback((c: boolean) => {
+    setIsIntentToChangeThumbnail(c)
+  }, [])
+
+  const clearThumbnailFile = useCallback(() => {
+    setThumbnail(null)
+    setIsRequestToChangeThumbnail(false)
+    setIsIntentToChangeThumbnail(false)
+  }, [])
+
+  // When user click to change image, click the upload ref to open the upload dialog as user will not click the upload box directly
+  useEffect(() => {
+    if (
+      isRequestToChangeThumbnail &&
+      isIntentToChangeThumbnail &&
+      uploadRef?.current
+    ) {
+      uploadRef.current.click()
+    }
+  }, [isRequestToChangeThumbnail, isIntentToChangeThumbnail])
+
   const handleChangePrimaryCat = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setPrimaryCategory(e.target.value as typeof contentCategories[number])
@@ -171,13 +229,6 @@ export function UploadVideoInfo({
     []
   )
 
-  const handleChangeTertiaryCat = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setTertiaryCategory(e.target.value as typeof contentCategories[number])
-    },
-    []
-  )
-
   const onChangeVisibility = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setVisibility(e.target.value as "share" | "draft")
@@ -185,41 +236,23 @@ export function UploadVideoInfo({
     []
   )
 
-  async function saveDraft() {
-    if (!publish || !clientAuth) return
+  /**
+   * The logic when user closes a modal
+   */
+  async function onCloseModal() {
     try {
-      // Get user's id token
-      const user = clientAuth.currentUser
-      const idToken = await user?.getIdToken()
+      // Save the publish if there is any changes
+      if (isDataChanged) {
+        if (!publish || !clientAuth) return
 
-      // At this point we should have id token as we will force user to reauthenticate if they don't earlier since they enter the dashboard page.
-      if (!idToken) return
+        // Get user's id token
+        const user = clientAuth.currentUser
+        const idToken = await user?.getIdToken()
 
-      if (isDataChanged || thumbnail) {
-        const newData = {
-          title: title ?? publish?.title ?? undefined,
-          description: description ?? undefined,
-          primaryCategory,
-          secondaryCategory,
-          tertiaryCategory,
-          isPublic: visibility === "share",
-        }
-        // If user update data or use a custom thumbnail, update the publish
-        updatePublishFetcher.submit(
-          {
-            handle,
-            idToken,
-            publishId: publish.id.toString(),
-            title: newData.title ?? "",
-            description: newData.description ?? "",
-            primaryCategory: newData.primaryCategory ?? "",
-            secondaryCategory: newData.secondaryCategory ?? "",
-            tertiaryCategory: newData.tertiaryCategory ?? "",
-            isPublic: newData.isPublic ? "true" : "false",
-          },
-          { method: "post", action: "/dashboard/update-draft" }
-        )
-        toast.success("Saving draft and close", { theme: "dark" })
+        // At this point we should have id token as we will force user to reauthenticate if they don't earlier since they enter the dashboard page.
+        if (!idToken) return
+
+        savePublish(idToken, publish)
       }
 
       // Before closing reset `step` to `upload` so user can start upload again
@@ -227,6 +260,101 @@ export function UploadVideoInfo({
     } catch (error) {
       console.error(error)
     }
+  }
+
+  /**
+   * The logic when user saves the publish
+   */
+  async function onSavePublish() {
+    try {
+      if (!publish || !clientAuth) return
+
+      // Get user's id token
+      const user = clientAuth.currentUser
+      const idToken = await user?.getIdToken()
+
+      // At this point we should have id token as we will force user to reauthenticate if they don't earlier since they enter the dashboard page.
+      if (!idToken) return
+
+      // If user uploads a thumbnail, upload thumbnail without waiting
+      if (thumbnail) {
+        console.log("upload image")
+        uploadThumbnail({
+          idToken,
+          file: thumbnail,
+          handle,
+          publishId: publish.id,
+        })
+      }
+
+      // Save the publish
+      if (isDataChanged) {
+        savePublish(idToken, publish)
+      }
+
+      // Before closing reset `step` to `upload` so user can start upload again
+      goBack("upload")
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async function savePublish(idToken: string, publish: Publish) {
+    // Only send the data that has been changed
+    let updatedData: Record<string, any> = {}
+    if (!_.isEqual(oldData.title, newData.title)) {
+      updatedData.title = newData.title || ""
+    }
+    if (!_.isEqual(oldData.description, newData.description)) {
+      updatedData.description = newData.description || ""
+    }
+    if (!_.isEqual(oldData.primaryCategory, newData.primaryCategory)) {
+      updatedData.primaryCategory = newData.primaryCategory || ""
+    }
+    if (!_.isEqual(oldData.secondaryCategory, newData.secondaryCategory)) {
+      updatedData.secondaryCategory = newData.secondaryCategory || ""
+    }
+    if (!_.isEqual(oldData.isPublic, newData.isPublic)) {
+      updatedData.isPublic = newData.isPublic
+    }
+    if (!_.isEqual(oldData.thumbSource, newData.thumbSource)) {
+      updatedData.thumbSource = newData.thumbSource || ""
+    }
+
+    // If user update data or use a custom thumbnail, update the publish
+    updatePublishFetcher.submit(
+      {
+        handle,
+        idToken,
+        publishId: publish.id.toString(),
+        ...updatedData,
+      },
+      { method: "post", action: "/dashboard/update-draft" }
+    )
+    toast.success("Saving draft and close", { theme: "dark" })
+  }
+
+  // Set all states to original when user cancel changes
+  function undoChanges() {
+    if (thumbnail) setThumbnail(null)
+
+    if (!_.isEqual(oldData.thumbSource, newData.thumbSource)) {
+      setThumbSource(oldData.thumbSource)
+    }
+    if (!_.isEqual(oldData.title, newData.title)) {
+      setTitle(oldData.title)
+    }
+    if (!_.isEqual(oldData.description, newData.description)) {
+      setDescription(oldData.description)
+    }
+    if (!_.isEqual(oldData.primaryCategory, newData.primaryCategory)) {
+      setPrimaryCategory(oldData.primaryCategory)
+    }
+    if (!_.isEqual(oldData.secondaryCategory, newData.secondaryCategory)) {
+      setSecondaryCategory(oldData.secondaryCategory)
+    }
+    if (isRequestToChangeThumbnail) setIsIntentToChangeThumbnail(false)
+    if (isIntentToChangeThumbnail) setIsIntentToChangeThumbnail(false)
   }
 
   //   async function onShare() {
@@ -240,13 +368,14 @@ export function UploadVideoInfo({
   return (
     <div className="absolute z-[10020] inset-0 w-full bg-white rounded-xl flex flex-col h-full max-h-full overflow-y-scroll">
       <div className="w-full h-[50px] min-h-[50px] flex justify-between items-center">
-        <div className="w-[60px] h-full flex items-center justify-center">
-          {!selectedPublish && !publishId ? (
-            <MdOutlineKeyboardBackspace
-              size={25}
-              className="text-blue-400 cursor-pointer"
-              onClick={goBack.bind(undefined, "upload")}
-            />
+        <div className="h-full pl-5 flex items-center justify-center">
+          {isDataChanged || thumbnail ? (
+            <button
+              className="font-semibold text-blueBase cursor-pointer"
+              onClick={undoChanges}
+            >
+              Undo changes
+            </button>
           ) : (
             <>&nbsp;</>
           )}
@@ -260,7 +389,7 @@ export function UploadVideoInfo({
             replace={true}
             preventScrollReset={true}
             className="m-0 p-0"
-            onClick={closeModal.bind(undefined, saveDraft)}
+            onClick={closeModal.bind(undefined, onCloseModal)}
           >
             <MdOutlineClose
               size={25}
@@ -280,7 +409,14 @@ export function UploadVideoInfo({
         <>
           <h6 className="text-center">Video Details</h6>
 
-          <form className="w-full flex-grow px-5 mb-5">
+          <updatePublishFetcher.Form
+            className="w-full flex-grow px-5 mb-5"
+            onSubmit={
+              visibility === "draft"
+                ? closeModal.bind(undefined, onSavePublish)
+                : undefined
+            }
+          >
             <div className="w-full text-start mt-5 mb-8">
               <fieldset className="pl-5 border border-borderGray rounded-md">
                 <legend className="font-semibold text-lg text-textDark">
@@ -332,49 +468,137 @@ export function UploadVideoInfo({
                 <label htmlFor="" className="font-light text-textExtraLight">
                   Choose auto generated or upload a custom image.
                 </label>
-                <div className="mt-2 w-full grid grid-flow-row gap-1 grid-cols-2">
-                  <div
-                    className={`h-[80px] flex flex-col items-center justify-center bg-gray-50 opacity-60`}
-                  >
-                    {publish && publish.playback ? (
-                      <img
-                        src={publish.playback.thumbnail}
-                        alt="thumbnail_1"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <>
-                        <MdOutlineWarning className="text-textRegular" />
-                        <p className="text-center font-light text-xs text-textLight">
-                          Generating a thumbnail...
-                        </p>
-                      </>
-                    )}
+                <div className="mt-2 w-full grid grid-flow-row gap-1 grid-cols-2 relative">
+                  <div className={"h-[100px]"}>
+                    <div
+                      className={`h-full w-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer ${
+                        thumbSource === "generated"
+                          ? "opacity-100 border-[3px] border-orange-600"
+                          : "opacity-60 border-[3px] border-transparent"
+                      }`}
+                      onClick={
+                        !publish || !publish.playback
+                          ? undefined
+                          : selectThumbnail.bind(undoChanges, "generated")
+                      }
+                    >
+                      {publish && publish.playback ? (
+                        <img
+                          src={publish.playback.thumbnail}
+                          alt="thumbnail_1"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <>
+                          <MdOutlineWarning className="text-textRegular" />
+                          <p className="text-center font-light text-xs text-textLight">
+                            Generating a thumbnail...
+                          </p>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div
-                    className="h-[80px] flex flex-col items-center justify-center bg-gray-50"
-                    {...getRootProps({
-                      isDragActive,
-                      isDragReject,
-                      isDragAccept,
-                    })}
-                  >
-                    <input {...getInputProps({ multiple: false })} />
-                    {thumbnail ? (
-                      <img
-                        src={thumbnail.preview}
-                        alt={thumbnail.name}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <>
-                        <MdFileUpload size={25} />
-                        <label className="font-light text-textExtraLight text-sm text-center">
-                          Custom thumbnail
-                          <p className="text-center">(2MB or less)</p>
-                        </label>
-                      </>
-                    )}
+
+                  {/* We need a relative wrapper div for use to absolute position the three dots and a dialog for user to click to confirm upload.  */}
+                  <div className="relative h-[100px] flex items-center justify-center">
+                    <div
+                      className="h-full w-full flex items-center justify-center relative"
+                      {...(!publish?.thumbnail || isRequestToChangeThumbnail
+                        ? {
+                            ...(thumbnail
+                              ? {}
+                              : getRootProps({
+                                  isDragActive,
+                                  isDragReject,
+                                  isDragAccept,
+                                })),
+                          }
+                        : {})}
+                    >
+                      <div
+                        ref={uploadRef}
+                        className={`h-full w-full flex flex-col items-center justify-center bg-gray-50 cursor-pointer relative ${
+                          thumbSource === "custom"
+                            ? "opacity-100 border-[3px] border-orange-600"
+                            : "opacity-60 border-[3px] border-transparent"
+                        }`}
+                        onClick={
+                          !thumbnail && !publish?.thumbnail
+                            ? undefined
+                            : selectThumbnail.bind(undoChanges, "custom")
+                        }
+                      >
+                        {(!publish?.thumbnail ||
+                          isRequestToChangeThumbnail) && (
+                          <input {...getInputProps({ multiple: false })} />
+                        )}
+                        {thumbnail ? (
+                          <>
+                            <img
+                              src={thumbnail.preview}
+                              alt={thumbnail.name}
+                              className="w-full h-full object-cover"
+                            />
+                            <div
+                              className="absolute right-[3px] top-[3px] p-[2px] bg-white rounded-sm cursor-pointer"
+                              onClick={clearThumbnailFile}
+                            >
+                              <IoTrashOutline size={22} className="error" />
+                            </div>
+                          </>
+                        ) : publish?.thumbnail ? (
+                          <>
+                            <img
+                              src={publish.thumbnail}
+                              alt={publish.title || ""}
+                              className="w-full h-full object-cover"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <MdFileUpload size={25} />
+                            <label className="font-light text-textExtraLight text-sm text-center">
+                              Custom thumbnail
+                              <p className="text-center">(2MB or less)</p>
+                            </label>
+                            {isThumbnailError && (
+                              <span className="absolute bottom-0 error text-center">
+                                File too big.
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* To allow user to open upload box to change the thumbnail */}
+                    <>
+                      {/* These 3 dots will allow user to click to request to upload a new custom thumbnail */}
+                      {publish?.thumbnail && !thumbnail && (
+                        <div
+                          className="absolute right-[3px] top-[3px] p-[2px] bg-white rounded-[4px] cursor-pointer"
+                          onClick={onRequestToChangeThumbnail.bind(
+                            undefined,
+                            !isRequestToChangeThumbnail
+                          )}
+                        >
+                          <RxDotsVertical size={22} />
+                        </div>
+                      )}
+
+                      {/* Use this div to allow user to open the upload dialog */}
+                      {isRequestToChangeThumbnail && !thumbnail && (
+                        <div
+                          className="absolute py-2 px-4 bg-white rounded-md cursor-pointer"
+                          onClick={onConfirmToChangeThumbnail.bind(
+                            undefined,
+                            true
+                          )}
+                        >
+                          Change?
+                        </div>
+                      )}
+                    </>
                   </div>
                 </div>
               </fieldset>
@@ -400,7 +624,7 @@ export function UploadVideoInfo({
                   <CategorySelect
                     name="primary"
                     preSelectOption="Primary category is mandatory"
-                    value={publish?.primaryCategory || primaryCategory}
+                    value={primaryCategory}
                     handleSelect={handleChangePrimaryCat}
                     options={contentCategories}
                   />
@@ -418,24 +642,6 @@ export function UploadVideoInfo({
                       handleSelect={handleChangeSecondaryCat}
                       options={contentCategories.filter(
                         (cat) => cat !== primaryCategory
-                      )}
-                    />
-                  </fieldset>
-                )}
-
-                {primaryCategory && secondaryCategory && (
-                  <fieldset className="relative pl-5 border border-borderGray rounded-md mb-3">
-                    <legend className="font-normal text-base">
-                      Tertiary Category
-                    </legend>
-                    <CategorySelect
-                      name="Tertiary"
-                      preSelectOption="Tertiary category is optional"
-                      value={tertiaryCategory}
-                      handleSelect={handleChangeTertiaryCat}
-                      options={contentCategories.filter(
-                        (cat) =>
-                          cat !== primaryCategory && cat !== secondaryCategory
                       )}
                     />
                   </fieldset>
@@ -554,6 +760,7 @@ export function UploadVideoInfo({
 
             {visibility === "share" ? (
               <button
+                type="submit"
                 className={`btn-orange w-4/5 h-12 mb-10 rounded-full ${
                   !title || !primaryCategory ? "opacity-30" : "opacity-100"
                 }`}
@@ -563,27 +770,18 @@ export function UploadVideoInfo({
               </button>
             ) : (
               <button
+                type="submit"
                 className={`btn-orange w-4/5 h-12 mb-10 rounded-full ${
-                  !isDataChanged
+                  !isDataChanged && !thumbnail
                     ? "opacity-30 cursor-not-allowed"
                     : "opacity-100"
                 }`}
-                disabled={!isDataChanged}
-                onClick={closeModal.bind(undefined, saveDraft)}
+                disabled={!isDataChanged && !thumbnail}
               >
                 SAVE DRAFT
               </button>
             )}
-            {/* 
-            <button
-              className={`btn-orange w-4/5 h-12 mb-10 rounded-full ${
-                !title || !primaryCategory ? "opacity-50" : "opacity-100"
-              }`}
-              disabled={!title || !primaryCategory}
-            >
-              {visibility === "share" ? "SHARE" : "SAVE DRAFT"}
-            </button> */}
-          </form>
+          </updatePublishFetcher.Form>
         </>
       )}
 

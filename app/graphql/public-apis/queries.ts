@@ -97,9 +97,10 @@ export const GET_PREVIEW_PUBLISH_QUERY = gql`
       publishURI
       metadataURI
       filename
+      thumbnail
+      thumbSource
       primaryCategory
       secondaryCategory
-      tertiaryCategory
       kind
       isPublic
       isTranscodingError
@@ -134,9 +135,10 @@ export const GET_PUBLISH_QUERY = gql`
       publishURI
       metadataURI
       filename
+      thumbnail
+      thumbSource
       primaryCategory
       secondaryCategory
-      tertiaryCategory
       kind
       isPublic
       isTranscodingError
@@ -192,9 +194,10 @@ export const LIST_PUBLISHES_BY_CREATOR_QUERY = gql`
       publishURI
       metadataURI
       filename
+      thumbnail
+      thumbSource
       primaryCategory
       secondaryCategory
-      tertiaryCategory
       kind
       isPublic
       isTranscodingError

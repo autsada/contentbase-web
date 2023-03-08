@@ -17,23 +17,27 @@ export function PublishItem({ publish, selectPublish }: Props) {
       <div className="h-full col-span-2 flex flex-col items-center justify-center">
         <div className="relative z-10 w-4/5 h-[70px] flex items-center justify-center border-0 bg-black">
           <img
-            src={publish.playback?.thumbnail}
-            alt={publish.title || ""}
-            className="w-full h-full object-contain"
+            src={
+              publish?.thumbSource === "custom" && publish?.thumbnail
+                ? publish?.thumbnail
+                : publish?.playback?.thumbnail
+            }
+            alt={publish?.title || ""}
+            className="w-full h-full object-cover"
           />
 
-          {publish.playback?.duration && (
+          {publish?.playback?.duration && (
             <span className="absolute bottom-[1px] right-[2px] p-0 text-white text-xs">
               {secondsToHourFormat(publish.playback.duration)}
             </span>
           )}
         </div>
         <p className="text-sm mt-1">
-          {getTextExcerpt(publish.title || "title", 16)}
+          {getTextExcerpt(publish?.title || "title", 16)}
         </p>
       </div>
       <div className="h-full flex flex-col items-center justify-center">
-        {publish.isPublic ? (
+        {publish?.isPublic ? (
           <>
             <MdOutlineVisibility />
             <span className="mt-1 text-sm text-textExtraLight">Public</span>
@@ -47,7 +51,7 @@ export function PublishItem({ publish, selectPublish }: Props) {
       </div>
       <div className="h-full flex items-center justify-center">
         <span className="text-sm text-textExtraLight">
-          {new Date(publish.createdAt).toLocaleDateString("en-US", {
+          {new Date(publish?.createdAt).toLocaleDateString("en-US", {
             day: "numeric",
             month: "short",
             year: "numeric",
@@ -55,9 +59,9 @@ export function PublishItem({ publish, selectPublish }: Props) {
         </span>
       </div>
       <div className="h-full flex items-center justify-center">
-        {publish.isPublic ? (
+        {publish?.isPublic ? (
           <span className="text-sm text-textExtraLight">
-            {publish.likesCount}
+            {publish?.likesCount}
           </span>
         ) : (
           <button className="font-semibold text-sm text-orange-600">

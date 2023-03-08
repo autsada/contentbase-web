@@ -6,7 +6,6 @@ import { json, redirect } from "@remix-run/node"
 import type { ActionArgs } from "@remix-run/node"
 
 import { updateDraftPublish } from "~/graphql/server"
-import type { PublishCategory } from "~/types"
 
 export function loader() {
   return redirect("/")
@@ -19,37 +18,15 @@ export async function action({ request }: ActionArgs) {
       idToken: string
       handle: string
       publishId: string
-      title: string
-      description: string
-      primaryCategory: PublishCategory
-      secondaryCategory: PublishCategory
-      tertiaryCategory: PublishCategory
-      isPublic: "true" | "false"
-      thumbnail: string
     }
 
-    const {
-      idToken,
-      handle,
-      publishId,
-      title,
-      description,
-      primaryCategory,
-      secondaryCategory,
-      isPublic,
-      thumbnail,
-    } = input
+    const { idToken, handle, publishId, ...rest } = input
 
     // We need to provide `null` if the value doesn't exist as the graphql endpoint will except `null` but not empty value
     const data = await updateDraftPublish(idToken, {
       publishId: Number(publishId),
       handle,
-      title: title || null,
-      description: description || null,
-      primaryCategory: primaryCategory || null,
-      secondaryCategory: secondaryCategory || null,
-      isPublic: isPublic === "true",
-      thumbnail: thumbnail || null,
+      ...rest,
     })
 
     return json(data)

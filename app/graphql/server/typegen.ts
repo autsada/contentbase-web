@@ -72,7 +72,6 @@ export interface NexusGenInputs {
     primaryCategory?: NexusGenEnums["Category"] | null // Category
     publishId: number // Int!
     secondaryCategory?: NexusGenEnums["Category"] | null // Category
-    tertiaryCategory?: NexusGenEnums["Category"] | null // Category
     title?: string | null // String
   }
   UpdateProfileImageInput: {
