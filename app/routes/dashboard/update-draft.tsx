@@ -25,6 +25,7 @@ export async function action({ request }: ActionArgs) {
       secondaryCategory: PublishCategory
       tertiaryCategory: PublishCategory
       isPublic: "true" | "false"
+      thumbnail: string
     }
 
     const {
@@ -35,8 +36,8 @@ export async function action({ request }: ActionArgs) {
       description,
       primaryCategory,
       secondaryCategory,
-      tertiaryCategory,
       isPublic,
+      thumbnail,
     } = input
 
     // We need to provide `null` if the value doesn't exist as the graphql endpoint will except `null` but not empty value
@@ -47,8 +48,8 @@ export async function action({ request }: ActionArgs) {
       description: description || null,
       primaryCategory: primaryCategory || null,
       secondaryCategory: secondaryCategory || null,
-      tertiaryCategory: tertiaryCategory || null,
       isPublic: isPublic === "true",
+      thumbnail: thumbnail || null,
     })
 
     return json(data)

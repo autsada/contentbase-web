@@ -1,10 +1,18 @@
 import { useState, useCallback, useEffect } from "react"
 import { redirect, json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react"
+import {
+  Outlet,
+  useCatch,
+  useLoaderData,
+  useLocation,
+  useOutletContext,
+  Link,
+} from "@remix-run/react"
 import type { UserRecord } from "firebase-admin/auth"
 
 import { UploadModal } from "~/components/upload/upload-modal"
+import ErrorComponent from "~/components/error"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { getBalance } from "~/graphql/server"
 import { listPublishesByCreator } from "~/graphql/public-apis"
@@ -60,6 +68,7 @@ export default function Content() {
   const [selectedPublish, setSelectedPublish] = useState<Publish>()
 
   const data = useLoaderData<typeof loader>()
+  const { pathname } = useLocation()
 
   // Open upload modal if start upload is true
   useEffect(() => {
@@ -95,6 +104,59 @@ export default function Content() {
 
   return (
     <>
+      {/* Tab to select by content type */}
+      <div className="py-4 flex max-w-full w-full items-center overflow-x-auto scrollbar-hide">
+        <Link to="/dashboard" preventScrollReset={true}>
+          <div
+            className={`${
+              pathname === "/dashboard" ? "border-b-2" : "border-none"
+            } mx-4 border-borderExtraDarkGray w-max`}
+          >
+            <h6
+              className={`text-base ${
+                pathname === "/dashboard"
+                  ? "text-textDark"
+                  : "text-textExtraLight"
+              }`}
+            >
+              All
+            </h6>
+          </div>
+        </Link>
+        <Link to="/dashboard/videos" preventScrollReset={true}>
+          <div
+            className={`${
+              pathname === "/dashboard/videos" ? "border-b-2" : "border-none"
+            } mx-4 border-borderExtraDarkGray w-max`}
+          >
+            <h6
+              className={`text-base ${
+                pathname === "/dashboard/videos"
+                  ? "text-textDark"
+                  : "text-textExtraLight"
+              }`}
+            >
+              Videos
+            </h6>
+          </div>
+        </Link>
+        <Link to="blogs" preventScrollReset={true}>
+          <div
+            className={`${
+              pathname === "/dashboard/blogs" ? "border-b-2" : "border-none"
+            } mx-4 border-borderExtraDarkGray w-max`}
+          >
+            <h6
+              className={`text-base ${
+                pathname === "/blogs" ? "text-textDark" : "text-textExtraLight"
+              }`}
+            >
+              Blogs
+            </h6>
+          </div>
+        </Link>
+      </div>
+
       <Outlet
         context={{
           startUpload: data?.startUpload,
@@ -117,6 +179,18 @@ export default function Content() {
       )}
     </>
   )
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return <ErrorComponent error={caught.statusText} />
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return <ErrorComponent error={error.message} />
 }
 
 export type DashboardContext = {
