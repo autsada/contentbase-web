@@ -12,6 +12,7 @@ import type { CreateDraftAction } from "~/routes/dashboard/create-publish"
 import type { Publish } from "~/types"
 
 interface Props {
+  // `closeModal` is the function to close the parent modal, it has a callback function if we have something to run before the modal close
   closeModal: (cb?: () => void) => void
   uploadType: UploadType
   setUploadType: (t: UploadType) => void

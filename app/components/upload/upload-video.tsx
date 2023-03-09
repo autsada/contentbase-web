@@ -11,6 +11,7 @@ import type { Publish, SelectedFile } from "~/types"
 interface Props {
   step: "upload" | "info"
   setStep: (s: "upload" | "info") => void
+  // `closeModal` is the function to close the parent modal, it has a callback function if we have something to run before the modal close
   closeModal: (cb?: () => void) => void
   createDraft: (title: string, filename: string) => void
   isCreateDraftError: boolean | undefined

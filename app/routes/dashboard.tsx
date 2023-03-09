@@ -65,7 +65,7 @@ export async function loader({ request }: LoaderArgs) {
   }
 }
 
-export default function Content() {
+export default function Dashboard() {
   const [uploadModalVisible, setUploadModalVisible] = useState<boolean>()
   const [uploadType, setUploadType] = useState<UploadType>("SelectType")
   const [selectedPublish, setSelectedPublish] = useState<Publish>()

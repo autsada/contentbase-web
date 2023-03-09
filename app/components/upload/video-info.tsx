@@ -33,6 +33,7 @@ interface Props {
   handle: string
   file?: SelectedFile | null
   goBack: (step: "upload") => void
+  // `closeModal` is the function to close the parent modal, it has a callback function if we have something to run before the modal close
   closeModal: (cb?: () => void) => void
   publishId?: number | null
   defaultTitle?: string
@@ -307,9 +308,9 @@ export function UploadVideoInfo({
   }
 
   /**
-   * The logic when user closes a modal
+   * The logic when user closes the info modal modal
    */
-  async function onCloseModal() {
+  async function onCloseInfoModal() {
     try {
       if (!publish || !clientAuth) return
 
@@ -512,7 +513,7 @@ export function UploadVideoInfo({
               onClick={
                 isVisibilityChanged
                   ? onRequestToChangeVisibility
-                  : closeModal.bind(undefined, onCloseModal)
+                  : closeModal.bind(undefined, onCloseInfoModal)
               }
             >
               <MdOutlineClose
@@ -954,17 +955,15 @@ export function UploadVideoInfo({
               </p>
             ) : (
               <>
+                <p>
+                  You are going to mint a publish NFT in order to share the
+                  publish.
+                </p>
                 {estimateGasFetcher?.data?.gas && (
-                  <>
-                    <p>
-                      You are going to mint a publish NFT in order to share the
-                      publish.
-                    </p>
-                    <span>
-                      You will pay gas fee for about:{" "}
-                      {estimateGasFetcher?.data?.gas} ETH
-                    </span>
-                  </>
+                  <span>
+                    You will pay gas fee for about:{" "}
+                    {estimateGasFetcher?.data?.gas} ETH
+                  </span>
                 )}
               </>
             )}
