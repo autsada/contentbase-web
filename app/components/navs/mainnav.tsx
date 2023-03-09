@@ -65,7 +65,10 @@ export function MainNav({ user, openDrawer, profile, isDrawerOpen }: Props) {
               </Link>
             ) : (
               <div className="w-[40px] h-[40px] bg-neutral-100 rounded-full flex items-center justify-center overflow-hidden">
-                <div onClick={openDrawer.bind(undefined, true)}>
+                <div
+                  className="cursor-pointer"
+                  onClick={openDrawer.bind(undefined, true)}
+                >
                   {!profile || !profile.imageURI ? (
                     <MdPerson size={30} color="#3f3f46" />
                   ) : (
