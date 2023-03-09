@@ -39,7 +39,7 @@ export function PublishItem({ publish, selectPublish }: Props) {
       <div className="h-full flex flex-col items-center justify-center">
         {publish?.isPublic ? (
           <>
-            <MdOutlineVisibility />
+            <MdOutlineVisibility className="text-green-500" />
             <span className="mt-1 text-sm text-textExtraLight">Public</span>
           </>
         ) : (

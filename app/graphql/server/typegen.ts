@@ -38,7 +38,7 @@ export interface NexusGenInputs {
   }
   CreatePublishNFTInput: {
     // input type
-    creatorId: number // Int!
+    creatorId: string // String!
     metadataURI: string // String!
   }
   FollowInput: {
@@ -179,13 +179,6 @@ export interface NexusGenObjects {
     owner: string // String!
     tokenId: number // Int!
   }
-  PublishToken: {
-    // root type
-    creatorId: number // Int!
-    metadataURI: string // String!
-    owner: string // String!
-    tokenId: number // Int!
-  }
   Query: {}
   TokenURIResult: {
     // root type
@@ -293,11 +286,14 @@ export interface NexusGenFieldTypes {
     createFirstProfile: NexusGenRootTypes["WriteResult"] // WriteResult!
     createProfile: NexusGenRootTypes["WriteResult"] // WriteResult!
     createPublish: NexusGenRootTypes["CreatePublishResult"] // CreatePublishResult!
+    createPublishNFT: NexusGenRootTypes["WriteResult"] // WriteResult!
     createWallet: NexusGenRootTypes["CreateWalletResult"] // CreateWalletResult!
     deleteComment: NexusGenRootTypes["WriteResult"] // WriteResult!
+    deletePublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     disLikeComment: NexusGenRootTypes["WriteResult"] // WriteResult!
     disLikePublish: NexusGenRootTypes["WriteResult"] // WriteResult!
     estimateGasCreateProfile: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
+    estimateGasCreatePublishNFT: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     estimateGasLikePublish: NexusGenRootTypes["EstimateGasResult"] // EstimateGasResult!
     follow: NexusGenRootTypes["UploadFollowsMetadataResult"] // UploadFollowsMetadataResult!
     hasRoleLike: boolean // Boolean!
@@ -324,13 +320,6 @@ export interface NexusGenFieldTypes {
     // field return type
     handle: string // String!
     imageURI: string // String!
-    metadataURI: string // String!
-    owner: string // String!
-    tokenId: number // Int!
-  }
-  PublishToken: {
-    // field return type
-    creatorId: number // Int!
     metadataURI: string // String!
     owner: string // String!
     tokenId: number // Int!
@@ -445,11 +434,14 @@ export interface NexusGenFieldTypeNames {
     createFirstProfile: "WriteResult"
     createProfile: "WriteResult"
     createPublish: "CreatePublishResult"
+    createPublishNFT: "WriteResult"
     createWallet: "CreateWalletResult"
     deleteComment: "WriteResult"
+    deletePublish: "WriteResult"
     disLikeComment: "WriteResult"
     disLikePublish: "WriteResult"
     estimateGasCreateProfile: "EstimateGasResult"
+    estimateGasCreatePublishNFT: "EstimateGasResult"
     estimateGasLikePublish: "EstimateGasResult"
     follow: "UploadFollowsMetadataResult"
     hasRoleLike: "Boolean"
@@ -476,13 +468,6 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     handle: "String"
     imageURI: "String"
-    metadataURI: "String"
-    owner: "String"
-    tokenId: "Int"
-  }
-  PublishToken: {
-    // field return type name
-    creatorId: "Int"
     metadataURI: "String"
     owner: "String"
     tokenId: "Int"
@@ -553,10 +538,19 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs["CreatePublishInput"] // CreatePublishInput!
     }
+    createPublishNFT: {
+      // args
+      input: NexusGenInputs["CreatePublishNFTInput"] // CreatePublishNFTInput!
+    }
     deleteComment: {
       // args
       commentId: number // Int!
       creatorId: number // Int!
+    }
+    deletePublish: {
+      // args
+      creatorId: number // Int!
+      publishId: number // Int!
     }
     disLikeComment: {
       // args
@@ -571,6 +565,10 @@ export interface NexusGenArgTypes {
     estimateGasCreateProfile: {
       // args
       input: NexusGenInputs["CreateProfileInput"] // CreateProfileInput!
+    }
+    estimateGasCreatePublishNFT: {
+      // args
+      input: NexusGenInputs["CreatePublishNFTInput"] // CreatePublishNFTInput!
     }
     estimateGasLikePublish: {
       // args

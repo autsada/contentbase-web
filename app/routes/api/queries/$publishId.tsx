@@ -14,10 +14,8 @@ export async function action({ params }: ActionArgs) {
     if (!publishId) return json({ publish: null })
 
     const publish = await getPreviewPublish(Number(publishId))
-    console.log("publish -->", publish)
     return json({ publish })
   } catch (error) {
-    console.log("error -->", error)
     return json({ publish: null })
   }
 }

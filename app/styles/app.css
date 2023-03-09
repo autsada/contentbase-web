@@ -771,6 +771,10 @@ button {
   visibility: visible;
 }
 
+.\!visible {
+  visibility: visible !important;
+}
+
 .invisible {
   visibility: hidden;
 }
@@ -886,6 +890,14 @@ button {
   right: 2rem;
 }
 
+.-bottom-4 {
+  bottom: -1rem;
+}
+
+.-bottom-5 {
+  bottom: -1.25rem;
+}
+
 .z-\[10000\] {
   z-index: 10000;
 }
@@ -924,6 +936,10 @@ button {
 
 .z-\[100000\] {
   z-index: 100000;
+}
+
+.z-\[100\] {
+  z-index: 100;
 }
 
 .col-span-2 {
@@ -2042,6 +2058,16 @@ button {
 .text-blue-50 {
   --tw-text-opacity: 1;
   color: rgb(239 246 255 / var(--tw-text-opacity));
+}
+
+.text-green-500 {
+  --tw-text-opacity: 1;
+  color: rgb(34 197 94 / var(--tw-text-opacity));
+}
+
+.text-red-500 {
+  --tw-text-opacity: 1;
+  color: rgb(239 68 68 / var(--tw-text-opacity));
 }
 
 .opacity-100 {

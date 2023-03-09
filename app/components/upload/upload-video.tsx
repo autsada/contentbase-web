@@ -11,7 +11,7 @@ import type { Publish, SelectedFile } from "~/types"
 interface Props {
   step: "upload" | "info"
   setStep: (s: "upload" | "info") => void
-  closeModal: () => void
+  closeModal: (cb?: () => void) => void
   createDraft: (title: string, filename: string) => void
   isCreateDraftError: boolean | undefined
   publishId?: number | null

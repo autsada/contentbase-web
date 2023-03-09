@@ -8,14 +8,17 @@ import {
   useLocation,
   useOutletContext,
   Link,
+  useRevalidator,
 } from "@remix-run/react"
 import type { UserRecord } from "firebase-admin/auth"
+import { onSnapshot, doc } from "firebase/firestore"
 
 import { UploadModal } from "~/components/upload/upload-modal"
 import ErrorComponent from "~/components/error"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { getBalance } from "~/graphql/server"
 import { listPublishesByCreator } from "~/graphql/public-apis"
+import { playbacksCollection, firestore } from "~/client/firebase.client"
 import type { Profile, Account, Publish } from "~/types"
 import type { UploadType } from "~/components/upload/select-type"
 
@@ -69,6 +72,7 @@ export default function Content() {
 
   const data = useLoaderData<typeof loader>()
   const { pathname } = useLocation()
+  const revalidator = useRevalidator()
 
   // Open upload modal if start upload is true
   useEffect(() => {
@@ -77,6 +81,33 @@ export default function Content() {
     }
   }, [data?.startUpload])
 
+  // Listen to the playback in Firestore and if the playback is updated, call the `API` service to query the publish.
+  useEffect(() => {
+    if (typeof document === "undefined" || !selectedPublish?.id) return
+
+    const unsubscribe = onSnapshot(
+      doc(firestore, playbacksCollection, `${selectedPublish.id}`),
+      {
+        next: (doc) => {
+          if (doc.exists()) {
+            revalidator.revalidate()
+          }
+        },
+        error: (error) => {
+          console.error(error)
+        },
+      }
+    )
+
+    return () => {
+      unsubscribe()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPublish])
+
+  /**
+   * `cb` is a callback function to run before closing the modal
+   */
   const closeUploadModal = useCallback((cb?: () => void) => {
     if (cb) {
       cb()

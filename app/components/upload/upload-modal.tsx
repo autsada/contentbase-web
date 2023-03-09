@@ -12,7 +12,7 @@ import type { CreateDraftAction } from "~/routes/dashboard/create-publish"
 import type { Publish } from "~/types"
 
 interface Props {
-  closeModal: () => void
+  closeModal: (cb?: () => void) => void
   uploadType: UploadType
   setUploadType: (t: UploadType) => void
   // selectedPublishId?: number // Use this state to skip "upload" step and go directly to "info" step for editting mode

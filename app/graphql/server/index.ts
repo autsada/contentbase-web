@@ -13,6 +13,8 @@ import {
   CREATE_PUBLISH_MUTATION,
   UPDATE_PUBLISH_MUTATION,
   VALIDATE_HANDLE_MUTATION,
+  CREATE_PUBLISH_NFT_MUTATION,
+  ESTIMATE_GAS_CREATE_PUBLISH_NFT,
 } from "./mutations"
 import { GET_BALANCE_QUERY } from "./queries"
 import type { NexusGenInputs } from "./typegen"
@@ -183,4 +185,42 @@ export async function updatePublish(
     })
 
   return data.updatePublish
+}
+
+export async function createPublishNFT(
+  idToken: string,
+  input: NexusGenInputs["CreatePublishNFTInput"]
+) {
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"createPublishNFT">,
+      MutationArgsType<"createPublishNFT">
+    >(CREATE_PUBLISH_NFT_MUTATION, {
+      input,
+    })
+
+  return data.createPublishNFT
+}
+
+export async function estimateGasCreatePublishNFT(
+  idToken: string,
+  input: NexusGenInputs["CreatePublishNFTInput"]
+) {
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"estimateGasCreatePublishNFT">,
+      MutationArgsType<"estimateGasCreatePublishNFT">
+    >(ESTIMATE_GAS_CREATE_PUBLISH_NFT, {
+      input,
+    })
+
+  return data.estimateGasCreatePublishNFT
 }

@@ -53,3 +53,19 @@ export const UPDATE_PUBLISH_MUTATION = gql`
     }
   }
 `
+
+export const CREATE_PUBLISH_NFT_MUTATION = gql`
+  mutation CreatePublishNFT($input: CreatePublishNFTInput!) {
+    createPublishNFT(input: $input) {
+      status
+    }
+  }
+`
+
+export const ESTIMATE_GAS_CREATE_PUBLISH_NFT = gql`
+  mutation EstimateGasCreatePublishNFT($input: CreatePublishNFTInput!) {
+    estimateGasCreatePublishNFT(input: $input) {
+      gas
+    }
+  }
+`
