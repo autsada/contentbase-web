@@ -32,4 +32,5 @@ export const storage = getStorage(firebaseApp)
 
 // Firestore collections
 export const activitiesCollection = "activities"
-export const playbacksCollection = "playbacks"
+export const publishesCollection = "playbacks"
+// export const publishesCollection = "publishes"

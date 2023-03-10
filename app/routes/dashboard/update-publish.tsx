@@ -19,22 +19,22 @@ export async function action({ request }: ActionArgs) {
       handle: string
       publishId: string
       isPublic: string // We have "true" | "false" as string here
+      isMinting: string // We have "true" | "false" as string here
     }
 
-    const { idToken, handle, publishId, isPublic, ...rest } = input
-    console.log("res -->", rest)
+    const { idToken, handle, publishId, isPublic, isMinting, ...rest } = input
 
     // We need to provide `null` if the value doesn't exist as the graphql endpoint will except `null` but not empty value
     const data = await updatePublish(idToken, {
       publishId: Number(publishId),
       handle,
       isPublic: isPublic === "true", // Turn string to boolean
+      isMinting: isMinting === "true", // Turn string to boolean
       ...rest,
     })
 
     return json(data)
   } catch (error) {
-    console.log("error -->", error)
     return json({ status: "Error", publishId: null })
   }
 }

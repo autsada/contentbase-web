@@ -92,6 +92,8 @@ export const GET_PREVIEW_PUBLISH_QUERY = gql`
     getPreviewPublish(publishId: $publishId) {
       id
       tokenId
+      isMinting
+      isMinted
       title
       description
       publishURI
@@ -130,6 +132,8 @@ export const GET_PUBLISH_QUERY = gql`
     getPublishById(input: $input) {
       id
       tokenId
+      isMinting
+      isMinted
       title
       description
       publishURI

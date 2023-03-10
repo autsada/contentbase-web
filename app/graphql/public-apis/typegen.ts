@@ -146,6 +146,8 @@ export interface NexusGenObjects {
     description?: string | null // String
     filename?: string | null // String
     id: number // Int!
+    isMinted: boolean // Boolean!
+    isMinting: boolean // Boolean!
     isPublic: boolean // Boolean!
     isTranscodingError: boolean // Boolean!
     isUploading: boolean // Boolean!
@@ -183,6 +185,8 @@ export interface NexusGenObjects {
     description?: string | null // String
     filename?: string | null // String
     id: number // Int!
+    isMinted: boolean // Boolean!
+    isMinting: boolean // Boolean!
     isPublic: boolean // Boolean!
     isTranscodingError: boolean // Boolean!
     isUploading: boolean // Boolean!
@@ -301,6 +305,8 @@ export interface NexusGenFieldTypes {
     description: string | null // String
     filename: string | null // String
     id: number // Int!
+    isMinted: boolean // Boolean!
+    isMinting: boolean // Boolean!
     isPublic: boolean // Boolean!
     isTranscodingError: boolean // Boolean!
     isUploading: boolean // Boolean!
@@ -349,6 +355,8 @@ export interface NexusGenFieldTypes {
     disLikesCount: number // Int!
     filename: string | null // String
     id: number // Int!
+    isMinted: boolean // Boolean!
+    isMinting: boolean // Boolean!
     isPublic: boolean // Boolean!
     isTranscodingError: boolean // Boolean!
     isUploading: boolean // Boolean!
@@ -484,6 +492,8 @@ export interface NexusGenFieldTypeNames {
     description: "String"
     filename: "String"
     id: "Int"
+    isMinted: "Boolean"
+    isMinting: "Boolean"
     isPublic: "Boolean"
     isTranscodingError: "Boolean"
     isUploading: "Boolean"
@@ -532,6 +542,8 @@ export interface NexusGenFieldTypeNames {
     disLikesCount: "Int"
     filename: "String"
     id: "Int"
+    isMinted: "Boolean"
+    isMinting: "Boolean"
     isPublic: "Boolean"
     isTranscodingError: "Boolean"
     isUploading: "Boolean"

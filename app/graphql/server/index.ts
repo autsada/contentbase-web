@@ -15,6 +15,7 @@ import {
   VALIDATE_HANDLE_MUTATION,
   CREATE_PUBLISH_NFT_MUTATION,
   ESTIMATE_GAS_CREATE_PUBLISH_NFT,
+  DELETE_PUBLISH_MUTATION,
 } from "./mutations"
 import { GET_BALANCE_QUERY } from "./queries"
 import type { NexusGenInputs } from "./typegen"
@@ -185,6 +186,29 @@ export async function updatePublish(
     })
 
   return data.updatePublish
+}
+
+/**
+ * @param idToken
+ * @param publishId
+ * @param creatorId - a creator id (the database id, and NOT a token id)
+ * @returns
+ */
+export async function deletePublish(
+  idToken: string,
+  input: NexusGenInputs["DeletePublishInput"]
+) {
+  const data = await client
+    .setHeaders({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    })
+    .request<
+      MutationReturnType<"deletePublish">,
+      MutationArgsType<"deletePublish">
+    >(DELETE_PUBLISH_MUTATION, { input })
+
+  return data.deletePublish
 }
 
 export async function createPublishNFT(

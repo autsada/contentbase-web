@@ -9,6 +9,7 @@ import {
   useOutletContext,
   Link,
   useRevalidator,
+  useFetcher,
 } from "@remix-run/react"
 import type { UserRecord } from "firebase-admin/auth"
 import { onSnapshot, doc } from "firebase/firestore"
@@ -18,9 +19,14 @@ import ErrorComponent from "~/components/error"
 import { checkAuthenticatedAndReady } from "~/server/auth.server"
 import { getBalance } from "~/graphql/server"
 import { listPublishesByCreator } from "~/graphql/public-apis"
-import { playbacksCollection, firestore } from "~/client/firebase.client"
+import {
+  publishesCollection,
+  firestore,
+  clientAuth,
+} from "~/client/firebase.client"
 import type { Profile, Account, Publish } from "~/types"
 import type { UploadType } from "~/components/upload/select-type"
+import type { DeletePublishAction } from "./dashboard/delete-publish"
 
 export async function loader({ request }: LoaderArgs) {
   try {
@@ -68,11 +74,17 @@ export async function loader({ request }: LoaderArgs) {
 export default function Dashboard() {
   const [uploadModalVisible, setUploadModalVisible] = useState<boolean>()
   const [uploadType, setUploadType] = useState<UploadType>("SelectType")
-  const [selectedPublish, setSelectedPublish] = useState<Publish>()
+  const [displayedPublish, setDisplayedPublish] = useState<Publish>()
+  const [deletingId, setDeletingId] = useState<number>()
+  const [showDeleteError, setShowDeleteError] = useState(false)
 
   const data = useLoaderData<typeof loader>()
   const { pathname } = useLocation()
   const revalidator = useRevalidator()
+  const deletePublishFetcher = useFetcher<DeletePublishAction>()
+  const isDeleting =
+    deletePublishFetcher?.state === "submitting" ||
+    deletePublishFetcher?.state === "loading"
 
   // Open upload modal if start upload is true
   useEffect(() => {
@@ -81,17 +93,15 @@ export default function Dashboard() {
     }
   }, [data?.startUpload])
 
-  // Listen to the playback in Firestore and if the playback is updated, call the `API` service to query the publish.
+  // Listen to the publish doc in Firestore, and revalidate states.
   useEffect(() => {
-    if (typeof document === "undefined" || !selectedPublish?.id) return
+    if (typeof document === "undefined" || !displayedPublish?.id) return
 
     const unsubscribe = onSnapshot(
-      doc(firestore, playbacksCollection, `${selectedPublish.id}`),
+      doc(firestore, publishesCollection, `${displayedPublish.id}`),
       {
         next: (doc) => {
-          if (doc.exists()) {
-            revalidator.revalidate()
-          }
+          revalidator.revalidate()
         },
         error: (error) => {
           console.error(error)
@@ -103,7 +113,7 @@ export default function Dashboard() {
       unsubscribe()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPublish])
+  }, [displayedPublish])
 
   /**
    * `cb` is a callback function to run before closing the modal
@@ -113,18 +123,18 @@ export default function Dashboard() {
       cb()
     }
     setUploadModalVisible(false)
-    setSelectedPublish(undefined)
+    setDisplayedPublish(undefined)
     setUploadType("SelectType")
   }, [])
 
-  const selectPublish = useCallback(
+  const displayPublish = useCallback(
     (publishId: number) => {
       if (data?.publishes?.length > 0) {
         const p = data.publishes.find((pub) => pub.id === publishId) as
           | Publish
           | undefined
         if (p) {
-          setSelectedPublish(p)
+          setDisplayedPublish(p)
           setUploadType(p?.kind || "Video")
           setUploadModalVisible(true)
         }
@@ -132,6 +142,38 @@ export default function Dashboard() {
     },
     [data?.publishes]
   )
+
+  // When the delete is done, reset the state
+  useEffect(() => {
+    if (deletePublishFetcher?.data?.status === "Ok") {
+      setDeletingId(undefined)
+    }
+    if (deletePublishFetcher?.data?.status === "Error") {
+      setShowDeleteError(true)
+    }
+  }, [deletePublishFetcher?.data])
+
+  const deletePublish = useCallback(async (publish?: Publish) => {
+    try {
+      if (!publish || !clientAuth) return
+
+      // Get user's id token
+      const user = clientAuth.currentUser
+      const idToken = await user?.getIdToken()
+
+      // At this point we should have id token as we will force user to reauthenticate if they don't earlier since they enter the dashboard page.
+      if (!idToken) return
+
+      setDeletingId(publish.id)
+      deletePublishFetcher.submit(
+        { idToken, publishId: publish.id.toString() },
+        { method: "post", action: "/dashboard/delete-publish" }
+      )
+    } catch (error) {
+      console.error(error)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <>
@@ -196,7 +238,12 @@ export default function Dashboard() {
           profile: data?.loggedInProfile,
           balance: data?.balance,
           publishes: data?.publishes,
-          selectPublish,
+          displayPublish,
+          displayingId: displayedPublish?.id,
+          deletingId,
+          isDeleting,
+          showDeleteError,
+          setShowDeleteError,
         }}
       />
 
@@ -205,7 +252,8 @@ export default function Dashboard() {
           closeModal={closeUploadModal}
           uploadType={uploadType}
           setUploadType={setUploadType}
-          selectedPublish={selectedPublish}
+          displayedPublish={displayedPublish}
+          deletePublish={deletePublish}
         />
       )}
     </>
@@ -231,7 +279,12 @@ export type DashboardContext = {
   account: Account
   balance: string | undefined
   publishes: Publish[]
-  selectPublish: (id: number) => void
+  displayPublish: (id: number) => void
+  displayingId: number
+  deletingId: number
+  isDeleting: boolean
+  showDeleteError: boolean
+  setShowDeleteError: (s: boolean) => void
 }
 
 export function useDashboardContext() {

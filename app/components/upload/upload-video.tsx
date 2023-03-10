@@ -16,7 +16,8 @@ interface Props {
   createDraft: (title: string, filename: string) => void
   isCreateDraftError: boolean | undefined
   publishId?: number | null
-  selectedPublish?: Publish // This prop will be available when user open the info modal from one of their saved publishes
+  displayedPublish?: Publish // This prop will be available when user open the info modal from one of their saved publishes
+  deletePublish: (p?: Publish) => void
 }
 
 export function UploadVideo({
@@ -26,7 +27,8 @@ export function UploadVideo({
   createDraft,
   isCreateDraftError,
   publishId,
-  selectedPublish,
+  displayedPublish,
+  deletePublish,
 }: Props) {
   //   const [step, setStep] = useState<"upload" | "info">("upload")
   const [videoFile, setVideoFile] = useState<SelectedFile | null>(null)
@@ -104,7 +106,8 @@ export function UploadVideo({
       closeModal={closeModal}
       publishId={publishId}
       defaultTitle={videoFile?.name}
-      selectedPublish={selectedPublish}
+      displayedPublish={displayedPublish}
+      deletePublish={deletePublish}
     />
   ) : null
 }

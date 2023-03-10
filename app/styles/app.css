@@ -802,8 +802,8 @@ button {
   left: 0px;
 }
 
-.-right-\[200\%\] {
-  right: -200%;
+.-right-\[100\%\] {
+  right: -100%;
 }
 
 .right-0 {
@@ -850,8 +850,8 @@ button {
   right: 2px;
 }
 
-.-right-\[100\%\] {
-  right: -100%;
+.right-2 {
+  right: 0.5rem;
 }
 
 .top-3 {
@@ -862,24 +862,20 @@ button {
   right: 1.5rem;
 }
 
+.left-5 {
+  left: 1.25rem;
+}
+
+.-bottom-5 {
+  bottom: -1.25rem;
+}
+
 .right-\[3px\] {
   right: 3px;
 }
 
 .top-\[3px\] {
   top: 3px;
-}
-
-.top-\[2px\] {
-  top: 2px;
-}
-
-.right-2 {
-  right: 0.5rem;
-}
-
-.left-5 {
-  left: 1.25rem;
 }
 
 .top-4 {
@@ -890,12 +886,8 @@ button {
   right: 2rem;
 }
 
-.-bottom-4 {
-  bottom: -1rem;
-}
-
-.-bottom-5 {
-  bottom: -1.25rem;
+.-right-\[200\%\] {
+  right: -200%;
 }
 
 .z-\[10000\] {
@@ -904,6 +896,10 @@ button {
 
 .z-50 {
   z-index: 50;
+}
+
+.z-\[100\] {
+  z-index: 100;
 }
 
 .z-\[10001\] {
@@ -916,6 +912,10 @@ button {
 
 .z-20 {
   z-index: 20;
+}
+
+.z-30 {
+  z-index: 30;
 }
 
 .z-\[9999\] {
@@ -936,10 +936,6 @@ button {
 
 .z-\[100000\] {
   z-index: 100000;
-}
-
-.z-\[100\] {
-  z-index: 100;
 }
 
 .col-span-2 {
@@ -1000,16 +996,16 @@ button {
   margin-right: 0.5rem;
 }
 
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
 .mt-2 {
   margin-top: 0.5rem;
 }
 
 .mb-5 {
   margin-bottom: 1.25rem;
-}
-
-.mb-4 {
-  margin-bottom: 1rem;
 }
 
 .mb-2 {
@@ -1249,6 +1245,10 @@ button {
   width: 100%;
 }
 
+.w-4\/5 {
+  width: 80%;
+}
+
 .w-36 {
   width: 9rem;
 }
@@ -1288,10 +1288,6 @@ button {
 
 .w-\[90\%\] {
   width: 90%;
-}
-
-.w-4\/5 {
-  width: 80%;
 }
 
 .w-\[80px\] {
@@ -1440,6 +1436,10 @@ button {
 
 .justify-between {
   justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
 }
 
 .gap-1 {
@@ -1757,20 +1757,20 @@ button {
   padding: 0px;
 }
 
-.p-5 {
-  padding: 1.25rem;
-}
-
 .p-2 {
   padding: 0.5rem;
 }
 
-.p-\[2px\] {
-  padding: 2px;
+.p-5 {
+  padding: 1.25rem;
 }
 
 .p-10 {
   padding: 2.5rem;
+}
+
+.p-\[2px\] {
+  padding: 2px;
 }
 
 .px-6 {
@@ -1793,6 +1793,11 @@ button {
   padding-right: 1.25rem;
 }
 
+.py-5 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
 .py-10 {
   padding-top: 2.5rem;
   padding-bottom: 2.5rem;
@@ -1801,11 +1806,6 @@ button {
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-}
-
-.py-5 {
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
 }
 
 .px-1 {
@@ -1885,6 +1885,10 @@ button {
   padding-bottom: 0.5rem;
 }
 
+.pb-10 {
+  padding-bottom: 2.5rem;
+}
+
 .pl-8 {
   padding-left: 2rem;
 }
@@ -1895,10 +1899,6 @@ button {
 
 .pt-6 {
   padding-top: 1.5rem;
-}
-
-.pb-10 {
-  padding-bottom: 2.5rem;
 }
 
 .text-left {
@@ -2050,6 +2050,11 @@ button {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
+.text-green-500 {
+  --tw-text-opacity: 1;
+  color: rgb(34 197 94 / var(--tw-text-opacity));
+}
+
 .text-blue-400 {
   --tw-text-opacity: 1;
   color: rgb(96 165 250 / var(--tw-text-opacity));
@@ -2060,14 +2065,8 @@ button {
   color: rgb(239 246 255 / var(--tw-text-opacity));
 }
 
-.text-green-500 {
-  --tw-text-opacity: 1;
-  color: rgb(34 197 94 / var(--tw-text-opacity));
-}
-
-.text-red-500 {
-  --tw-text-opacity: 1;
-  color: rgb(239 68 68 / var(--tw-text-opacity));
+.opacity-30 {
+  opacity: 0.3;
 }
 
 .opacity-100 {
@@ -2086,8 +2085,8 @@ button {
   opacity: 0.1;
 }
 
-.opacity-30 {
-  opacity: 0.3;
+.opacity-80 {
+  opacity: 0.8;
 }
 
 .opacity-90 {
@@ -2100,10 +2099,6 @@ button {
 
 .opacity-60 {
   opacity: 0.6;
-}
-
-.opacity-80 {
-  opacity: 0.8;
 }
 
 .opacity-\[98\%\] {

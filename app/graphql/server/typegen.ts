@@ -41,6 +41,13 @@ export interface NexusGenInputs {
     creatorId: string // String!
     metadataURI: string // String!
   }
+  DeletePublishInput: {
+    // input type
+    creatorId: number // Int!
+    creatorTokenId?: string | null // String
+    publishId: number // Int!
+    publishTokenId?: string | null // String
+  }
   FollowInput: {
     // input type
     followeeId: number // Int!
@@ -66,6 +73,8 @@ export interface NexusGenInputs {
     // input type
     description?: string | null // String
     handle: string // String!
+    isMinted?: boolean | null // Boolean
+    isMinting?: boolean | null // Boolean
     isPublic?: boolean | null // Boolean
     primaryCategory?: NexusGenEnums["Category"] | null // Category
     publishId: number // Int!
@@ -549,8 +558,7 @@ export interface NexusGenArgTypes {
     }
     deletePublish: {
       // args
-      creatorId: number // Int!
-      publishId: number // Int!
+      input: NexusGenInputs["DeletePublishInput"] // DeletePublishInput!
     }
     disLikeComment: {
       // args

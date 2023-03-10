@@ -14,7 +14,7 @@ import { ConfirmModal } from "../confirm-modal"
 import {
   clientAuth,
   firestore,
-  playbacksCollection,
+  publishesCollection,
 } from "~/client/firebase.client"
 import { contentCategories } from "~/constants"
 import type {
@@ -37,7 +37,8 @@ interface Props {
   closeModal: (cb?: () => void) => void
   publishId?: number | null
   defaultTitle?: string
-  selectedPublish?: Publish // This prop will be available when user open the info modal from one of their saved publishes
+  displayedPublish?: Publish // This prop will be available when user open the info modal from one of their saved publishes
+  deletePublish: (p?: Publish) => void
 }
 
 export function UploadVideoInfo({
@@ -47,12 +48,13 @@ export function UploadVideoInfo({
   closeModal,
   publishId,
   defaultTitle,
-  selectedPublish,
+  displayedPublish,
+  deletePublish,
 }: Props) {
   const getPublishFetcher = useFetcher<GetPublishAction>()
   // A publish to display
   const publish = (getPublishFetcher?.data?.publish ||
-    selectedPublish) as Publish
+    displayedPublish) as Publish
   const updatePublishFetcher = useFetcher<UpdatePublishAction>()
   const estimateGasFetcher = useFetcher<EstimateGasCreatePublishAction>()
   const createPublishNFTFetcher = useFetcher<CreatePublishNFTAction>()
@@ -87,7 +89,8 @@ export function UploadVideoInfo({
   const [visibility, setVisibility] = useState<"share" | "draft">(() =>
     publish?.isPublic ? "share" : "draft"
   )
-  const [confirmModalVisible, setConfirmModalVisible] = useState(false)
+  const [isRequestingToShare, setIsRequestingToShare] = useState(false)
+  const [isRequestingToDelete, setIsRequestingToDelete] = useState(false)
 
   // When user intents to upload a new thumbnail, under the hood we will click this div
   const uploadRef = useRef<HTMLDivElement>(null)
@@ -143,21 +146,19 @@ export function UploadVideoInfo({
     [oldData.isPublic, newData.isPublic]
   )
 
-  // Listen to the playback in Firestore and if the playback is updated, call the `API` service to query the publish.
+  // Listen to the publish doc in Firestore, and call the `API` service to query the publish.
   useEffect(() => {
     if (typeof document === "undefined" || !publishId) return
 
     const unsubscribe = onSnapshot(
-      doc(firestore, playbacksCollection, `${publishId}`),
+      doc(firestore, publishesCollection, `${publishId}`),
       {
         next: (doc) => {
-          if (doc.exists()) {
-            // Fetch the publish from database
-            getPublishFetcher.submit(null, {
-              method: "post",
-              action: `/api/queries/${publishId}`,
-            })
-          }
+          // Fetch the publish from database
+          getPublishFetcher.submit(null, {
+            method: "post",
+            action: `/api/queries/${publishId}`,
+          })
         },
         error: (error) => {
           console.error(error)
@@ -410,7 +411,7 @@ export function UploadVideoInfo({
         )
       }
 
-      setConfirmModalVisible(true)
+      setIsRequestingToShare(true)
     } catch (error) {
       console.error(error)
     }
@@ -431,6 +432,18 @@ export function UploadVideoInfo({
       if (visibility === "share" && !publish?.tokenId) {
         // The publish must have metadata uri
         if (!publish.metadataURI) return
+
+        // 1. Update the `isMinting` in the database so user will not be able to delete the publish until the minting process is done.
+        updatePublishFetcher.submit(
+          {
+            handle,
+            idToken,
+            publishId: publish.id.toString(),
+            isMinting: "true", // Use string for sending to the server, and convert the string to boolean on the server
+          },
+          { method: "post", action: "/dashboard/update-publish" }
+        )
+
         createPublishNFTFetcher.submit(
           { idToken, metadataURI: publish.metadataURI },
           { method: "post", action: "/dashboard/create-nft" }
@@ -438,7 +451,7 @@ export function UploadVideoInfo({
       }
 
       // Close confirm modal
-      setConfirmModalVisible(false)
+      setIsRequestingToShare(false)
 
       // Update the publish details
       savePublish(idToken, publish.id)
@@ -480,9 +493,13 @@ export function UploadVideoInfo({
   ])
 
   const onCancelChangeVisibility = useCallback(() => {
-    setConfirmModalVisible(false)
+    setIsRequestingToShare(false)
     undoChanges()
   }, [undoChanges])
+
+  const onRequestToDeletePublish = useCallback((r: boolean) => {
+    setIsRequestingToDelete(r)
+  }, [])
 
   return (
     <div className="absolute z-[10020] inset-0 w-full bg-white rounded-xl flex flex-col h-full max-h-full overflow-y-scroll">
@@ -527,10 +544,24 @@ export function UploadVideoInfo({
         {(publish && publish.isUploadingError) ||
         !publish ||
         !publish.metadataURI ? (
-          <div className="w-full h-full flex items-center justify-center px-10">
+          <div className="w-full text-center p-10">
             <p className="error">
               Oops, something went wrong. Please retry upload the video.
             </p>
+
+            {!publish?.isMinting && (
+              <button
+                disabled={!publish || publish?.isMinting}
+                className="error mt-10 text-lg px-5 rounded-lg cursor-pointer border border-borderGray"
+                onClick={
+                  !publish || publish.isMinting
+                    ? undefined
+                    : onRequestToDeletePublish.bind(undefined, true)
+                }
+              >
+                Delete post
+              </button>
+            )}
           </div>
         ) : (
           <>
@@ -898,6 +929,7 @@ export function UploadVideoInfo({
                 </div>
               </div>
 
+              {/* Save/Share button */}
               {visibility === "share" ? (
                 <button
                   type="submit"
@@ -932,6 +964,22 @@ export function UploadVideoInfo({
                 </button>
               )}
             </updatePublishFetcher.Form>
+            {/* Delete button */}
+            {publish && !publish?.isMinting && (
+              <div className="pb-10">
+                <button
+                  className="error"
+                  disabled={!publish || publish?.isMinting}
+                  onClick={
+                    !publish || publish.isMinting
+                      ? undefined
+                      : onRequestToDeletePublish.bind(undefined, true)
+                  }
+                >
+                  Delete Permanently
+                </button>
+              </div>
+            )}
           </>
         )}
 
@@ -940,34 +988,45 @@ export function UploadVideoInfo({
           <Backdrop bgWhite={true} withSpinner={true} />
         )}
 
-        {/* Show confirm modal when user updates the visibility */}
+        {/* Show confirm modal when user request to update the visibility */}
         <ConfirmModal
           title="Do you want to continue?"
-          visible={confirmModalVisible}
+          visible={isRequestingToShare}
           onCancel={onCancelChangeVisibility}
           onConfirm={closeModal.bind(undefined, onConfirmChangeVisibility)}
         >
-          <div>
-            {publish?.tokenId ? (
-              <p>
-                This will make the publish{" "}
-                {visibility === "share" ? "visible to PUBLIC" : "PRIVATE"}.
+          {publish?.tokenId ? (
+            <p className="text-center">
+              This will make the publish{" "}
+              {visibility === "share" ? "visible to PUBLIC" : "PRIVATE"}.
+            </p>
+          ) : (
+            <>
+              <p className="text-center">
+                You are going to mint a publish NFT in order to share the
+                publish.
               </p>
-            ) : (
-              <>
-                <p>
-                  You are going to mint a publish NFT in order to share the
-                  publish.
-                </p>
-                {estimateGasFetcher?.data?.gas && (
-                  <span>
-                    You will pay gas fee for about:{" "}
-                    {estimateGasFetcher?.data?.gas} ETH
-                  </span>
-                )}
-              </>
-            )}
-          </div>
+              {estimateGasFetcher?.data?.gas && (
+                <span className="text-center">
+                  You will pay gas fee for about:{" "}
+                  {estimateGasFetcher?.data?.gas} ETH
+                </span>
+              )}
+            </>
+          )}
+        </ConfirmModal>
+
+        {/* Show confirm modal when user request to delete the publish */}
+        <ConfirmModal
+          title="This will permanently remove the publish"
+          visible={isRequestingToDelete}
+          onCancel={onRequestToDeletePublish.bind(undefined, false)}
+          onConfirm={closeModal.bind(
+            undefined,
+            deletePublish.bind(undefined, publish)
+          )}
+        >
+          <p className="text-center">Do you want to continue?</p>
         </ConfirmModal>
       </div>
     </div>

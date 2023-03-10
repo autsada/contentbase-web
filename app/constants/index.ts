@@ -15,7 +15,7 @@ export const CLEAN_UP_ID = "ctb"
 export const CLEAN_UP_CODE = "eiro33746581ei88447224d64cife3"
 // export const WEB_URL = "http://localhost:3000"
 export const WEB_URL =
-  "https://ea5a-2405-9800-b961-39d-dc28-738b-fbd-cbb4.ap.ngrok.io"
+  "https://c0e3-2001-fb1-b9-d4b9-a8ef-fd12-87d-fd86.ap.ngrok.io"
 export const WALLET_CONNECT_PROJECT_ID = "f9f68f7b9b67a2dbb6cc74007927090b"
 export const UPLOAD_SERVICE_URL =
   NODE_ENV === "production"

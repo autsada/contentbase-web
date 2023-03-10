@@ -17,18 +17,20 @@ interface Props {
   uploadType: UploadType
   setUploadType: (t: UploadType) => void
   // selectedPublishId?: number // Use this state to skip "upload" step and go directly to "info" step for editting mode
-  selectedPublish?: Publish // This prop will be available when user open the info modal from one of their saved publishes
+  displayedPublish?: Publish // This prop will be available when user open the info modal from one of their saved publishes
+  deletePublish: (p?: Publish) => void
 }
 
 export function UploadModal({
   closeModal,
   uploadType,
   setUploadType,
-  selectedPublish,
+  displayedPublish,
+  deletePublish,
 }: Props) {
   const [createDraftError, setCreateDraftError] = useState<boolean>()
   const [step, setStep] = useState<"upload" | "info">(() =>
-    selectedPublish ? "info" : "upload"
+    displayedPublish ? "info" : "upload"
   ) // Upload steps
 
   const { profile } = useDashboardContext()
@@ -150,9 +152,10 @@ export function UploadModal({
                 createDraftFetcher?.data?.status === "Error" || createDraftError
               }
               publishId={
-                selectedPublish?.id || createDraftFetcher?.data?.publishId
+                displayedPublish?.id || createDraftFetcher?.data?.publishId
               }
-              selectedPublish={selectedPublish}
+              displayedPublish={displayedPublish}
+              deletePublish={deletePublish}
             />
           ) : null}
         </div>

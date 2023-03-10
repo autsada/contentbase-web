@@ -38,7 +38,6 @@ export async function action({ request }: ActionArgs) {
 
     return json(data)
   } catch (error) {
-    console.log("error -->", error)
     return json({ status: "Error" })
   }
 }

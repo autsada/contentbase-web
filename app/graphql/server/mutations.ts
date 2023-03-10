@@ -54,6 +54,14 @@ export const UPDATE_PUBLISH_MUTATION = gql`
   }
 `
 
+export const DELETE_PUBLISH_MUTATION = gql`
+  mutation DeletePublish($input: DeletePublishInput!) {
+    deletePublish(input: $input) {
+      status
+    }
+  }
+`
+
 export const CREATE_PUBLISH_NFT_MUTATION = gql`
   mutation CreatePublishNFT($input: CreatePublishNFTInput!) {
     createPublishNFT(input: $input) {
